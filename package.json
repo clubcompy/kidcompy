@@ -1,0 +1,64 @@
+{
+  "name": "kidcompy",
+  "version": "0.0.1",
+  "description": "The kidcompy module reveals a fun-loving character that lives at the heart of every computer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/clubcompy/kidcompy.git"
+  },
+  "keywords": [
+    "compy",
+    "retro",
+    "programming-for-kids"
+  ],
+  "author": "Woldrich, Inc.",
+  "license": "AGPL 3.0",
+  "bugs": {
+    "url": "https://github.com/clubcompy/kidcompy/issues"
+  },
+  "homepage": "https://github.com/clubcompy/kidcompy",
+  "devDependencies": {
+    "chai": "^2.2.0",
+    "css-loader": "^0.10.1",
+    "ejs-loader": "^0.2.1",
+    "event-stream": "^3.3.0",
+    "file-loader": "^0.8.1",
+    "firefox-profile": "^0.3.11",
+    "gulp": "^3.8.11",
+    "gulp-karma": "0.0.4",
+    "gulp-webpack": "^1.3.2",
+    "istanbul": "^0.3.13",
+    "jscs": "^1.12.0",
+    "jscs-loader": "0.0.5",
+    "jshint": "^2.7.0",
+    "jshint-loader": "^0.8.3",
+    "karma": "^0.12.31",
+    "karma-chai": "^0.1.0",
+    "karma-chrome-launcher": "^0.1.7",
+    "karma-coverage": "^0.3.1",
+    "karma-firefox-launcher": "^0.1.4",
+    "karma-istanbul-reporter": "0.0.1",
+    "karma-mocha": "^0.1.10",
+    "karma-sinon": "^1.0.4",
+    "karma-sourcemap-loader": "^0.3.4",
+    "karma-webpack": "^1.5.0",
+    "mocha": "^2.2.1",
+    "node-sass": "^2.1.1",
+    "path": "^0.11.14",
+    "run-sequence": "^1.0.2",
+    "sass-loader": "^0.6.0",
+    "selenium-standalone": "^4.4.0",
+    "sinon": "^1.14.1",
+    "style-loader": "^0.10.2",
+    "wd": "^0.3.11",
+    "webpack": "^1.8.0"
+  },
+  "dependencies": {
+    "lodash": "^3.7.0",
+    "rx": "^2.5.2"
+  }
+}

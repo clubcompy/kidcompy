@@ -10,12 +10,12 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ["mocha", "chai", "sinon"],
+    frameworks: ["mocha", "proclaim", "sinon"],
 
     plugins: [
       require("karma-webpack"),
       require("karma-mocha"),
-      require("karma-chai"),
+      require("karma-proclaim"),
       require("karma-sinon"),
       require("karma-firefox-launcher"),
       require("karma-sourcemap-loader"),
@@ -64,13 +64,10 @@ module.exports = function(config) {
           /* .ejs : precompiled lodash template */
           { test: /\.ejs$/, loader: "ejs" },
 
-          /* .scss : SASS file that is compiled to a named .css file in the css folder */
-          /* TODO: it doesn't make sense to do isProductionMode here in Karma */
+          /* .scss : SASS file encoded into scripts that can be reloaded */
           {
             test: /\.scss$/,
-            loader: "style/url?limit=0!file?name=css/[name].css?[hash]!sass?outputStyle=" + (isProductionMode ? "compressed" : "expanded") +
-            "&includePaths[]=" +
-            (path.resolve(__dirname, "./node_modules"))
+            loader: "style!css!sass?outputStyle=compressed&includePaths[]=" + (path.resolve(__dirname, "./node_modules"))
           }
         ]
       },
@@ -117,6 +114,7 @@ module.exports = function(config) {
 
     // user prefs for firefox, disables a popunder shown on first-time-run profiles
     firefox: {
+      "datareporting.healthreport.service.firstRun": true,
       "datareporting.healthreport.uploadEnabled": false,
       "browser.rights.3.shown": true
     },

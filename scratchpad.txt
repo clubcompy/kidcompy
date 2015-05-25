@@ -1,0 +1,18 @@
+Todos
+=====
+- Karma watch for integration tests
+- Production build
+ * webpack
+ * jshint and jscs
+ * karma:single on spec and integration tests
+ * code coverage report
+ * build bundles to dist folder
+ * generate jsdocs
+
+Annoying things that annoy me
+=============================
+- The gulp process does not die when I ctrl-c with 'gulp dev', have to manually kill that process - is this a bug with
+gulp or with io.js?
+- Firebug does not open automagically when the kidcompy harness window/tab launches from 'gulp dev', I suspect Firebug
+has a bug with launching on a first time window because firebug does autostart when I open a new tab in the harness window.
+  - this seems to be intermittent, I've seen it succeed

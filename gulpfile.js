@@ -1,28 +1,69 @@
 var path = require("path");
-var gulp = require('gulp');
-var spawn = require('child_process').spawn;
-var karma = require('gulp-karma');
-var webpack = require('webpack');
+var gulp = require("gulp");
+var spawn = require("child_process").spawn;
+var karma = require("gulp-karma");
+var webpack = require("webpack");
 var WebpackDevServer = require("webpack-dev-server");
-var gulpWebpack = require('gulp-webpack');
+var gulpWebpack = require("gulp-webpack");
 var runSequence = require("run-sequence");
-var FirefoxProfile = require('firefox-profile');
+var FirefoxProfile = require("firefox-profile");
 var wd = require("wd");
-var selenium = require('selenium-standalone');
-var finalhandler = require('finalhandler');
-var http = require('http');
-var serveStatic = require('serve-static');
+var selenium = require("selenium-standalone");
+var finalHandler = require("finalhandler");
+var http = require("http");
+var serveStatic = require("serve-static");
+var named = require("vinyl-named");
 
+var isProductionMode = true;
 
-gulp.task('default', function () {
+gulp.task("default", function () {
   return gulp.src("lib/Main.js")
     .pipe(gulpWebpack({}), webpack)
     .pipe(gulp.dest("build/"));
 });
 
+gulp.task("build", function() {
+  // webpack
+  //  jshint and jscs
+  //  karma;single on spec and integration tests
+  //  code coverage
+  //  build bundles
+  //  generate jsdocs
+
+  return gulp.src(["lib/Main.js"])
+    .pipe(named)   // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
+    .pipe(gulpWebpack({
+      // hidden-source-map writes the full source map, but doesn't add the comment annotation
+      // the script that causes the browser to automatically load the source map.
+      devtool: isProductionMode ? "hidden-source-map" : "source-map",
+
+      module: {
+        loaders: [
+          /* .ejs : precompiled lodash template */
+          { test: /\.ejs$/, loader: "ejs" },
+
+          /* .scss : SASS file that is compiled to a named .css file in the css folder */
+          {
+            test: /\.scss$/,
+            loader: "style/url?limit=0!file?name=css/[name].css?[hash]!sass?outputStyle=" + (isProductionMode ? "compressed" : "expanded") +
+            "&includePaths[]=" + (path.resolve(__dirname, "./node_modules"))
+          }
+        ]
+      },
+
+      plugins: [
+        new webpack.ProvidePlugin({
+          "_": "lodash"                         /* make lodash available to all modules */
+        })
+      ]
+    }), webpack)
+    .pipe(gulp.dest("build/"));
+});
+
 var testFiles = [
-  'lib/**/*.spec.js'
+  "lib/**/*.spec.js"
 ];
+
 
 gulp.task("install-selenium", function(callback) {
   selenium.install({
@@ -39,33 +80,33 @@ gulp.task("install-selenium", function(callback) {
   });
 });
 
-gulp.task('test', function () {
+gulp.task("test", function () {
   // Be sure to return the stream
   return gulp.src(testFiles)
     .pipe(karma({
-      configFile: 'karma.conf.js',
-      action: 'run'
+      configFile: "karma.conf.js",
+      action: "run"
     }))
-    .on('error', function (err) {
+    .on("error", function (err) {
       throw err;
     });
 });
 
 gulp.task("launch-karma-watcher", function() {
   return gulp.src(testFiles).pipe(karma({
-    configFile: 'karma.conf.js',
-    action: 'watch'
+    configFile: "karma.conf.js",
+    action: "watch"
   }));
 });
 
-gulp.task('dev', function () {
+gulp.task("dev", function () {
   runSequence(["start-selenium", "start-harness-content"],
               ["start-harness-server"],
               ["spawn-harness", "launch-karma-watcher"]);
 });
 
-gulp.task('start-selenium', function () {
-  spawn('./selenium-standalone', ["start"], {
+gulp.task("start-selenium", function () {
+  spawn("./selenium-standalone", ["start"], {
     cwd: "./node_modules/selenium-standalone/bin",
     detached: false,
     stdio: "inherit"
@@ -74,11 +115,11 @@ gulp.task('start-selenium', function () {
 
 gulp.task("start-harness-content", function() {
   // Serve up harnessContent folder
-  var serve = serveStatic('./harnessContent', {'index': ['index.html', 'index.htm']});
+  var serve = serveStatic("./harnessContent", {"index": ["index.html", "index.htm"]});
 
   // Create server
   var server = http.createServer(function(req, res){
-    var done = finalhandler(req, res);
+    var done = finalHandler(req, res);
     serve(req, res, done);
   });
 
@@ -151,7 +192,7 @@ gulp.task("start-harness-server", function(callback) {
     // This is useful if you want to get rid of 'http://localhost:8080/' in script[src],
     // and has many other use cases (see https://github.com/webpack/webpack-dev-server/pull/127 ).
     proxy: {
-      "*": "http://localhost:9080"
+      "*": "http://localhost:9080"    // port 9080 is the serve-static server that hosts the static harness content
     }
   });
 
@@ -168,14 +209,19 @@ gulp.task("spawn-harness", function() {
 
   browser = wd.promiseChainRemote();
 
+  // activate the console, net, and script panels
+  fp.setPreference("extensions.firebug.console.enableSites", true);
+  fp.setPreference("extensions.firebug.console.enableSites", true);
+  fp.setPreference("extensions.firebug.alwaysShowCommandLine", true);
+  fp.setPreference("extensions.firebug.script.enableSites", true);
   // activate and open firebug by default for all sites
-  fp.setPreference('extensions.firebug.allPagesActivation', 'on');
-  // activate the console panel
-  fp.setPreference('extensions.firebug.console.enableSites', true);
+  fp.setPreference("extensions.firebug.allPagesActivation", "on");
   // show the console panel
-  fp.setPreference('extensions.firebug.defaultPanelName', 'console');
-  fp.setPreference('extensions.firebug.showFirstRunPage', false);
+  fp.setPreference("extensions.firebug.defaultPanelName", "script");
+  fp.setPreference("extensions.firebug.showFirstRunPage", false);
+  fp.setPreference("extensions.firebug.delayLoad", false);
 
+  fp.setPreference("datareporting.healthreport.service.firstRun", true);
   fp.setPreference("datareporting.healthreport.uploadEnabled", false);
   fp.setPreference("browser.rights.3.shown", true);
 
@@ -183,13 +229,13 @@ gulp.task("spawn-harness", function() {
   fp.updatePreferences();
 
   // you can install multiple extensions at the same time
-  fp.addExtensions(['./harnessContent/firebug-2.0.9.xpi'], function() {
+  fp.addExtensions(["./harnessContent/firebug-2.0.9.xpi"], function() {
     fp.encoded(function (zippedProfile) {
       browser.init({
-        browserName: 'firefox',
+        browserName: "firefox",
         firefox_profile: zippedProfile
       })
-        .get('http://localhost:8080/index.html')
+        .get("http://localhost:8080/index.html")
         .maximize()
         .setAsyncScriptTimeout(1000)
         .done();

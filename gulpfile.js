@@ -16,11 +16,19 @@ var named = require("vinyl-named");
 
 var isProductionMode = true;
 
-gulp.task("default", function () {
-  return gulp.src("lib/Main.js")
-    .pipe(gulpWebpack({}), webpack)
-    .pipe(gulp.dest("build/"));
-});
+var moduleEntryPoints = [
+  "./lib/Main.js"
+];
+
+var unitTestFiles = [
+  "./lib/**/*.spec.js"
+];
+
+var allTestFiles = [
+  "./lib/**/*.spec.js",
+  "./lib/**/*.integration.js",
+  "./lib/**/*.system.js"
+];
 
 gulp.task("build", function() {
   // webpack
@@ -30,14 +38,22 @@ gulp.task("build", function() {
   //  build bundles
   //  generate jsdocs
 
-  return gulp.src(["lib/Main.js"])
-    .pipe(named)   // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
+  return gulp.src(moduleEntryPoints)
+    .pipe(named())   // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
     .pipe(gulpWebpack({
       // hidden-source-map writes the full source map, but doesn't add the comment annotation
       // the script that causes the browser to automatically load the source map.
       devtool: isProductionMode ? "hidden-source-map" : "source-map",
 
       module: {
+        preLoaders: [
+          {
+            test: /\.js$/,               // include .js files
+            exclude: /node_modules/,     // exclude any and all files in the node_modules folder
+            loader: "jshint-loader"
+          }
+        ],
+
         loaders: [
           /* .ejs : precompiled lodash template */
           { test: /\.ejs$/, loader: "ejs" },
@@ -57,13 +73,8 @@ gulp.task("build", function() {
         })
       ]
     }), webpack)
-    .pipe(gulp.dest("build/"));
+    .pipe(gulp.dest("dist/"));
 });
-
-var testFiles = [
-  "lib/**/*.spec.js"
-];
-
 
 gulp.task("install-selenium", function(callback) {
   selenium.install({
@@ -80,29 +91,46 @@ gulp.task("install-selenium", function(callback) {
   });
 });
 
-gulp.task("test", function () {
+gulp.task("unit-single", function () {
   // Be sure to return the stream
-  return gulp.src(testFiles)
-    .pipe(karma({
-      configFile: "karma.conf.js",
-      action: "run"
-    }))
-    .on("error", function (err) {
-      throw err;
-    });
+  return gulp.src(unitTestFiles).pipe(karma({
+    configFile: "karma.conf.js",
+    action: "run"
+  }));
 });
 
-gulp.task("launch-karma-watcher", function() {
-  return gulp.src(testFiles).pipe(karma({
+gulp.task("integration-single", function () {
+  // Be sure to return the stream
+  return gulp.src(allTestFiles).pipe(karma({
+    configFile: "karma.conf.js",
+    action: "run"
+  }));
+});
+
+gulp.task("unit-watcher", function() {
+  return gulp.src(unitTestFiles).pipe(karma({
+    configFile: "karma.conf.js",
+    action: "watch"
+  }));
+});
+
+gulp.task("integration-watcher", function() {
+  return gulp.src(allTestFiles).pipe(karma({
     configFile: "karma.conf.js",
     action: "watch"
   }));
 });
 
 gulp.task("dev", function () {
-  runSequence(["start-selenium", "start-harness-content"],
-              ["start-harness-server"],
-              ["spawn-harness", "launch-karma-watcher"]);
+  return runSequence(["start-selenium", "start-harness-content"],
+                     ["start-harness-server"],
+                     ["spawn-harness", "unit-watcher"]);
+});
+
+gulp.task("integration", function () {
+  return runSequence(["start-selenium", "start-harness-content"],
+                     ["start-harness-server"],
+                     ["spawn-harness", "integration-watcher"]);
 });
 
 gulp.task("start-selenium", function () {
@@ -130,7 +158,7 @@ gulp.task("start-harness-content", function() {
 gulp.task("start-harness-server", function(callback) {
   var server = new WebpackDevServer(webpack({
     entry: {
-      "harness": ["webpack/hot/dev-server", "./lib/Main.js"]
+      "harness": ["webpack/hot/dev-server"].concat(moduleEntryPoints)
     },
     output: {
       path: __dirname + "/devBuild",
@@ -148,7 +176,7 @@ gulp.task("start-harness-server", function(callback) {
           test: /\.scss$/,
           loader: "style/url?limit=0!file?name=css/[name].css?[hash]!sass?outputStyle=expanded" +
           "&includePaths[]=" +
-          (path.resolve(__dirname, "./node_modules"))
+          path.resolve(__dirname, "./node_modules")
         }
       ]
     },
@@ -210,7 +238,6 @@ gulp.task("spawn-harness", function() {
   browser = wd.promiseChainRemote();
 
   // activate the console, net, and script panels
-  fp.setPreference("extensions.firebug.console.enableSites", true);
   fp.setPreference("extensions.firebug.console.enableSites", true);
   fp.setPreference("extensions.firebug.alwaysShowCommandLine", true);
   fp.setPreference("extensions.firebug.script.enableSites", true);

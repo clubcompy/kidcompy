@@ -1,34 +1,35 @@
-var path = require("path");
-var gulp = require("gulp");
-var spawn = require("child_process").spawn;
-var karma = require("gulp-karma");
-var webpack = require("webpack");
-var WebpackDevServer = require("webpack-dev-server");
-var gulpWebpack = require("gulp-webpack");
-var runSequence = require("run-sequence");
-var FirefoxProfile = require("firefox-profile");
-var wd = require("wd");
-var selenium = require("selenium-standalone");
-var finalHandler = require("finalhandler");
-var http = require("http");
-var serveStatic = require("serve-static");
-var named = require("vinyl-named");
+/* jscs: disable */
+var path = require("path"),
+  gulp = require("gulp"),
+  spawn = require("child_process").spawn,
+  karma = require("gulp-karma"),
+  webpack = require("webpack"),
+  WebpackDevServer = require("webpack-dev-server"),
+  gulpWebpack = require("gulp-webpack"),
+  runSequence = require("run-sequence"),
+  FirefoxProfile = require("firefox-profile"),
+  wd = require("wd"),
+  selenium = require("selenium-standalone"),
+  finalHandler = require("finalhandler"),
+  http = require("http"),
+  serveStatic = require("serve-static"),
+  named = require("vinyl-named"),
 
-var isProductionMode = true;
+  isProductionMode = true,
 
-var moduleEntryPoints = [
-  "./lib/Main.js"
-];
+  moduleEntryPoints = [
+    "./lib/Main.js"
+  ],
 
-var unitTestFiles = [
-  "./lib/**/*.spec.js"
-];
+  unitTestFiles = [
+    "./lib/**/*.spec.js"
+  ],
 
-var allTestFiles = [
-  "./lib/**/*.spec.js",
-  "./lib/**/*.integration.js",
-  "./lib/**/*.system.js"
-];
+  allTestFiles = [
+    "./lib/**/*.spec.js",
+    "./lib/**/*.integration.js",
+    "./lib/**/*.system.js"
+  ];
 
 gulp.task("build", function() {
   // webpack
@@ -39,7 +40,8 @@ gulp.task("build", function() {
   //  generate jsdocs
 
   return gulp.src(moduleEntryPoints)
-    .pipe(named())   // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
+    // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
+    .pipe(named())
     .pipe(gulpWebpack({
       // hidden-source-map writes the full source map, but doesn't add the comment annotation
       // the script that causes the browser to automatically load the source map.
@@ -48,9 +50,16 @@ gulp.task("build", function() {
       module: {
         preLoaders: [
           {
-            test: /\.js$/,               // include .js files
-            exclude: /node_modules/,     // exclude any and all files in the node_modules folder
+            // include .js files
+            test: /\.js$/,
+            // exclude any and all files in the node_modules folder
+            exclude: /node_modules/,
             loader: "jshint-loader"
+          },
+          {
+            test: /\.js$/,
+            exclude: /node_modules/,
+            loader: "jscs-loader"
           }
         ],
 
@@ -61,15 +70,23 @@ gulp.task("build", function() {
           /* .scss : SASS file that is compiled to a named .css file in the css folder */
           {
             test: /\.scss$/,
-            loader: "style/url?limit=0!file?name=css/[name].css?[hash]!sass?outputStyle=" + (isProductionMode ? "compressed" : "expanded") +
-            "&includePaths[]=" + (path.resolve(__dirname, "./node_modules"))
+            loader: "style/url?limit=0!file?name=css/[name].css?[hash]!sass?outputStyle=" +
+                    (isProductionMode ? "compressed" : "expanded") +
+                    "&includePaths[]=" + path.resolve(__dirname, "./node_modules")
           }
         ]
       },
 
+      jscs: {
+        emitErrors: true,
+        maxErrors: 50,
+        verbose: true
+      },
+
       plugins: [
         new webpack.ProvidePlugin({
-          "_": "lodash"                         /* make lodash available to all modules */
+          /* make lodash available to all modules */
+          _: "lodash"
         })
       ]
     }), webpack)
@@ -78,6 +95,9 @@ gulp.task("build", function() {
 
 gulp.task("install-selenium", function(callback) {
   selenium.install({
+    /**
+     * @param {string} message
+     */
     logger: function(message) {
       console.log(message);
     }
@@ -91,7 +111,7 @@ gulp.task("install-selenium", function(callback) {
   });
 });
 
-gulp.task("unit-single", function () {
+gulp.task("unit-single", function() {
   // Be sure to return the stream
   return gulp.src(unitTestFiles).pipe(karma({
     configFile: "karma.conf.js",
@@ -99,7 +119,7 @@ gulp.task("unit-single", function () {
   }));
 });
 
-gulp.task("integration-single", function () {
+gulp.task("integration-single", function() {
   // Be sure to return the stream
   return gulp.src(allTestFiles).pipe(karma({
     configFile: "karma.conf.js",
@@ -121,20 +141,20 @@ gulp.task("integration-watcher", function() {
   }));
 });
 
-gulp.task("dev", function () {
-  return runSequence(["start-selenium", "start-harness-content"],
-                     ["start-harness-server"],
-                     ["spawn-harness", "unit-watcher"]);
+gulp.task("dev", function() {
+  return runSequence([ "start-selenium", "start-harness-content" ],
+                     [ "start-harness-server" ],
+                     [ "spawn-harness", "unit-watcher" ]);
 });
 
-gulp.task("integration", function () {
-  return runSequence(["start-selenium", "start-harness-content"],
-                     ["start-harness-server"],
-                     ["spawn-harness", "integration-watcher"]);
+gulp.task("integration", function() {
+  return runSequence([ "start-selenium", "start-harness-content" ],
+                     [ "start-harness-server" ],
+                     [ "spawn-harness", "integration-watcher" ]);
 });
 
-gulp.task("start-selenium", function () {
-  spawn("./selenium-standalone", ["start"], {
+gulp.task("start-selenium", function() {
+  spawn("./selenium-standalone", [ "start" ], {
     cwd: "./node_modules/selenium-standalone/bin",
     detached: false,
     stdio: "inherit"
@@ -143,13 +163,14 @@ gulp.task("start-selenium", function () {
 
 gulp.task("start-harness-content", function() {
   // Serve up harnessContent folder
-  var serve = serveStatic("./harnessContent", {"index": ["index.html", "index.htm"]});
+  var serve = serveStatic("./harnessContent", { index: [ "index.html", "index.htm" ]}),
 
-  // Create server
-  var server = http.createServer(function(req, res){
-    var done = finalHandler(req, res);
-    serve(req, res, done);
-  });
+    // Create server
+    server = http.createServer(function(req, res) {
+      var done = finalHandler(req, res);
+
+      serve(req, res, done);
+    });
 
   // Listen
   server.listen(9080);
@@ -158,7 +179,7 @@ gulp.task("start-harness-content", function() {
 gulp.task("start-harness-server", function(callback) {
   var server = new WebpackDevServer(webpack({
     entry: {
-      "harness": ["webpack/hot/dev-server"].concat(moduleEntryPoints)
+      harness: [ "webpack/hot/dev-server" ].concat(moduleEntryPoints)
     },
     output: {
       path: __dirname + "/devBuild",
@@ -175,8 +196,8 @@ gulp.task("start-harness-server", function(callback) {
         {
           test: /\.scss$/,
           loader: "style/url?limit=0!file?name=css/[name].css?[hash]!sass?outputStyle=expanded" +
-          "&includePaths[]=" +
-          path.resolve(__dirname, "./node_modules")
+                  "&includePaths[]=" +
+                  path.resolve(__dirname, "./node_modules")
         }
       ]
     },
@@ -188,19 +209,20 @@ gulp.task("start-harness-server", function(callback) {
     plugins: [
       new webpack.HotModuleReplacementPlugin(),
       new webpack.ProvidePlugin({
-        "_": "lodash"                         /* make lodash available to all modules */
+        /* make lodash available to all modules */
+        _: "lodash"
       })
     ]
   }), {
     // webpack-dev-server option
-    contentBase: "./devBuild",
     // or: contentBase: "http://localhost/",
+    contentBase: "./devBuild",
 
-    hot: true,
     // Enable special support for Hot Module Replacement
     // Page is no longer updated, but a "webpackHotUpdate" message is send to the content
     // Use "webpack/hot/dev-server" as additional module in your entry point
     // Note: this does _not_ add the `HotModuleReplacementPlugin` like the CLI option does.
+    hot: true,
 
     // webpack-dev-middleware options
     quiet: false,
@@ -208,7 +230,6 @@ gulp.task("start-harness-server", function(callback) {
     lazy: false,
     watchDelay: 100,
     publicPath: "/",
-    //headers: { "X-Custom-Header": "yes" },
     stats: { colors: true },
 
     // Set this as true if you want to access dev server from arbitrary url.
@@ -220,7 +241,8 @@ gulp.task("start-harness-server", function(callback) {
     // This is useful if you want to get rid of 'http://localhost:8080/' in script[src],
     // and has many other use cases (see https://github.com/webpack/webpack-dev-server/pull/127 ).
     proxy: {
-      "*": "http://localhost:9080"    // port 9080 is the serve-static server that hosts the static harness content
+      // port 9080 is the serve-static server that hosts the static harness content
+      "*": "http://localhost:9080"
     }
   });
 
@@ -233,16 +255,16 @@ gulp.task("spawn-harness", function() {
   // set some userPrefs if needed
   // Note: make sure you call encoded() after setting some userPrefs
   var fp = new FirefoxProfile(),
-    browser;
-
-  browser = wd.promiseChainRemote();
+    browser = wd.promiseChainRemote();
 
   // activate the console, net, and script panels
   fp.setPreference("extensions.firebug.console.enableSites", true);
   fp.setPreference("extensions.firebug.alwaysShowCommandLine", true);
   fp.setPreference("extensions.firebug.script.enableSites", true);
+
   // activate and open firebug by default for all sites
   fp.setPreference("extensions.firebug.allPagesActivation", "on");
+
   // show the console panel
   fp.setPreference("extensions.firebug.defaultPanelName", "script");
   fp.setPreference("extensions.firebug.showFirstRunPage", false);
@@ -256,8 +278,8 @@ gulp.task("spawn-harness", function() {
   fp.updatePreferences();
 
   // you can install multiple extensions at the same time
-  fp.addExtensions(["./harnessContent/firebug-2.0.9.xpi"], function() {
-    fp.encoded(function (zippedProfile) {
+  fp.addExtensions([ "./harnessContent/firebug-2.0.9.xpi" ], function() {
+    fp.encoded(function(zippedProfile) {
       browser.init({
         browserName: "firefox",
         firefox_profile: zippedProfile

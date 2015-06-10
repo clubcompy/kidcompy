@@ -3,11 +3,46 @@ Todos
 - Karma watch for integration tests
 - Production build
  * webpack
- * jshint and jscs
+ * UglifyJS
  * karma:single on spec and integration tests
  * code coverage report
  * build bundles to dist folder
  * generate jsdocs
+
+Rocket science stuff that is in the parking lot because it is too much research/effort for now
+==============================================================================================
+- It would be super sweet to run the javascript through the Google Closure Compiler.  Targeting old browsers means that we could
+benefit from Closure Compiler's ability to inline functions and do dead code elimination.  At the cost of a longer loading time, our
+usage of libraries like lodash and RxJS could get a real speed boost via the inlining of closures.
+
+I have investigated writing a closure-compiler-loader plugin based on the traceur-loader.  The loader API seems fairly straightforward,
+and Webpack could ingest the sourcemap that Closure Compiler emits.  The difficulties with Closure Compiler combined with Webpack are:
+  - Closure Compiler does its own CommonJS require-statement dependency injection.  This would mean that the advanced require statement
+  support that Webpack supports could not be used, and only static, relative .js file paths could appear in the require statements for
+  any javascripts and dependencies that we feed to Closure Compiler.  I imagine the way to deal with this would be to have all of our
+  javascripts for a single Webpack chunk to be built using Closure Compiler's CommonJS resolver rather than webpack's.  But I fear this
+  won't be good enough since unit tests with karma need to give the units some piecemeal access to
+  - The Closure Compiler command line program has a complex parameter set and is Java which will be non-trivial to rig up from a Webpack
+  loader
+    - The gulp Closure Compiler plugin has lots of good code to help us build a loader:  https://github.com/steida/gulp-closure-compiler
+    - List of available params on Closure Compiler command line:  https://github.com/steida/gulp-closure-compiler/blob/master/flags.txt
+  - The Closure Compiler doesn't have the exact same JSDoc dialect as JSDoc3, so there will be a lot of finagling to find syntax that
+  works well for jscs-jsdoc and Closure Compiler
+  - The Closure Compiler can emit a sourcemap for the compiled output it produces, but it cannot consume and alter a source one.  Does
+  this mean that chaining Webpack loaders won't work for javascript compiling unless Closure Compiler is first in the chain (which may not
+  be something we want to do)?
+
+I regret not being able to start work on the codebase with the Closure Compiler installed and always on.  Apparently, with the advanced
+optimizations turned on, you really want your comprehensive units constantly exercising the optimizations to ensure they don't
+unexpectedly start breaking things.  Alas, I think that the Closure Compiler is too far out from the Node.js way of doing things and
+therefore will probably not integrate into the Webpack tooling unless some major changes were made to the way that Closure Compiler
+works.  Honestly, Closure Compiler feels like it was made by Google, for Google, and therefore it doesn't make sense to expect anything
+more from it.
+
+So, realistically it seems like going with UglifyJS2 will be the right course for minification - UglifyJS2 works will with the Node.js/
+CommonJS system and has pretty good compression.  Perhaps someday it will even be sophisticated enough to be able to inline functions
+like Closure Compiler can.
+
 
 Annoying things that annoy me
 =============================
@@ -16,3 +51,4 @@ gulp or with io.js?
 - Firebug does not open automagically when the kidcompy harness window/tab launches from 'gulp dev', I suspect Firebug
 has a bug with launching on a first time window because firebug does autostart when I open a new tab in the harness window.
   - this seems to be intermittent, I've seen it succeed
+  - perhaps endemic to older versions of Firefox?  Firebug seems to be opening successfully lately

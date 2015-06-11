@@ -3,12 +3,10 @@
 // jscs: disable
 var configureWebpack = require("./configureWebpack");
 var log = require("util").log;
-
-var isProductionMode = false;
+var _ = require("lodash");
 
 module.exports = function(config) {
-  log(config);
-  config.set({
+  return _.extend(config, {
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
 
@@ -22,15 +20,13 @@ module.exports = function(config) {
       require("karma-proclaim"),
       require("karma-sinon-ie"),
       require("karma-firefox-launcher"),
-      require("karma-sourcemap-loader"),
-      require("karma-istanbul-reporter"),
-      require("karma-coverage")
+      require("karma-sourcemap-loader")
     ],
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ["dots", "coverage"],
+    reporters: ["dots"],
 
     client: {
       mocha: {
@@ -41,7 +37,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'lib/**/*.js'
+      "lib/**/*.spec.js"
     ],
 
     // list of files to exclude
@@ -51,25 +47,18 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      "lib/**/*.spec.js": ["webpack", "coverage", "sourcemap"]
+      "lib/**/*.spec.js": ["webpack", "sourcemap"]
     },
 
-    webpack: configureWebpack(true, isProductionMode, true),
+    webpack: configureWebpack({
+      enableSourceMaps: true,
+      isRunningTests: true
+    }),
 
     webpackMiddleware: {
       // webpack-dev-middleware configuration
       // i. e.
       noInfo: true
-    },
-
-    coverageReporter: {
-      reporters: [
-        {
-          type : 'html',
-          dir : 'test_coverage/'
-        }
-      ]
-
     },
 
     // web server port
@@ -82,9 +71,6 @@ module.exports = function(config) {
     // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
     logLevel: config.LOG_INFO,
 
-    // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: true,
-
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     browsers: ["Firefox"],
@@ -95,6 +81,9 @@ module.exports = function(config) {
       "datareporting.healthreport.uploadEnabled": false,
       "browser.rights.3.shown": true
     },
+
+    // enable / disable watching file and executing tests whenever any file changes
+    autoWatch: true,
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits

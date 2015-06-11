@@ -1,13 +1,15 @@
 "use strict";
 
 /* jscs: disable */
-var path = require("path"),
+var _ = require("lodash"),
+  path = require("path"),
   gulp = require("gulp"),
   spawn = require("child_process").spawn,
-  karma = require("gulp-karma"),
+  //karma = require("gulp-karma"),
+  karma = require("karma"),
   webpack = require("webpack"),
   WebpackDevServer = require("webpack-dev-server"),
-  gulpWebpack = require("gulp-webpack"),
+  webpackStream = require("webpack-stream"),
   runSequence = require("run-sequence"),
   FirefoxProfile = require("firefox-profile"),
   wd = require("wd"),
@@ -42,67 +44,25 @@ gulp.task("build", function() {
   //  build bundles
   //  generate jsdocs
 
+  return runSequence([ "prebundle-checks"],
+                     [ "bundle" ]);
+});
+
+gulp.task("prebundle-checks", function(done) {
+  karma.server.start({
+    configFile: __dirname + "/karma.prebundle.conf.js",
+    action: "run"
+  }, done);
+});
+
+gulp.task("bundle", function() {
   return gulp.src(moduleEntryPoints)
     // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
     .pipe(named())
-    .pipe(gulpWebpack({
-      // hidden-source-map writes the full source map, but doesn't add the comment annotation
-      // the script that causes the browser to automatically load the source map.
-      devtool: isProductionMode ? "hidden-source-map" : "source-map",
-
-      module: {
-        preLoaders: [
-          {
-            // include .js files
-            test: /\.js$/,
-            // exclude any and all files in the node_modules folder
-            exclude: /node_modules/,
-            loader: "jshint-loader"
-          },
-          {
-            test: /\.js$/,
-            exclude: /node_modules/,
-            loader: "jscs-loader"
-          }
-        ],
-
-        loaders: [
-          /* .ejs : precompiled lodash template */
-          { test: /\.ejs$/, loader: "ejs" },
-
-          /* .scss : SASS file that is compiled to a named .css file in the css folder */
-          {
-            test: /\.scss$/,
-            loader: "style/url?limit=0!file?name=css/[name].css?[hash]!sass?outputStyle=" +
-                    (isProductionMode ? "compressed" : "expanded") +
-                    "&includePaths[]=" + path.resolve(__dirname, "./node_modules")
-          }
-        ]
-      },
-
-      jscs: {
-        emitErrors: true,
-        maxErrors: 50,
-        verbose: true
-      },
-
-      plugins: [
-        new webpack.ProvidePlugin({
-          /* make lodash available to all modules */
-          _: "lodash"
-        }),
-
-        new webpack.optimize.UglifyJsPlugin({
-          compress: {
-            warnings: false
-          },
-
-          mangle: {
-            except: [ "_", "exports", "require" ]
-          }
-        })
-      ]
-    }), webpack)
+    .pipe(webpackStream(configureWebpack({
+      enableSourceMaps: true,
+      isProductionBundle: true
+    })), webpack)
     .pipe(gulp.dest("dist/"));
 });
 
@@ -141,6 +101,7 @@ gulp.task("integration-single", function() {
 });
 
 gulp.task("unit-watcher", function() {
+  // Be sure to return the stream
   return gulp.src(unitTestFiles).pipe(karma({
     configFile: "karma.conf.js",
     action: "watch"
@@ -167,10 +128,23 @@ gulp.task("integration", function() {
 });
 
 gulp.task("start-selenium", function() {
-  spawn("./selenium-standalone", [ "start" ], {
+  spawn("node", [ "./selenium-standalone", "start" ], {
     cwd: "./node_modules/selenium-standalone/bin",
     detached: false,
     stdio: "inherit"
+  }).on("close", function(code) {
+    if(code) {
+      console.log(" ");
+      console.log(" ");
+      console.log("************************************** README ********************************************");
+      console.log("*                                                                                        *");
+      console.log("* 'gulp start-selenium' failed, you need to run 'gulp install-selenium' at least once to *");
+      console.log("* download and install selenium for this project on this computer                        *");
+      console.log("*                                                                                        *");
+      console.log("******************************************************************************************");
+      console.log(" ");
+      console.log(" ");
+    }
   });
 });
 

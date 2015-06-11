@@ -4,28 +4,30 @@ var path = require("path"),
   webpack = require("webpack");
 
 /**
- * @param {Boolean} enableSourceMaps
- * @param {Boolean} isProductionBundle
- * @param {Boolean} isRunningTests
+ * @param {Object} options
+ * @param {Boolean} options.enableSourceMaps
+ * @param {Boolean} options.isProductionBundle
+ * @param {Boolean} options.isRunningTests
+ * @param {Boolean} options.isLintingCode
  * @returns {Object} webpack configuration object
  */
-function configureWebpack(enableSourceMaps, isProductionBundle, isRunningTests) {
+function configureWebpack(options) {
   var config = {
     module: {}
   };
 
-  if(enableSourceMaps) {
-    if(isRunningTests) {
+  if(options.enableSourceMaps) {
+    if(options.isRunningTests) {
       // webpack configuration -- eval is the fast method of getting sourcemap info into the sources, but
       // we probably won't do sourcemaps at all as part of our production packaging since we're going to mangle
       config.devtool = "eval";
     }
     else {
-      config.devtool = isProductionBundle ? "hidden-source-map" : "source-map";
+      config.devtool = options.isProductionBundle ? "hidden-source-map" : "source-map";
     }
   }
 
-  if(!isRunningTests) {
+  if(options.isLintingCode) {
     config.module.preLoaders = [
       {
         // include .js files
@@ -54,7 +56,7 @@ function configureWebpack(enableSourceMaps, isProductionBundle, isRunningTests) 
   ];
 
   // the SASS loader in test mode simply bundles the SASS into the script.  Non-test builds emit them to standalone CSS
-  if(isRunningTests) {
+  if(options.isRunningTests) {
     /* .scss : SASS file encoded into scripts that can be reloaded */
     config.module.loaders.push({
       test: /\.scss$/,
@@ -66,7 +68,7 @@ function configureWebpack(enableSourceMaps, isProductionBundle, isRunningTests) 
     config.module.loaders.push({
       test: /\.scss$/,
       loader: "style/url?limit=0!file?name=css/[name].css?[hash]!sass?outputStyle=" +
-              (isProductionBundle ? "compressed" : "expanded") + "&includePaths[]=" + path.resolve(__dirname, "./node_modules")
+              (options.isProductionBundle ? "compressed" : "expanded") + "&includePaths[]=" + path.resolve(__dirname, "./node_modules")
     });
   }
 
@@ -78,7 +80,7 @@ function configureWebpack(enableSourceMaps, isProductionBundle, isRunningTests) 
   ];
 
   // want to minify the final JS bundle if we're in production mode
-  if(isProductionBundle) {
+  if(options.isProductionBundle) {
     config.plugins.push(new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false

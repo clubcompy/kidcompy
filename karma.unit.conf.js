@@ -6,7 +6,7 @@ var log = require("util").log;
 var _ = require("lodash");
 
 module.exports = function(config) {
-  var baseKarmaConfig = require("./karma.conf")(config);
+  var baseKarmaConfig = require("./karma.base.conf")(config);
 
   return _.extend(baseKarmaConfig, {
     // test results reporter to use

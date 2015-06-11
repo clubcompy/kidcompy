@@ -1,3 +1,5 @@
+"use strict";
+
 /* jscs: disable */
 var path = require("path"),
   gulp = require("gulp"),
@@ -14,6 +16,7 @@ var path = require("path"),
   http = require("http"),
   serveStatic = require("serve-static"),
   named = require("vinyl-named"),
+  configureWebpack = require("./configureWebpack"),
 
   isProductionMode = true,
 
@@ -87,6 +90,16 @@ gulp.task("build", function() {
         new webpack.ProvidePlugin({
           /* make lodash available to all modules */
           _: "lodash"
+        }),
+
+        new webpack.optimize.UglifyJsPlugin({
+          compress: {
+            warnings: false
+          },
+
+          mangle: {
+            except: [ "_", "exports", "require" ]
+          }
         })
       ]
     }), webpack)

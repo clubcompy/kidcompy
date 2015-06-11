@@ -1,9 +1,13 @@
-var path = require("path");
-var webpack = require("webpack");
+"use strict";
+
+// jscs: disable
+var configureWebpack = require("./configureWebpack");
+var log = require("util").log;
 
 var isProductionMode = false;
 
 module.exports = function(config) {
+  log(config);
   config.set({
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
@@ -16,7 +20,7 @@ module.exports = function(config) {
       require("karma-webpack"),
       require("karma-mocha"),
       require("karma-proclaim"),
-      require("karma-sinon"),
+      require("karma-sinon-ie"),
       require("karma-firefox-launcher"),
       require("karma-sourcemap-loader"),
       require("karma-istanbul-reporter"),
@@ -50,34 +54,7 @@ module.exports = function(config) {
       "lib/**/*.spec.js": ["webpack", "coverage", "sourcemap"]
     },
 
-    webpack: {
-      // karma watches the test entry points
-      // (you don't need to specify the entry option)
-      // webpack watches dependencies
-
-      // webpack configuration -- eval is the fast method of getting sourcemap info into the sources, but
-      // we probably won't do sourcemaps at all as part of our production packaging since we're going to mangle
-      devtool: "eval",
-
-      module: {
-        loaders: [
-          /* .ejs : precompiled lodash template */
-          { test: /\.ejs$/, loader: "ejs" },
-
-          /* .scss : SASS file encoded into scripts that can be reloaded */
-          {
-            test: /\.scss$/,
-            loader: "style!css!sass?outputStyle=compressed&includePaths[]=" + (path.resolve(__dirname, "./node_modules"))
-          }
-        ]
-      },
-
-      plugins: [
-        new webpack.ProvidePlugin({
-          "_": "lodash"                         /* make lodash available to all modules */
-        })
-      ]
-    },
+    webpack: configureWebpack(true, isProductionMode, true),
 
     webpackMiddleware: {
       // webpack-dev-middleware configuration

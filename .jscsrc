@@ -29,7 +29,7 @@
   "disallowMultipleLineBreaks": true,
   "disallowMultipleLineStrings": true,
   "disallowMultipleSpaces": true,
-  "disallowMultipleVarDecl": "strict",
+  "disallowMultipleVarDecl": null,
   "disallowNamedUnassignedFunctions": true,
   "disallowNewlineBeforeBlockStatements": true,
   "disallowNotOperatorsInConditionals": null,
@@ -211,7 +211,7 @@
     "checkReturnTypes": true,
     "checkRedundantReturns": true,
     "requireReturnTypes": true,
-    "checkTypes": "strictNativeCase",
+    "checkTypes": "capitalizedNativeCase",
     "checkRendundantAccess": true,
     "requireNewlineAfterDescription": true,
     "enforceExistence": true

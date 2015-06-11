@@ -18,7 +18,7 @@ module.exports = function(config) {
     plugins: baseKarmaConfig.plugins.concat([
       require("karma-istanbul-reporter"),
       require("karma-coverage")
-    ])
+    ]),
 
     // destination for coverage reports
     coverageReporter: {
@@ -33,14 +33,16 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       "lib/**/*.spec.js",
-      "lib/**/*.integration.js"
+      "lib/**/*.integration.js",
+      "lib/**/*.system.js"
     ],
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
       "lib/**/*.spec.js": ["webpack", "coverage", "sourcemap"],
-      "lib/**/*.integration.js": ["webpack", "coverage", "sourcemap"]
+      "lib/**/*.integration.js": ["webpack", "coverage", "sourcemap"],
+      "lib/**/*.system.js": ["webpack", "coverage", "sourcemap"]
     },
 
     webpack: configureWebpack({

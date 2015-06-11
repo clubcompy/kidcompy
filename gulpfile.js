@@ -24,23 +24,12 @@ var _ = require("lodash"),
 
   moduleEntryPoints = [
     "./lib/Main.js"
-  ],
-
-  unitTestFiles = [
-    "./lib/**/*.spec.js"
-  ],
-
-  allTestFiles = [
-    "./lib/**/*.spec.js",
-    "./lib/**/*.integration.js",
-    "./lib/**/*.system.js"
   ];
 
 gulp.task("build", function() {
   // webpack
   //  jshint and jscs
   //  karma;single on spec and integration tests
-  //  code coverage
   //  build bundles
   //  generate jsdocs
 
@@ -51,7 +40,8 @@ gulp.task("build", function() {
 gulp.task("prebundle-checks", function(done) {
   karma.server.start({
     configFile: __dirname + "/karma.prebundle.conf.js",
-    action: "run"
+    singleRun: true,
+    autoWatch: false
   }, done);
 });
 
@@ -84,35 +74,36 @@ gulp.task("install-selenium", function(callback) {
   });
 });
 
-gulp.task("unit-single", function() {
-  // Be sure to return the stream
-  return gulp.src(unitTestFiles).pipe(karma({
-    configFile: "karma.conf.js",
-    action: "run"
-  }));
+gulp.task("unit-single", function(done) {
+  karma.server.start({
+    configFile: __dirname + "/karma.unit.conf.js",
+    singleRun: true,
+    autoWatch: false
+  }, done);
 });
 
-gulp.task("integration-single", function() {
-  // Be sure to return the stream
-  return gulp.src(allTestFiles).pipe(karma({
-    configFile: "karma.conf.js",
-    action: "run"
-  }));
+gulp.task("integration-single", function(done) {
+  karma.server.start({
+    configFile: __dirname + "/karma.integrationAndCoverage.conf.js",
+    singleRun: true,
+    autoWatch: false
+  }, done);
 });
 
-gulp.task("unit-watcher", function() {
-  // Be sure to return the stream
-  return gulp.src(unitTestFiles).pipe(karma({
-    configFile: "karma.conf.js",
-    action: "watch"
-  }));
+gulp.task("unit-watcher", function(done) {
+  karma.server.start({
+    configFile: __dirname + "/karma.unit.conf.js",
+    singleRun: false,
+    autoWatch: true
+  }, done);
 });
 
-gulp.task("integration-watcher", function() {
-  return gulp.src(allTestFiles).pipe(karma({
-    configFile: "karma.conf.js",
-    action: "watch"
-  }));
+gulp.task("integration-watcher", function(done) {
+  karma.server.start({
+    configFile: __dirname + "/karma.integrationAndCoverage.conf.js",
+    singleRun: false,
+    autoWatch: true
+  }, done);
 });
 
 gulp.task("dev", function() {

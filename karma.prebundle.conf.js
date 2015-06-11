@@ -17,14 +17,16 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       "lib/**/*.spec.js",
-      "lib/**/*.integration.js"
+      "lib/**/*.integration.js",
+      "lib/**/*.system.js"
     ],
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
       "lib/**/*.spec.js": ["webpack", "sourcemap"],
-      "lib/**/*.integration.js": ["webpack", "sourcemap"]
+      "lib/**/*.integration.js": ["webpack", "sourcemap"],
+      "lib/**/*.system.js": ["webpack", "sourcemap"]
     },
 
     webpack: configureWebpack({

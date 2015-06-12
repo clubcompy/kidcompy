@@ -5,7 +5,6 @@ var _ = require("lodash"),
   path = require("path"),
   gulp = require("gulp"),
   spawn = require("child_process").spawn,
-  //karma = require("gulp-karma"),
   karma = require("karma"),
   webpack = require("webpack"),
   WebpackDevServer = require("webpack-dev-server"),
@@ -20,11 +19,32 @@ var _ = require("lodash"),
   named = require("vinyl-named"),
   configureWebpack = require("./configureWebpack"),
 
-  isProductionMode = true,
-
   moduleEntryPoints = [
     "./lib/Main.js"
   ];
+
+gulp.task("default", [ "help" ], function() {
+});
+
+gulp.task("help", function() {
+  console.log(" ");
+  console.log("Gulp build script for Kidcompy");
+  console.log("==============================");
+  console.log(" ");
+  console.log("Gulp tasks:");
+  console.log("  build               - Lint, run all tests, and build a production webpack bundle from sources");
+  console.log("  dev                 - Run karma watcher for unit tests, and launch a hot-reloading test harness page");
+  console.log("  integration         - Run karma watcher for all tests, and launch a hot-reloading test harness page");
+  console.log(" ");
+  console.log("Gulp support tasks:")
+  console.log("  install-selenium    - Installs selenium, run at least once prior to 'gulp dev' or 'gulp integration'");
+  console.log("  unit-single         - Run unit tests once and then exit");
+  console.log("  unit-watcher        - Run unit tests with a watcher");
+  console.log("  integration-single  - Run all tests (unit, integration, and system) once and then exit");
+  console.log("  integration-watcher - Run all tests (unit, integration, and system) with a watcher");
+  console.log("  help                - This help text");
+  console.log(" ");
+});
 
 gulp.task("build", function() {
   // webpack
@@ -127,12 +147,12 @@ gulp.task("start-selenium", function() {
     if(code) {
       console.log(" ");
       console.log(" ");
-      console.log("************************************** README ********************************************");
-      console.log("*                                                                                        *");
-      console.log("* 'gulp start-selenium' failed, you need to run 'gulp install-selenium' at least once to *");
-      console.log("* download and install selenium for this project on this computer                        *");
-      console.log("*                                                                                        *");
-      console.log("******************************************************************************************");
+      console.log("    **************************************** README ******************************************");
+      console.log("    *                                                                                        *");
+      console.log("    * 'gulp start-selenium' failed, you need to run 'gulp install-selenium' at least once to *");
+      console.log("    * download and install selenium for this project on this computer                        *");
+      console.log("    *                                                                                        *");
+      console.log("    ******************************************************************************************");
       console.log(" ");
       console.log(" ");
     }

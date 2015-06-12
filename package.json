@@ -29,7 +29,6 @@
     "finalhandler": "^0.3.5",
     "firefox-profile": "^0.3.11",
     "gulp": "^3.8.11",
-    "gulp-karma": "0.0.4",
     "is-my-json-valid": "^2.12.0",
     "istanbul": "^0.3.13",
     "jscs": "^1.12.0",

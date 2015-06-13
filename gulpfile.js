@@ -5,6 +5,7 @@ var _ = require("lodash"),
   path = require("path"),
   gulp = require("gulp"),
   spawn = require("child_process").spawn,
+  exec = require("child_process").exec,
   karma = require("karma"),
   webpack = require("webpack"),
   WebpackDevServer = require("webpack-dev-server"),
@@ -21,7 +22,9 @@ var _ = require("lodash"),
 
   moduleEntryPoints = [
     "./lib/Main.js"
-  ];
+  ],
+
+  runningSelenium = null;
 
 gulp.task("default", [ "help" ], function() {
 });
@@ -78,9 +81,6 @@ gulp.task("bundle", function() {
 
 gulp.task("install-selenium", function(callback) {
   selenium.install({
-    /**
-     * @param {string} message
-     */
     logger: function(message) {
       console.log(message);
     }
@@ -126,24 +126,68 @@ gulp.task("integration-watcher", function(done) {
   }, done);
 });
 
+/* There's so much going on with the watchers, and gulp would hang on ctrl-c
+   this will at least force gulp to die after waiting one second after ctrl-c */
+gulp.task("force-termination-after-sigint", function() {
+  function quitHandler(onComplete) {
+    if(runningSelenium) {
+      try {
+        runningSelenium.kill();
+      }
+      catch(e) {
+      }
+      finally {
+        runningSelenium = null;
+      }
+    }
+
+    onComplete();
+  }
+
+  function sigintHandler() {
+    quitHandler(function() {
+      process.exit();
+    });
+
+    // Log any SIGNINT listeners other than this one that haven't exited the process
+    /*
+    var listeners = process.listeners("SIGINT"),
+      i, counter = 0;
+
+    for(i = 0; i < listeners.length; i++) {
+      if(listeners[i] !== sigintHandler) {
+        console.log("  Bad SIGINT listener #" + (++counter) + " detected: " + listeners[i].toString());
+      }
+    }
+    */
+  }
+
+  process.on("quit", quitHandler);
+  process.on("SIGINT", sigintHandler);
+});
+
 gulp.task("dev", function() {
-  return runSequence([ "start-selenium", "start-harness-content" ],
+  return runSequence([ "force-termination-after-sigint" ],
+                     [ "start-selenium", "start-harness-content" ],
                      [ "start-harness-server" ],
-                     [ "spawn-harness", "unit-watcher" ]);
+                     [ "spawn-harness-browser", "unit-watcher" ]);
 });
 
 gulp.task("integration", function() {
-  return runSequence([ "start-selenium", "start-harness-content" ],
+  return runSequence([ "force-termination-after-sigint" ],
+                     [ "start-selenium", "start-harness-content" ],
                      [ "start-harness-server" ],
-                     [ "spawn-harness", "integration-watcher" ]);
+                     [ "spawn-harness-browser", "integration-watcher" ]);
 });
 
 gulp.task("start-selenium", function() {
-  spawn("node", [ "./selenium-standalone", "start" ], {
+  runningSelenium = spawn("node", [ "./selenium-standalone", "start" ], {
     cwd: "./node_modules/selenium-standalone/bin",
-    detached: false,
-    stdio: "inherit"
-  }).on("close", function(code) {
+    stdio: "ignore",
+    detached: true
+  });
+
+  runningSelenium.on("close", function(code) {
     if(code) {
       console.log(" ");
       console.log(" ");
@@ -156,6 +200,8 @@ gulp.task("start-selenium", function() {
       console.log(" ");
       console.log(" ");
     }
+
+    process.quit();
   });
 });
 
@@ -249,7 +295,7 @@ gulp.task("start-harness-server", function(callback) {
   });
 });
 
-gulp.task("spawn-harness", function() {
+gulp.task("spawn-harness-browser", function() {
   // set some userPrefs if needed
   // Note: make sure you call encoded() after setting some userPrefs
   var fp = new FirefoxProfile(),

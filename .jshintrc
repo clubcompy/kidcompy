@@ -29,7 +29,7 @@
   "maxstatements" : false,    // {int} Max number statements per function
   "maxcomplexity" : 10,       // {int} Max cyclomatic complexity per function
   "futurehostile" : true,     // enables warnings about the use of identifiers which are defined in future versions of JavaScript
-  "singleGroups"  : false,    // TODO CHANGE THIS BACK TO TRUE WHEN WEBSTORM SUPPORTS JSHINT 2.8.0  // true: Prohibits the use of the grouping operator when it is not strictly required. Such usage commonly reflects a misunderstanding of unary operators
+  "singleGroups"  : true,     // true: Prohibits the use of the grouping operator when it is not strictly required. Such usage commonly reflects a misunderstanding of unary operators
 
   // ======================================================================================================
   // Relaxing  (generally more false than true's in this section if we want to implement strict JavaScript)

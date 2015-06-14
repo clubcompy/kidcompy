@@ -32,7 +32,7 @@ gulp.task("default", [ "help" ], function() {
 gulp.task("help", function() {
   console.log(" ");
   console.log("Gulp build script for Kidcompy");
-  console.log("Copyright © Woldrich, Inc")
+  console.log("Copyright © Woldrich, Inc");
   console.log("==============================");
   console.log(" ");
   console.log("Gulp tasks:");

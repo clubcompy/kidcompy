@@ -1,11 +1,10 @@
 "use strict";
 
 /* jscs: disable */
-var _ = require("lodash"),
-  path = require("path"),
+var path = require("path"),
   gulp = require("gulp"),
   spawn = require("child_process").spawn,
-  exec = require("child_process").exec,
+  hostPlatform = require("os").platform(),
   karma = require("karma"),
   webpack = require("webpack"),
   WebpackDevServer = require("webpack-dev-server"),
@@ -24,7 +23,8 @@ var _ = require("lodash"),
     "./lib/Main.js"
   ],
 
-  runningSelenium = null;
+  runningSelenium = null,
+  runningHarnessBrowser = null;
 
 gulp.task("default", [ "help" ], function() {
 });
@@ -32,19 +32,20 @@ gulp.task("default", [ "help" ], function() {
 gulp.task("help", function() {
   console.log(" ");
   console.log("Gulp build script for Kidcompy");
+  console.log("Copyright © Woldrich, Inc")
   console.log("==============================");
   console.log(" ");
   console.log("Gulp tasks:");
   console.log("  build               - Lint, run all tests, and build a production webpack bundle from sources");
-  console.log("  dev                 - Run karma watcher for unit tests, and launch a hot-reloading test harness page");
-  console.log("  integration         - Run karma watcher for all tests, and launch a hot-reloading test harness page");
+  console.log("  dev                 - Run karma watcher for unit tests. Launch hot-reloading code harness page");
+  console.log("  integration         - Run karma watcher for all tests w/ coverage. Launch hot-reloading code harness page");
   console.log(" ");
-  console.log("Gulp support tasks:")
-  console.log("  install-selenium    - Installs selenium, run at least once prior to 'gulp dev' or 'gulp integration'");
+  console.log("Gulp support tasks:");
+  console.log("  install-selenium    - Installs selenium. Run at least once prior to 'gulp dev' or 'gulp integration'");
   console.log("  unit-single         - Run unit tests once and then exit");
   console.log("  unit-watcher        - Run unit tests with a watcher");
-  console.log("  integration-single  - Run all tests (unit, integration, and system) once and then exit");
-  console.log("  integration-watcher - Run all tests (unit, integration, and system) with a watcher");
+  console.log("  integration-single  - Run all tests (unit, integration, and system) w/ coverage once and then exit");
+  console.log("  integration-watcher - Run all tests (unit, integration, and system) w/ coverage with a watcher");
   console.log("  help                - This help text");
   console.log(" ");
 });
@@ -126,10 +127,31 @@ gulp.task("integration-watcher", function(done) {
   }, done);
 });
 
-/* There's so much going on with the watchers, and gulp would hang on ctrl-c
-   this will at least force gulp to die after waiting one second after ctrl-c */
+/* Try to gracefully shutdown the harness browser and selenium server if user hits ctrl-c because
+   those things don't appear to happen automatically. */
 gulp.task("force-termination-after-sigint", function() {
-  function quitHandler(onComplete) {
+  function stopHarnessBrowser(onComplete) {
+    var chainCompletion = function() {
+      stopSeleniumServer(onComplete);
+    };
+
+    if(runningHarnessBrowser) {
+      try {
+        runningHarnessBrowser.quit(chainCompletion);
+      }
+      catch(e) {
+        chainCompletion();
+      }
+      finally {
+        runningHarnessBrowser = null;
+      }
+    }
+    else {
+      chainCompletion();
+    }
+  }
+
+  function stopSeleniumServer(onComplete) {
     if(runningSelenium) {
       try {
         runningSelenium.kill();
@@ -141,25 +163,26 @@ gulp.task("force-termination-after-sigint", function() {
       }
     }
 
-    onComplete();
+    if(onComplete) {
+      onComplete();
+    }
+  }
+
+  function quitHandler(onComplete) {
+    // windows does not give us any time to shutdown the harness browser, so we'll just leave it
+    // running on that platform.  Sorry Windows devs!
+    if(hostPlatform.indexOf("win") !== 0) {
+      stopHarnessBrowser(onComplete);
+    }
+    else {
+      stopSeleniumServer(onComplete);
+    }
   }
 
   function sigintHandler() {
     quitHandler(function() {
       process.exit();
     });
-
-    // Log any SIGNINT listeners other than this one that haven't exited the process
-    /*
-    var listeners = process.listeners("SIGINT"),
-      i, counter = 0;
-
-    for(i = 0; i < listeners.length; i++) {
-      if(listeners[i] !== sigintHandler) {
-        console.log("  Bad SIGINT listener #" + (++counter) + " detected: " + listeners[i].toString());
-      }
-    }
-    */
   }
 
   process.on("quit", quitHandler);
@@ -191,12 +214,12 @@ gulp.task("start-selenium", function() {
     if(code) {
       console.log(" ");
       console.log(" ");
-      console.log("    **************************************** README ******************************************");
-      console.log("    *                                                                                        *");
-      console.log("    * 'gulp start-selenium' failed, you need to run 'gulp install-selenium' at least once to *");
-      console.log("    * download and install selenium for this project on this computer                        *");
-      console.log("    *                                                                                        *");
-      console.log("    ******************************************************************************************");
+      console.log("    **************************************** README *****************************************");
+      console.log("    *                                                                                       *");
+      console.log("    * 'gulp start-selenium' failed.  If you haven't already, run 'gulp install-selenium' to *");
+      console.log("    * download and install selenium for this project on this computer and try again.        *");
+      console.log("    *                                                                                       *");
+      console.log("    *****************************************************************************************");
       console.log(" ");
       console.log(" ");
     }
@@ -324,14 +347,13 @@ gulp.task("spawn-harness-browser", function() {
   // you can install multiple extensions at the same time
   fp.addExtensions([ "./harnessContent/firebug-2.0.9.xpi" ], function() {
     fp.encoded(function(zippedProfile) {
-      browser.init({
+      runningHarnessBrowser = browser.init({
         browserName: "firefox",
         firefox_profile: zippedProfile
       })
         .get("http://localhost:8080/index.html")
         .maximize()
-        .setAsyncScriptTimeout(1000)
-        .done();
+        .setAsyncScriptTimeout(1000);
     });
   });
 });

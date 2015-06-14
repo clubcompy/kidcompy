@@ -2,7 +2,7 @@
 
 // jscs: disable
 var configureWebpack = require("./configureWebpack");
-var log = require("util").log;
+/* jshint -W079 */
 var _ = require("lodash");
 
 module.exports = function(config) {
@@ -30,6 +30,6 @@ module.exports = function(config) {
       isProductionBundle: false,
       isRunningTests: true,
       isLintingCode: true
-    }),
+    })
   });
 };

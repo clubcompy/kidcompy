@@ -3,10 +3,6 @@ Todos
 - Karma watch for integration tests
 - Production build
  * webpack
- * UglifyJS
- * karma:single on spec and integration tests
- * code coverage report
- * build bundles to dist folder
  * generate jsdocs
 
 Rocket science stuff that is in the parking lot because it is too much research/effort for now
@@ -46,9 +42,5 @@ like Closure Compiler can.
 
 Annoying things that annoy me
 =============================
-- The gulp process does not die when I ctrl-c with 'gulp dev', have to manually kill that process - is this a bug with
-gulp or with io.js?
-- Firebug does not open automagically when the kidcompy harness window/tab launches from 'gulp dev', I suspect Firebug
-has a bug with launching on a first time window because firebug does autostart when I open a new tab in the harness window.
-  - this seems to be intermittent, I've seen it succeed
-  - perhaps endemic to older versions of Firefox?  Firebug seems to be opening successfully lately
+- On windows, it seems like the ctrl-c handler doesn't allow me to shutdown the web driver for the code harness.  Windows devs will
+have to close the harness Firefox instance manually.

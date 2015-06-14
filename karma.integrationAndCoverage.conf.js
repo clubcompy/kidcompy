@@ -2,7 +2,8 @@
 
 // jscs: disable
 var configureWebpack = require("./configureWebpack");
-var log = require("util").log;
+
+/* jshint -W079 */
 var _ = require("lodash");
 
 module.exports = function(config) {
@@ -17,15 +18,16 @@ module.exports = function(config) {
     // add in the coverage plugins
     plugins: baseKarmaConfig.plugins.concat([
       require("karma-istanbul-reporter"),
-      require("karma-coverage")
+      require("karma-coverage"),
+      require("istanbul-instrumenter-loader")
     ]),
 
     // destination for coverage reports
     coverageReporter: {
       reporters: [
         {
-          type : 'html',
-          dir : 'test_coverage/'
+          type : "html",
+          dir : "dist/test_coverage/"
         }
       ]
     },
@@ -40,16 +42,18 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      "lib/**/*.spec.js": ["webpack", "coverage", "sourcemap"],
-      "lib/**/*.integration.js": ["webpack", "coverage", "sourcemap"],
-      "lib/**/*.system.js": ["webpack", "coverage", "sourcemap"]
+      "lib/**/([a-zA-Z0-9_]+).js": ["webpack", "coverage", "sourcemap"],
+      "lib/**/*.spec.js": ["webpack", "sourcemap"],
+      "lib/**/*.integration.js": ["webpack", "sourcemap"],
+      "lib/**/*.system.js": ["webpack", "sourcemap"]
     },
 
     webpack: configureWebpack({
       enableSourceMaps: true,
       isProductionBundle: false,
       isRunningTests: true,
-      isLintingCode: true
-    }),
+      isLintingCode: true,
+      isGeneratingCoverage: true
+    })
   });
 };

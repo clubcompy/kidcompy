@@ -1,0 +1,21 @@
+{
+  "opts": {
+    "encoding": "utf8",
+    "recurse": false,
+    "lenient": true
+  },
+
+  "templates": {
+    "cleverLinks": false,
+    "monspaceLinks": false,
+    "outputSourceFiles": true,
+    "systemName": "kidcompy",
+    "footer": "",
+    "copyright": "Copyright © Woldrich, Inc",
+    "navType": "vertical",
+    "theme": "cerulean",
+    "linenums": true,
+    "collapseSymbols": false,
+    "inverseNav": false
+  }
+}

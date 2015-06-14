@@ -4,6 +4,7 @@
 var path = require("path"),
   gulp = require("gulp"),
   spawn = require("child_process").spawn,
+  spawnSync = require("child_process").spawnSync,
   hostPlatform = require("os").platform(),
   karma = require("karma"),
   webpack = require("webpack"),
@@ -24,7 +25,10 @@ var path = require("path"),
   ],
 
   runningSelenium = null,
-  runningHarnessBrowser = null;
+  runningHarnessBrowser = null,
+
+  projectName = "kidcompy",
+  projectDescription = "The kidcompy module reveals a fun-loving character that lives at the heart of every computer";
 
 gulp.task("default", [ "help" ], function() {
 });
@@ -36,9 +40,10 @@ gulp.task("help", function() {
   console.log("==============================");
   console.log(" ");
   console.log("Gulp tasks:");
-  console.log("  build               - Lint, run all tests, and build a production webpack bundle from sources");
+  console.log("  build               - Lint, run all tests, build a production bundle from sources, and build JSDocs");
   console.log("  dev                 - Run karma watcher for unit tests. Launch hot-reloading code harness page");
   console.log("  integration         - Run karma watcher for all tests w/ coverage. Launch hot-reloading code harness page");
+  console.log("  jsdoc               - Builds public API and developer doc JSDocs");
   console.log(" ");
   console.log("Gulp support tasks:");
   console.log("  install-selenium    - Installs selenium. Run at least once prior to 'gulp dev' or 'gulp integration'");
@@ -46,6 +51,8 @@ gulp.task("help", function() {
   console.log("  unit-watcher        - Run unit tests with a watcher");
   console.log("  integration-single  - Run all tests (unit, integration, and system) w/ coverage once and then exit");
   console.log("  integration-watcher - Run all tests (unit, integration, and system) w/ coverage with a watcher");
+  console.log("  jsdoc-public-api    - Builds JSDocs for all public symbols in the codebase, intended for library users");
+  console.log("  jsdoc-dev-docs      - Builds JSDocs for all symbols in the codebase, internal use for library developers");
   console.log("  help                - This help text");
   console.log(" ");
 });
@@ -58,7 +65,7 @@ gulp.task("build", function() {
   //  generate jsdocs
 
   return runSequence([ "prebundle-checks"],
-                     [ "bundle" ]);
+                     [ "bundle", "jsdoc" ]);
 });
 
 gulp.task("prebundle-checks", function(done) {
@@ -356,4 +363,60 @@ gulp.task("spawn-harness-browser", function() {
         .setAsyncScriptTimeout(1000);
     });
   });
+});
+
+/**
+ * @param {Array.<String>} srcGlobPatterns
+ * @param {Array.<String>} params in-order list of command line params to send to jsdoc.
+ *        See http://usejsdoc.org/about-commandline.html for valid params
+ * @param {function} callback completion callback
+ */
+function callJsdoc(srcGlobPatterns, params, callback) {
+  var srcFiles = gulp.src(srcGlobPatterns),
+    fileList = [];
+
+  srcFiles.on("readable", function() {
+    var vinylFile;
+
+    while((vinylFile = srcFiles.read()) !== null) {
+      fileList.push(vinylFile.path);
+    }
+  }).on("end", function() {
+    spawnSync("./node_modules/.bin/jsdoc", [].concat(params).concat(fileList), {
+      stdio: "inherit"
+    });
+
+    callback();
+  });
+}
+
+gulp.task("jsdoc", function() {
+  return runSequence([ "jsdoc-public-api", "jsdoc-dev-docs" ]);
+});
+
+gulp.task("jsdoc-public-api", function(done) {
+  callJsdoc([ "./lib/**/*.js", "!./lib/**/*.spec.js", "!./lib/**/*.integration.js", "!./lib/**/*.system.js",
+              "README.md" ],
+    [
+      "--access", "public,undefined",
+      "--configure", "./jsdoc.conf.json",
+      "--destination", "./dist/public-api",
+      "--template", "./node_modules/ink-docstrap/template",
+      "--verbose"
+    ],
+    done);
+});
+
+gulp.task("jsdoc-dev-docs", function(done) {
+  callJsdoc([ "./lib/**/*.js", "!./lib/**/*.spec.js", "!./lib/**/*.integration.js", "!./lib/**/*.system.js",
+      "README.md" ],
+    [
+      "--access", "all",
+      "--private",
+      "--configure", "./jsdoc.conf.json",
+      "--destination", "./dist/developer-docs",
+      "--template", "./node_modules/ink-docstrap/template",
+      "--verbose"
+    ],
+    done);
 });

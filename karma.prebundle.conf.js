@@ -30,6 +30,8 @@ module.exports = function(config) {
       "lib/**/*.system.js": ["webpack", "sourcemap"]
     },
 
+    logLevel: config.LOG_ERROR,
+
     webpack: configureWebpack({
       enableSourceMaps: true,
       isProductionBundle: true,

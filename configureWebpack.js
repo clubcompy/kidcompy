@@ -49,7 +49,9 @@ function configureWebpack(options) {
     config.jscs = {
       emitErrors: true,
       maxErrors: 50,
-      verbose: true
+      verbose: true,
+      // fail the build if we're making a production bundle and a violation occurs
+      failOnHint: options.isProductionBundle
     };
   }
 

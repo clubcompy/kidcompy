@@ -5,7 +5,7 @@ var path = require("path"),
   gulp = require("gulp"),
   jsonSass = require("gulp-json-sass"),
   spawn = require("child_process").spawn,
-  spawnSync = require("child_process").spawnSync,
+  execFile = require("child_process").execFile,
   hostPlatform = require("os").platform(),
   karma = require("karma"),
   webpack = require("webpack"),
@@ -20,6 +20,7 @@ var path = require("path"),
   serveStatic = require("serve-static"),
   named = require("vinyl-named"),
   configureWebpack = require("./configureWebpack"),
+  platformIsWindows = (hostPlatform.indexOf("win") === 0),
 
   moduleEntryPoints = [
     "./lib/Main.js"
@@ -186,13 +187,13 @@ gulp.task("force-termination-after-sigint", function() {
   }
 
   function quitHandler(onComplete) {
-    // windows does not give us any time to shutdown the harness browser, so we'll just leave it
-    // running on that platform.  Sorry Windows devs!
-    if(hostPlatform.indexOf("win") !== 0) {
-      stopHarnessBrowser(onComplete);
+    // windows does not give us any grace period during SIGINT to shutdown the harness browser before hard killing
+    // our parent process, so we'll just leave the harness browser running on that platform.  Sorry Windows devs!
+    if(platformIsWindows) {
+      stopSeleniumServer(onComplete);
     }
     else {
-      stopSeleniumServer(onComplete);
+      stopHarnessBrowser(onComplete);
     }
   }
 
@@ -392,11 +393,16 @@ function callJsdoc(srcGlobPatterns, params, callback) {
       fileList.push(vinylFile.path);
     }
   }).on("end", function() {
-    spawnSync("./node_modules/.bin/jsdoc", [].concat(params).concat(fileList), {
-      stdio: "inherit"
-    });
+    execFile("jsdoc" + (platformIsWindows ? ".cmd" : ""), [].concat(params).concat(fileList), {
+      stdio: "inherit",
+      cwd: "./node_modules/.bin"
+    }, function(error) {
+      if(error) {
+        console.log(error);
+      }
 
-    callback();
+      callback();
+    });
   });
 }
 
@@ -409,9 +415,9 @@ gulp.task("jsdoc-public-api", function(done) {
               "README.md" ],
     [
       "--access", "public,undefined",
-      "--configure", "./jsdoc.conf.json",
-      "--destination", "./dist/public-api",
-      "--template", "./node_modules/ink-docstrap/template",
+      "--configure", __dirname + "/jsdoc.conf.json",
+      "--destination", __dirname + "/dist/public-api",
+      "--template", __dirname + "/node_modules/ink-docstrap/template",
       "--verbose"
     ],
     done);
@@ -423,9 +429,9 @@ gulp.task("jsdoc-dev-docs", function(done) {
     [
       "--access", "all",
       "--private",
-      "--configure", "./jsdoc.conf.json",
-      "--destination", "./dist/developer-docs",
-      "--template", "./node_modules/ink-docstrap/template",
+      "--configure", __dirname + "/jsdoc.conf.json",
+      "--destination", __dirname + "/dist/developer-docs",
+      "--template", __dirname + "/node_modules/ink-docstrap/template",
       "--verbose"
     ],
     done);

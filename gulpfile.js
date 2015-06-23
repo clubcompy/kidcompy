@@ -3,6 +3,7 @@
 /* jscs: disable */
 var path = require("path"),
   gulp = require("gulp"),
+  jsonSass = require("gulp-json-sass"),
   spawn = require("child_process").spawn,
   spawnSync = require("child_process").spawnSync,
   hostPlatform = require("os").platform(),
@@ -64,7 +65,7 @@ gulp.task("build", function() {
   //  build bundles
   //  generate jsdocs
 
-  return runSequence([ "prebundle-checks"],
+  return runSequence([ "prebundle-checks", "json-to-scss" ],
                      [ "bundle", "jsdoc" ]);
 });
 
@@ -74,6 +75,15 @@ gulp.task("prebundle-checks", function(done) {
     singleRun: true,
     autoWatch: false
   }, done);
+});
+
+gulp.task("json-to-scss", function() {
+  return gulp
+    .src("./lib/styles/styleVars.json")
+    .pipe(jsonSass({
+      sass: false
+    }))
+    .pipe(gulp.dest("./lib/styles"));
 });
 
 gulp.task("bundle", function() {

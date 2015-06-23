@@ -1,6 +1,6 @@
-$color: green;
+@import "./styleVars";
 
 body {
-  background-color: $color;
+  background-color: $greenColor;
   color: darkgreen;
 }

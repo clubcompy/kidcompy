@@ -3,3 +3,6 @@ test_coverage
 dist
 build
 .idea
+
+# this file is generated from styleVars.json
+lib/styles/styleVars.scss

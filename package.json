@@ -29,6 +29,7 @@
     "finalhandler": "^0.3.5",
     "firefox-profile": "^0.3.11",
     "gulp": "^3.8.11",
+    "gulp-json-sass": "0.0.2",
     "ink-docstrap": "^0.5.2",
     "is-my-json-valid": "^2.12.0",
     "istanbul": "^0.3.13",

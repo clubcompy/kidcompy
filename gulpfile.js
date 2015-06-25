@@ -242,7 +242,9 @@ gulp.task("start-selenium", function() {
       console.log(" ");
     }
 
-    process.quit();
+    if(typeof process.quit === "function") {
+      process.quit();
+    }
   });
 });
 

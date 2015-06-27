@@ -1,7 +1,8 @@
 "use strict";
 
 var path = require("path"),
-  webpack = require("webpack");
+  webpack = require("webpack"),
+  execFileSync = require("child_process").execFileSync;
 
 /**
  * @param {Object} options
@@ -13,13 +14,21 @@ var path = require("path"),
  * @returns {Object} webpack configuration object
  */
 function configureWebpack(options) {
-  var config = {
-    module: {
-      preLoaders: [],
-      loaders: [],
-      postLoaders: []
-    }
-  };
+  var currentGitUser,
+    config = {
+      module: {
+        preLoaders: [],
+        loaders: [],
+        postLoaders: []
+      }
+    };
+
+  try {
+    currentGitUser = execFileSync("git", [ "config", "user.name" ]).toString("utf-8").trim();
+  }
+  catch(e) {
+    console.log("Was unable to determine the current git user.name");
+  }
 
   if(options.enableSourceMaps) {
     if(options.isRunningTests) {
@@ -50,6 +59,7 @@ function configureWebpack(options) {
       emitErrors: true,
       maxErrors: 50,
       verbose: true,
+
       // fail the build if we're making a production bundle and a violation occurs
       failOnHint: options.isProductionBundle
     };
@@ -89,7 +99,12 @@ function configureWebpack(options) {
   config.plugins = [
     new webpack.ProvidePlugin({
       /* make lodash available to all modules */
-      _: "lodash"
+      _: "lodash",
+      featureFlags: path.resolve(__dirname, "./lib/featureFlags")
+    }),
+    new webpack.DefinePlugin({
+      PRODUCTION_MODE: options.isProductionBundle,
+      GIT_USERNAME: JSON.stringify(currentGitUser)
     })
   ];
 

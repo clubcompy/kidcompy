@@ -95,6 +95,10 @@
     "proclaim": false,         // Provided to tests by karma-proclaim
     "sinon": false,
     "assert": false,
-    "_": false
+    "JSON": false,
+    "_": false,
+    "featureFlags": false,
+    "GIT_USERNAME": false,
+    "PRODUCTION_MODE": false
   }
 }

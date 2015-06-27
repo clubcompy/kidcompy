@@ -6,6 +6,7 @@ var path = require("path"),
   jsonSass = require("gulp-json-sass"),
   spawn = require("child_process").spawn,
   execFile = require("child_process").execFile,
+  execFileSync = require("child_process").execFileSync,
   hostPlatform = require("os").platform(),
   karma = require("karma"),
   webpack = require("webpack"),
@@ -20,7 +21,7 @@ var path = require("path"),
   serveStatic = require("serve-static"),
   named = require("vinyl-named"),
   configureWebpack = require("./configureWebpack"),
-  platformIsWindows = (hostPlatform.indexOf("win") === 0),
+  platformIsWindows = hostPlatform.indexOf("win") === 0,
 
   moduleEntryPoints = [
     "./lib/Main.js"
@@ -264,12 +265,22 @@ gulp.task("start-harness-content", function() {
 });
 
 gulp.task("start-harness-server", function(callback) {
-  var server = new WebpackDevServer(webpack({
+  var currentGitUser,
+    server;
+
+  try {
+    currentGitUser = execFileSync("git", [ "config", "user.name" ]).toString("utf-8").trim();
+  }
+  catch(e) {
+    console.log("Was unable to determine the current git user.name");
+  }
+
+  server = new WebpackDevServer(webpack({
     entry: {
       harness: [ "webpack/hot/dev-server" ].concat(moduleEntryPoints)
     },
     output: {
-      path: __dirname + "/devBuild",
+      path: __dirname + "/intermediate",
       filename: "[name].js",
       chunkFilename: "[id].js"
     },
@@ -297,13 +308,18 @@ gulp.task("start-harness-server", function(callback) {
       new webpack.HotModuleReplacementPlugin(),
       new webpack.ProvidePlugin({
         /* make lodash available to all modules */
-        _: "lodash"
+        _: "lodash",
+        featureFlags: path.resolve(__dirname, "./lib/featureFlags")
+      }),
+      new webpack.DefinePlugin({
+        PRODUCTION_MODE: false,
+        GIT_USERNAME: JSON.stringify(currentGitUser)
       })
     ]
   }), {
     // webpack-dev-server option
     // or: contentBase: "http://localhost/",
-    contentBase: "./devBuild",
+    contentBase: "./intermediate",
 
     // Enable special support for Hot Module Replacement
     // Page is no longer updated, but a "webpackHotUpdate" message is send to the content

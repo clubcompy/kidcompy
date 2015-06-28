@@ -22,6 +22,11 @@ var path = require("path"),
 function configureWebpack(options) {
   var currentGitUser,
     entryPoints,
+    providedModules,
+    definedConstants,
+    featureFlags,
+    featureFlag,
+    featureFlagSummary,
     config = {
       module: {
         preLoaders: [],
@@ -143,16 +148,45 @@ function configureWebpack(options) {
     config.plugins.push(new webpack.HotModuleReplacementPlugin());
   }
 
-  config.plugins.push(new webpack.ProvidePlugin({
-    /* make lodash available to all modules */
-    _: "lodash",
-    featureFlags: path.resolve(__dirname, "./lib/featureFlags")
-  }));
+  // map of local variable name to module name that are auto-require'd into all modules in the bundle
+  providedModules = {
+    _: "lodash"
+  };
 
-  config.plugins.push(new webpack.DefinePlugin({
-    PRODUCTION_MODE: options.isProductionBundle,
+  if(!options.isProductionBundle) {
+    // featureFlags is an actual object in development mode that is auto-require'd using the ProvidePlugin
+    providedModules.featureFlags = path.resolve(__dirname, "./lib/featureFlags");
+  }
+
+  config.plugins.push(new webpack.ProvidePlugin(providedModules));
+
+  definedConstants = {
+    PRODUCTION_MODE: JSON.stringify(options.isProductionBundle),
     GIT_USERNAME: JSON.stringify(currentGitUser)
-  }));
+  };
+
+  if(options.isProductionBundle) {
+    // get the featureFlags and regenerate them, if needed
+    featureFlags = require("./lib/featureFlags");
+    featureFlags.generateFeatureFlags(options.isProductionBundle, currentGitUser);
+    featureFlagSummary = {};
+
+    // Feature flags are defined as constants in the production build so that they can be used to elide disabled
+    // features by-way of the UglifyJsPlugin that follows
+    for(featureFlag in featureFlags) {
+      if(featureFlags.hasOwnProperty(featureFlag) && typeof featureFlags[ featureFlag ] !== "function") {
+        definedConstants[ "featureFlags." + featureFlag ] = JSON.stringify(featureFlags[ featureFlag ]);
+        featureFlagSummary[ featureFlag ] = featureFlags[ featureFlag ];
+      }
+    }
+
+    // Make a constant out of the feature flags so that we can dump them for debugging purposes in production mode
+    // builds.  There is a similar global FEATURE_FLAGS variable object in development-mode builds that can be used
+    // in the same way as this constant.
+    definedConstants.FEATURE_FLAGS = JSON.stringify(featureFlagSummary);
+  }
+
+  config.plugins.push(new webpack.DefinePlugin(definedConstants));
 
   // want to minify the final JS bundle if we're in production mode
   if(options.isProductionBundle) {

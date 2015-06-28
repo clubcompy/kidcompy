@@ -6,21 +6,29 @@ var path = require("path"),
 
 /**
  * @param {Object} options
+ * @param {Array.<String>} options.moduleEntryPoints js modules that serve as entry points to the generated webpack bundle
+ * @param {String} options.outputModuleName name of the outputted module that represents the moduleEntryPoints
+ * @param {String} options.outputPath absolute path to folder where module should be written, if necessary
+ * @param {String} options.outputFilename filename or filename pattern of module that should be written
+ * @param {String} options.outputChunkFilename name of chunk files that are written
  * @param {Boolean} options.enableSourceMaps
  * @param {Boolean} options.isProductionBundle
  * @param {Boolean} options.isRunningTests
  * @param {Boolean} options.isLintingCode
  * @param {Boolean} options.isGeneratingCoverage
+ * @param {Boolean} options.isHotReloading
  * @returns {Object} webpack configuration object
  */
 function configureWebpack(options) {
   var currentGitUser,
+    entryPoints,
     config = {
       module: {
         preLoaders: [],
         loaders: [],
         postLoaders: []
-      }
+      },
+      plugins: []
     };
 
   try {
@@ -28,6 +36,34 @@ function configureWebpack(options) {
   }
   catch(e) {
     console.log("Was unable to determine the current git user.name");
+  }
+
+  if(options.outputModuleName && options.moduleEntryPoints) {
+    config.entry = {
+    };
+
+    entryPoints = options.moduleEntryPoints;
+    if(options.isHotReloading) {
+      entryPoints = [ "webpack/hot/dev-server" ].concat(entryPoints);
+    }
+
+    config.entry[ options.outputModuleName ] = entryPoints;
+  }
+
+  if(options.outputPath || options.outputFilename || options.outputChunkFilename) {
+    config.output = {};
+
+    if(options.outputPath) {
+      config.output.path = options.outputPath;
+    }
+
+    if(options.outputFilename) {
+      config.output.filename = options.outputFilename;
+    }
+
+    if(options.outputChunkFilename) {
+      config.output.chunkFilename = options.outputChunkFilename;
+    }
   }
 
   if(options.enableSourceMaps) {
@@ -96,17 +132,27 @@ function configureWebpack(options) {
     });
   }
 
-  config.plugins = [
-    new webpack.ProvidePlugin({
-      /* make lodash available to all modules */
-      _: "lodash",
-      featureFlags: path.resolve(__dirname, "./lib/featureFlags")
-    }),
-    new webpack.DefinePlugin({
-      PRODUCTION_MODE: options.isProductionBundle,
-      GIT_USERNAME: JSON.stringify(currentGitUser)
-    })
-  ];
+  // configure plugins
+
+  if(options.isHotReloading) {
+    config.dist = {
+      cache: false
+    };
+
+    // first thing in plugins list is the HotModuleReplacementPlugin if we're running in hotReloading mode
+    config.plugins.push(new webpack.HotModuleReplacementPlugin());
+  }
+
+  config.plugins.push(new webpack.ProvidePlugin({
+    /* make lodash available to all modules */
+    _: "lodash",
+    featureFlags: path.resolve(__dirname, "./lib/featureFlags")
+  }));
+
+  config.plugins.push(new webpack.DefinePlugin({
+    PRODUCTION_MODE: options.isProductionBundle,
+    GIT_USERNAME: JSON.stringify(currentGitUser)
+  }));
 
   // want to minify the final JS bundle if we're in production mode
   if(options.isProductionBundle) {

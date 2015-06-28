@@ -275,79 +275,55 @@ gulp.task("start-harness-server", function(callback) {
     console.log("Was unable to determine the current git user.name");
   }
 
-  server = new WebpackDevServer(webpack({
-    entry: {
-      harness: [ "webpack/hot/dev-server" ].concat(moduleEntryPoints)
-    },
-    output: {
-      path: __dirname + "/intermediate",
-      filename: "[name].js",
-      chunkFilename: "[id].js"
-    },
-
-    module: {
-      loaders: [
-        /* .ejs : precompiled lodash template */
-        { test: /\.ejs$/, loader: "ejs" },
-
-        /* .scss : SASS file that is compiled to a named .css file in the css folder */
-        {
-          test: /\.scss$/,
-          loader: "style/url?limit=0!file?name=css/[name].css?[hash]!sass?outputStyle=expanded" +
-                  "&includePaths[]=" +
-                  path.resolve(__dirname, "./node_modules")
-        }
-      ]
-    },
-
-    dist: {
-      cache: false
-    },
-
-    plugins: [
-      new webpack.HotModuleReplacementPlugin(),
-      new webpack.ProvidePlugin({
-        /* make lodash available to all modules */
-        _: "lodash",
-        featureFlags: path.resolve(__dirname, "./lib/featureFlags")
-      }),
-      new webpack.DefinePlugin({
-        PRODUCTION_MODE: false,
-        GIT_USERNAME: JSON.stringify(currentGitUser)
+  server = new WebpackDevServer(
+    webpack(
+      configureWebpack({
+        moduleEntryPoints: moduleEntryPoints,
+        outputModuleName: "harness",
+        outputPath: __dirname + "/intermediate",
+        outputFilename: "[name].js",
+        outputChunkFilename: "[id].js",
+        enableSourceMaps: true,
+        isRunningTests: false,
+        isLintingCode: false,
+        isGeneratingCoverage: false,
+        isProductionBundle: false,
+        isHotReloading: true
       })
-    ]
-  }), {
-    // webpack-dev-server option
-    // or: contentBase: "http://localhost/",
-    contentBase: "./intermediate",
+    ),
+    {
+      // webpack-dev-server option
+      // or: contentBase: "http://localhost/",
+      contentBase: "./intermediate",
 
-    // Enable special support for Hot Module Replacement
-    // Page is no longer updated, but a "webpackHotUpdate" message is send to the content
-    // Use "webpack/hot/dev-server" as additional module in your entry point
-    // Note: this does _not_ add the `HotModuleReplacementPlugin` like the CLI option does.
-    hot: true,
+      // Enable special support for Hot Module Replacement
+      // Page is no longer updated, but a "webpackHotUpdate" message is send to the content
+      // Use "webpack/hot/dev-server" as additional module in your entry point
+      // Note: this does _not_ add the `HotModuleReplacementPlugin` like the CLI option does.
+      hot: true,
 
-    // webpack-dev-middleware options
-    quiet: false,
-    noInfo: false,
-    lazy: false,
-    watchDelay: 100,
-    publicPath: "/",
-    stats: { colors: true },
+      // webpack-dev-middleware options
+      quiet: false,
+      noInfo: false,
+      lazy: false,
+      watchDelay: 100,
+      publicPath: "/",
+      stats: { colors: true },
 
-    // Set this as true if you want to access dev server from arbitrary url.
-    // This is handy if you are using a html5 router.
-    historyApiFallback: false,
+      // Set this as true if you want to access dev server from arbitrary url.
+      // This is handy if you are using a html5 router.
+      historyApiFallback: false,
 
-    // Set this if you want webpack-dev-server to delegate a single path to an arbitrary server.
-    // Use "*" to proxy all paths to the specified server.
-    // This is useful if you want to get rid of 'http://localhost:8080/' in script[src],
-    // and has many other use cases (see https://github.com/webpack/webpack-dev-server/pull/127 ).
-    proxy: {
-      // port 9080 is the serve-static server that hosts the static harness content
-      "*": "http://localhost:9080"
+      // Set this if you want webpack-dev-server to delegate a single path to an arbitrary server.
+      // Use "*" to proxy all paths to the specified server.
+      // This is useful if you want to get rid of 'http://localhost:8080/' in script[src],
+      // and has many other use cases (see https://github.com/webpack/webpack-dev-server/pull/127 ).
+      proxy: {
+        // port 9080 is the serve-static server that hosts the static harness content
+        "*": "http://localhost:9080"
+      }
     }
-  });
+  );
 
   server.listen(8080, "localhost", function() {
     callback();
@@ -411,9 +387,8 @@ function callJsdoc(srcGlobPatterns, params, callback) {
       fileList.push(vinylFile.path);
     }
   }).on("end", function() {
-    execFile("jsdoc" + (platformIsWindows ? ".cmd" : ""), [].concat(params).concat(fileList), {
-      stdio: "inherit",
-      cwd: "./node_modules/.bin"
+      execFile("./node_modules/.bin/jsdoc" + (platformIsWindows ? ".cmd" : ""), [].concat(params).concat(fileList), {
+      stdio: "inherit"
     }, function(error) {
       if(error) {
         console.log(error);

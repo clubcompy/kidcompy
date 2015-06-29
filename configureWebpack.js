@@ -155,7 +155,7 @@ function configureWebpack(options) {
 
   if(!options.isProductionBundle) {
     // featureFlags is an actual object in development mode that is auto-require'd using the ProvidePlugin
-    providedModules.featureFlags = path.resolve(__dirname, "./lib/featureFlags");
+    providedModules.featureFlags = path.resolve(__dirname, "./featureFlags");
   }
 
   config.plugins.push(new webpack.ProvidePlugin(providedModules));
@@ -167,7 +167,7 @@ function configureWebpack(options) {
 
   if(options.isProductionBundle) {
     // get the featureFlags and regenerate them, if needed
-    featureFlags = require("./lib/featureFlags");
+    featureFlags = require("./featureFlags");
     featureFlags.generateFeatureFlags(options.isProductionBundle, currentGitUser);
     featureFlagSummary = {};
 

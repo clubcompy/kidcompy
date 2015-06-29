@@ -80,7 +80,7 @@ featureFlagsDef = {
       }
     }
 
-    if(window) {
+    if(typeof window !== "undefined") {
       window.FEATURE_FLAGS = featureFlagSummary;
     }
   }

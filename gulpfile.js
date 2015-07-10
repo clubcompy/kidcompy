@@ -2,6 +2,7 @@
 
 /* jscs: disable */
 var path = require("path"),
+  closureCompiler = require("gulp-closure-compiler"),
   gulp = require("gulp"),
   jsonSass = require("gulp-json-sass"),
   spawn = require("child_process").spawn,
@@ -21,6 +22,11 @@ var path = require("path"),
   serveStatic = require("serve-static"),
   named = require("vinyl-named"),
   configureWebpack = require("./configureWebpack"),
+  sorcery = require("sorcery"),
+  download = require("gulp-download"),
+  unzip = require("gulp-unzip"),
+  flatten = require("gulp-flatten"),
+  minimatch = require("minimatch"),
   platformIsWindows = hostPlatform.indexOf("win") === 0,
 
   moduleEntryPoints = [
@@ -68,7 +74,9 @@ gulp.task("build", function() {
   //  generate jsdocs
 
   return runSequence([ "prebundle-checks", "json-to-scss" ],
-                     [ "bundle", "jsdoc" ]);
+                     [ "bundle", "jsdoc" ],
+                     [ "minify" ],
+                     [ "fixup-source-maps" ]);
 });
 
 gulp.task("prebundle-checks", function(done) {
@@ -99,6 +107,39 @@ gulp.task("bundle", function() {
     .pipe(gulp.dest("dist/"));
 });
 
+gulp.task("minify", function() {
+  process.chdir("dist");
+
+  return gulp.src(['Main.js'])
+    .pipe(closureCompiler({
+      compilerPath: '../bin/compiler.jar',
+      fileName: 'Main.min.js',
+      compilerFlags: {
+        charset: "UTF-8",
+        compilation_level: 'ADVANCED_OPTIMIZATIONS',
+        create_source_map: 'Main.min.js.map',
+        source_map_input: 'Main.js|Main.js.map',
+        third_party: null,
+        use_types_for_optimization: null,
+        warning_level: 'VERBOSE',
+        output_wrapper: "%output%\n//# sourceMappingURL=Main.min.js.map"
+      }
+    }))
+    .pipe(gulp.dest('.'));
+});
+
+gulp.task("fixup-source-maps", function() {
+  var chain = sorcery.loadSync("./Main.min.js", {
+    includeContent: true
+  });
+
+  chain.writeSync("./Main.final.js");
+});
+
+gulp.task("install-prereqs", function(callback) {
+  return runSequence([ "install-selenium", "install-closure-compiler" ]);
+});
+
 gulp.task("install-selenium", function(callback) {
   selenium.install({
     logger: function(message) {
@@ -112,6 +153,17 @@ gulp.task("install-selenium", function(callback) {
       callback();
     }
   });
+});
+
+gulp.task("install-closure-compiler", function() {
+  download("http://dl.google.com/closure-compiler/compiler-latest.zip")
+    .pipe(unzip({
+      filter : function(entry){
+        return minimatch(entry.path, "**/compiler.jar");
+      }
+    }))
+    .pipe(flatten())
+    .pipe(gulp.dest("./bin"));
 });
 
 gulp.task("unit-single", function(done) {

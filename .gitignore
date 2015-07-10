@@ -1,6 +1,7 @@
 node_modules
 test_coverage
 dist
+bin
 build
 .idea
 

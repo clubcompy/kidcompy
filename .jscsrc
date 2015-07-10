@@ -112,7 +112,7 @@
     "switch"
   ],
   "requireDollarBeforejQueryAssignment": true,
-  "requireDotNotation": "except_snake_case",
+  "requireDotNotation": null,
   "requireFunctionDeclarations": true,
   "requireKeywordsOnNewLine": ["else"],
   "requireLineBreakAfterVariableAssignment": true,
@@ -203,7 +203,10 @@
 
   "jsDoc": {
     "checkAnnotations": {
-      "preset": "jsdoc3"
+      "preset": "jsdoc3",
+      "extra": {
+        "export": false
+      }
     },
     "checkParamNames": true,
     "requireParamTypes": true,
@@ -211,7 +214,7 @@
     "checkReturnTypes": true,
     "checkRedundantReturns": true,
     "requireReturnTypes": true,
-    "checkTypes": "capitalizedNativeCase",
+    "checkTypes": "strictNativeCase",
     "checkRendundantAccess": true,
     "requireNewlineAfterDescription": true,
     "enforceExistence": true

@@ -19,9 +19,9 @@ productionMode = typeof PRODUCTION_MODE !== "undefined" ? PRODUCTION_MODE : fals
 
 /**
  * @typedef {Array} FeatureFlagInfo
- * @property {Boolean} FeatureFlagInfo[0] enable/disable the feature in production mode
- * @property {Boolean} FeatureFlagInfo[1] enable/disable the feature in development mode
- * @property {(Object.<String,Boolean>|undefined)} FeatureFlagInfo[2] optional mapping of git username to
+ * @property {boolean} FeatureFlagInfo[0] enable/disable the feature in production mode
+ * @property {boolean} FeatureFlagInfo[1] enable/disable the feature in development mode
+ * @property {(Object.<string,boolean>|undefined)} FeatureFlagInfo[2] optional mapping of git username to
  *           enable/disable flags in development mode.  If the current git user's name matches a key in this
  *           map, then the Boolean value will override FeatureFlagInfo[1]
  */
@@ -30,7 +30,7 @@ productionMode = typeof PRODUCTION_MODE !== "undefined" ? PRODUCTION_MODE : fals
  * The raw data used to build out the flags
  *
  * @lends featureFlags
- * @type {Object.<String,FeatureFlagInfo>}
+ * @type {Object.<string,FeatureFlagInfo>}
  */
 rawFlagData = {
   DEPRECATED_FUNCTION: [ false, false ],
@@ -45,8 +45,8 @@ rawFlagData = {
 featureFlagsDef = {
   /**
    * @private
-   * @param {Boolean} isProductionMode
-   * @param {String} currentUserName
+   * @param {boolean} isProductionMode
+   * @param {string} currentUserName
    */
   generateFeatureFlags: function(isProductionMode, currentUserName) {
     var self = this,

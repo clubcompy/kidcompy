@@ -1,22 +1,24 @@
 "use strict";
 
+/* jscs: disable */
+
 var path = require("path"),
   webpack = require("webpack"),
   execFileSync = require("child_process").execFileSync;
 
 /**
  * @param {Object} options
- * @param {Array.<String>} options.moduleEntryPoints js modules that serve as entry points to the generated webpack bundle
- * @param {String} options.outputModuleName name of the outputted module that represents the moduleEntryPoints
- * @param {String} options.outputPath absolute path to folder where module should be written, if necessary
- * @param {String} options.outputFilename filename or filename pattern of module that should be written
- * @param {String} options.outputChunkFilename name of chunk files that are written
- * @param {Boolean} options.enableSourceMaps
- * @param {Boolean} options.isProductionBundle
- * @param {Boolean} options.isRunningTests
- * @param {Boolean} options.isLintingCode
- * @param {Boolean} options.isGeneratingCoverage
- * @param {Boolean} options.isHotReloading
+ * @param {Array.<string>} options.moduleEntryPoints js modules that serve as entry points to the generated webpack bundle
+ * @param {string} options.outputModuleName name of the outputted module that represents the moduleEntryPoints
+ * @param {string} options.outputPath absolute path to folder where module should be written, if necessary
+ * @param {string} options.outputFilename filename or filename pattern of module that should be written
+ * @param {string} options.outputChunkFilename name of chunk files that are written
+ * @param {boolean} options.enableSourceMaps
+ * @param {boolean} options.isProductionBundle
+ * @param {boolean} options.isRunningTests
+ * @param {boolean} options.isLintingCode
+ * @param {boolean} options.isGeneratingCoverage
+ * @param {boolean} options.isHotReloading
  * @returns {Object} webpack configuration object
  */
 function configureWebpack(options) {
@@ -78,7 +80,7 @@ function configureWebpack(options) {
       config.devtool = "eval";
     }
     else {
-      config.devtool = options.isProductionBundle ? "hidden-source-map" : "source-map";
+      config.devtool = "source-map";
     }
   }
 
@@ -150,7 +152,10 @@ function configureWebpack(options) {
 
   // map of local variable name to module name that are auto-require'd into all modules in the bundle
   providedModules = {
-    _: "lodash"
+    _: "lodash",
+    exportGlobal: "./export/exportSymbol",
+    exportPrototypeProperties: "./export/exportPrototypeProperties",
+    exportStaticProperties: "./export/exportStaticProperties"
   };
 
   if(!options.isProductionBundle) {
@@ -192,12 +197,14 @@ function configureWebpack(options) {
   if(options.isProductionBundle) {
     config.plugins.push(new webpack.optimize.UglifyJsPlugin({
       compress: {
-        warnings: false
+        warnings: false,
+        properties: false,
+        negate_iife: false
       },
 
-      mangle: {
-        except: [ "_", "exports", "require" ]
-      }
+      mangle: false,
+
+      comments: "all"
     }));
   }
 

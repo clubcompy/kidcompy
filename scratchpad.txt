@@ -2,10 +2,7 @@ Todos
 =====
 - Karma watch for integration tests
 - Production build
- * webpack
- * prototype some feature toggles
-   * prove they can work (differently) in dev and production builds
-   * prove uglifyjs can eliminate feature flag == false dead code blocks in the production builds
+ - webpack
 
 
 Daily Kidcompy developer steps
@@ -32,7 +29,6 @@ Daily Kidcompy developer steps
 
 Parking lot or rocket science stuff that is too much research/effort to work on immediately
 ===========================================================================================
-
 
 
 Annoying things that annoy me

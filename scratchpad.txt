@@ -1,6 +1,5 @@
 Todos
 =====
-- Karma watch for integration tests
 - Production build
  - webpack
 

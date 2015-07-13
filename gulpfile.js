@@ -73,10 +73,12 @@ gulp.task("build", function() {
   //  build bundles
   //  generate jsdocs
 
-  return runSequence([ "prebundle-checks", "json-to-scss" ],
-                     [ "bundle", "jsdoc" ],
-                     [ "minify" ],
-                     [ "fixup-source-maps" ]);
+  return runSequence(
+    [ "prebundle-checks", "json-to-scss" ],
+    [ "bundle", "jsdoc" ],
+    [ "minify" ],
+    [ "fixup-closure-compiler-source-map" ]
+  );
 });
 
 gulp.task("prebundle-checks", function(done) {
@@ -104,59 +106,76 @@ gulp.task("bundle", function() {
       enableSourceMaps: true,
       isProductionBundle: true
     })), webpack)
-    .pipe(gulp.dest("dist/"));
+    .pipe(gulp.dest("intermediate/"));
 });
 
 gulp.task("minify", function() {
-  process.chdir("dist");
+  return runSequence(
+    [ "chdir-intermediate" ],
+    [ "launch-closure-compiler" ],
+    [ "chdir-up" ]
+  );
+});
 
+gulp.task("chdir-intermediate", function() {
+  process.chdir("intermediate");
+});
+
+gulp.task("chdir-up", function() {
+  process.chdir("..");
+});
+
+gulp.task("launch-closure-compiler", function() {
+  // expects the gulp process' cwd to be run from the source/target folder
   return gulp.src(['Main.js'])
     .pipe(closureCompiler({
-      compilerPath: '../bin/compiler.jar',
-      fileName: 'Main.min.js',
+      compilerPath: __dirname + '/bin/compiler.jar',
+      fileName: 'Main.closureCompiler.js',
       compilerFlags: {
         charset: "UTF-8",
         compilation_level: 'ADVANCED_OPTIMIZATIONS',
-        create_source_map: 'Main.min.js.map',
+        create_source_map: 'Main.closureCompiler.js.map',
         source_map_input: 'Main.js|Main.js.map',
         third_party: null,
         use_types_for_optimization: null,
         warning_level: 'VERBOSE',
-        output_wrapper: "%output%\n//# sourceMappingURL=Main.min.js.map"
+        output_wrapper: "%output%\n//# sourceMappingURL=Main.closureCompiler.js.map"
       }
     }))
     .pipe(gulp.dest('.'));
 });
 
-gulp.task("fixup-source-maps", function() {
-  var chain = sorcery.loadSync("./Main.min.js", {
+gulp.task("fixup-closure-compiler-source-map", function() {
+  var chain = sorcery.loadSync("./intermediate/Main.closureCompiler.js", {
     includeContent: true
   });
 
-  chain.writeSync("./Main.final.js");
+  chain.writeSync("./dist/Main.min.js");
 });
 
-gulp.task("install-prereqs", function(callback) {
-  return runSequence([ "install-selenium", "install-closure-compiler" ]);
+gulp.task("install-prereqs", function() {
+  return runSequence(
+    [ "install-selenium", "install-closure-compiler" ]
+  );
 });
 
-gulp.task("install-selenium", function(callback) {
+gulp.task("install-selenium", function(done) {
   selenium.install({
     logger: function(message) {
       console.log(message);
     }
   }, function(error) {
     if(error) {
-      callback(error);
+      done(error);
     }
     else {
-      callback();
+      done();
     }
   });
 });
 
 gulp.task("install-closure-compiler", function() {
-  download("http://dl.google.com/closure-compiler/compiler-latest.zip")
+  return download("http://dl.google.com/closure-compiler/compiler-latest.zip")
     .pipe(unzip({
       filter : function(entry){
         return minimatch(entry.path, "**/compiler.jar");
@@ -261,21 +280,25 @@ gulp.task("force-termination-after-sigint", function() {
 });
 
 gulp.task("dev", function() {
-  return runSequence([ "force-termination-after-sigint" ],
-                     [ "start-selenium", "start-harness-content" ],
-                     [ "start-harness-server" ],
-                     [ "spawn-harness-browser", "unit-watcher" ]);
+  return runSequence(
+    [ "force-termination-after-sigint" ],
+    [ "start-selenium", "start-harness-content" ],
+    [ "start-harness-server" ],
+    [ "spawn-harness-browser", "unit-watcher" ]
+  );
 });
 
 gulp.task("integration", function() {
-  return runSequence([ "force-termination-after-sigint" ],
-                     [ "start-selenium", "start-harness-content" ],
-                     [ "start-harness-server" ],
-                     [ "spawn-harness-browser", "integration-watcher" ]);
+  return runSequence(
+    [ "force-termination-after-sigint" ],
+    [ "start-selenium", "start-harness-content" ],
+    [ "start-harness-server" ],
+    [ "spawn-harness-browser", "integration-watcher" ]
+  );
 });
 
 gulp.task("start-selenium", function() {
-  runningSelenium = spawn("node", [ "./selenium-standalone", "start" ], {
+  runningSelenium = spawn("node", [ "./selenium-standalone", "start", "-timeout", 0x7fffffff ], {
     cwd: "./node_modules/selenium-standalone/bin",
     stdio: "ignore",
     detached: true
@@ -285,12 +308,13 @@ gulp.task("start-selenium", function() {
     if(code) {
       console.log(" ");
       console.log(" ");
-      console.log("    **************************************** README *****************************************");
-      console.log("    *                                                                                       *");
-      console.log("    * 'gulp start-selenium' failed.  If you haven't already, run 'gulp install-selenium' to *");
-      console.log("    * download and install selenium for this project on this computer and try again.        *");
-      console.log("    *                                                                                       *");
-      console.log("    *****************************************************************************************");
+      console.log("    **************************************** README ****************************************");
+      console.log("    *                                                                                      *");
+      console.log("    * 'gulp start-selenium' failed.  This could be a legit failure or it could be that     *");
+      console.log("    * selenium hasn't been installed.  If you haven't already, run 'gulp install-selenium' *");
+      console.log("    * to download and install selenium for this project on this computer and try again.    *");
+      console.log("    *                                                                                      *");
+      console.log("    ****************************************************************************************");
       console.log(" ");
       console.log(" ");
     }
@@ -358,7 +382,9 @@ gulp.task("start-harness-server", function(callback) {
       quiet: false,
       noInfo: false,
       lazy: false,
-      watchDelay: 100,
+      watchOptions: {
+        aggregateTimeout: 100
+      },
       publicPath: "/",
       stats: { colors: true },
 
@@ -388,18 +414,27 @@ gulp.task("spawn-harness-browser", function() {
   var fp = new FirefoxProfile(),
     browser = wd.promiseChainRemote();
 
+  fp.setPreference("devtools.cache.disabled", true);
+  fp.setPreference("devtools.appmanager.enabled", true);
+  fp.setPreference("devtools.toolbox.selectedTool", "jsdebugger");
+  fp.setPreference("devtools.debugger.enabled", true);
+  fp.setPreference("devtools.debugger.chrome-enabled", true);
+  fp.setPreference("devtools.netmonitor.enabled", true);
+  fp.setPreference("devtools.inspector.enabled", true);
+  fp.setPreference("devtools.toolbar.enabled", true);
+
   // activate the console, net, and script panels
-  fp.setPreference("extensions.firebug.console.enableSites", true);
-  fp.setPreference("extensions.firebug.alwaysShowCommandLine", true);
-  fp.setPreference("extensions.firebug.script.enableSites", true);
+//  fp.setPreference("extensions.firebug.console.enableSites", true);
+//  fp.setPreference("extensions.firebug.alwaysShowCommandLine", true);
+//  fp.setPreference("extensions.firebug.script.enableSites", true);
 
   // activate and open firebug by default for all sites
-  fp.setPreference("extensions.firebug.allPagesActivation", "on");
+//  fp.setPreference("extensions.firebug.allPagesActivation", "on");
 
   // show the console panel
-  fp.setPreference("extensions.firebug.defaultPanelName", "script");
-  fp.setPreference("extensions.firebug.showFirstRunPage", false);
-  fp.setPreference("extensions.firebug.delayLoad", false);
+//  fp.setPreference("extensions.firebug.defaultPanelName", "script");
+//  fp.setPreference("extensions.firebug.showFirstRunPage", false);
+//  fp.setPreference("extensions.firebug.delayLoad", false);
 
   fp.setPreference("datareporting.healthreport.service.firstRun", true);
   fp.setPreference("datareporting.healthreport.uploadEnabled", false);
@@ -409,12 +444,13 @@ gulp.task("spawn-harness-browser", function() {
   fp.updatePreferences();
 
   // you can install multiple extensions at the same time
-  fp.addExtensions([ "./harnessContent/firebug-2.0.9.xpi" ], function() {
+  fp.addExtensions([ /* "./harnessContent/firebug-2.0.9.xpi" */ ], function() {
     fp.encoded(function(zippedProfile) {
-      runningHarnessBrowser = browser.init({
-        browserName: "firefox",
-        firefox_profile: zippedProfile
-      })
+      runningHarnessBrowser =
+        browser.init({
+          browserName: "firefox",
+          firefox_profile: zippedProfile
+        })
         .get("http://localhost:8080/index.html")
         .maximize()
         .setAsyncScriptTimeout(1000);
@@ -452,7 +488,9 @@ function callJsdoc(srcGlobPatterns, params, callback) {
 }
 
 gulp.task("jsdoc", function() {
-  return runSequence([ "jsdoc-public-api", "jsdoc-dev-docs" ]);
+  return runSequence(
+    [ "jsdoc-public-api", "jsdoc-dev-docs" ]
+  );
 });
 
 gulp.task("jsdoc-public-api", function(done) {

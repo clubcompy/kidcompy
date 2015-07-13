@@ -193,7 +193,10 @@ function configureWebpack(options) {
 
   config.plugins.push(new webpack.DefinePlugin(definedConstants));
 
-  // want to minify the final JS bundle if we're in production mode
+  // Closure compiler is our minifier in production mode builds, but there are aspects to the webpack bundles that
+  // Closure Compiler chokes on.  This UglifyJsPlugin does some light post-processing compression on the output bundle
+  // that has the effect of eliding code blocks that have been disabled by feature flags.  This gets Closure Compiler
+  // past the Webpack-generated trouble spots.
   if(options.isProductionBundle) {
     config.plugins.push(new webpack.optimize.UglifyJsPlugin({
       compress: {
@@ -202,8 +205,10 @@ function configureWebpack(options) {
         negate_iife: false
       },
 
+      // Closure Compiler will take care of mangling
       mangle: false,
 
+      // preserve all the comments so that the jsdoc's are fed to Closure Compiler
       comments: "all"
     }));
   }

@@ -49,7 +49,7 @@ gulp.task("help", function() {
   console.log("==============================");
   console.log(" ");
   console.log("Gulp tasks:");
-  console.log("  build               - Lint, run all tests, build a production bundle from sources, and build JSDocs");
+  console.log("  build               - Lint, run all tests/coverage, build production bundle, and build JSDocs");
   console.log("  dev                 - Run karma watcher for unit tests. Launch hot-reloading code harness page");
   console.log("  integration         - Run karma watcher for all tests w/ coverage. Launch hot-reloading code harness page");
   console.log("  jsdoc               - Builds public API and developer doc JSDocs");
@@ -75,7 +75,7 @@ gulp.task("build", function() {
 
   return runSequence(
     [ "prebundle-checks", "json-to-scss" ],
-    [ "bundle", "jsdoc" ],
+    [ "bundle" ],
     [ "make-dist" ]
   );
 });
@@ -121,7 +121,7 @@ gulp.task("make-dist", function() {
     [ "chdir-intermediate" ],
     [ "launch-closure-compiler", "copy-artifacts-to-dist" ],
     [ "chdir-up" ],
-    [ "fixup-closure-compiler-source-map" ]
+    [ "fixup-closure-compiler-source-map", "jsdoc" ]
   );
 });
 

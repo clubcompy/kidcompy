@@ -27,7 +27,7 @@ module.exports = function(config) {
       reporters: [
         {
           type : "html",
-          dir : "dist/test_coverage/"
+          dir : "intermediate/test_coverage/"
         }
       ]
     },

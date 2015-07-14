@@ -76,8 +76,7 @@ gulp.task("build", function() {
   return runSequence(
     [ "prebundle-checks", "json-to-scss" ],
     [ "bundle", "jsdoc" ],
-    [ "minify" ],
-    [ "fixup-closure-compiler-source-map" ]
+    [ "make-dist" ]
   );
 });
 
@@ -109,11 +108,20 @@ gulp.task("bundle", function() {
     .pipe(gulp.dest("intermediate/"));
 });
 
-gulp.task("minify", function() {
+gulp.task("copy-artifacts-to-dist", function() {
+  return gulp.src([
+    "**/*",
+    "!*.js",
+    "!*.map"
+  ]).pipe(gulp.dest("../dist"));
+});
+
+gulp.task("make-dist", function() {
   return runSequence(
     [ "chdir-intermediate" ],
-    [ "launch-closure-compiler" ],
-    [ "chdir-up" ]
+    [ "launch-closure-compiler", "copy-artifacts-to-dist" ],
+    [ "chdir-up" ],
+    [ "fixup-closure-compiler-source-map" ]
   );
 });
 

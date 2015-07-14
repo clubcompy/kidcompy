@@ -2,7 +2,7 @@ node_modules
 test_coverage
 dist
 bin
-build
+intermediate
 .idea
 
 # this file is generated from styleVars.json

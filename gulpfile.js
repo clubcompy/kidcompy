@@ -36,6 +36,12 @@ var path = require("path"),
   runningSelenium = null,
   runningHarnessBrowser = null,
 
+  closureCompilerSourceList = [],
+  closureCompilerOutputFile = "",
+  closureCompilerSourceMap = "",
+  closureCompilerOutputMap = "",
+  finalInputOutputMap = {},
+
   projectName = "kidcompy",
   projectDescription = "The kidcompy module reveals a fun-loving character that lives at the heart of every computer";
 
@@ -49,9 +55,9 @@ gulp.task("help", function() {
   console.log("==============================");
   console.log(" ");
   console.log("Gulp tasks:");
-  console.log("  build               - Lint, run all tests/coverage, build production bundle, and build JSDocs");
+  console.log("  build               - Run all lints/tests/coverage, build production bundle, and build JSDocs");
   console.log("  dev                 - Run karma watcher for unit tests. Launch hot-reloading code harness page");
-  console.log("  integration         - Run karma watcher for all tests w/ coverage. Launch hot-reloading code harness page");
+  console.log("  integration         - Run karma watcher for all tests w/ coverage. Launch hot-reloading harness page");
   console.log("  jsdoc               - Builds public API and developer doc JSDocs");
   console.log(" ");
   console.log("Gulp support tasks:");
@@ -67,22 +73,55 @@ gulp.task("help", function() {
 });
 
 gulp.task("build", function() {
-  // webpack
-  //  jshint and jscs
-  //  karma;single on spec and integration tests
-  //  build bundles
-  //  generate jsdocs
-
   return runSequence(
-    [ "prebundle-checks", "json-to-scss" ],
+    // run the integration test suite once before minification
+    [ "integration-single" ],
+
+    // build a closure-compiled, minified test bundle with integration tests included
+    // this should (hopefully) catch errors induced by closure-compiler's optimizations
+    [ "test-bundle" ],
+    [ "chdir-intermediate" ],
+    [ "launch-closure-compiler" ],
+    [ "chdir-up" ],
+    [ "fixup-closure-compiler-source-map" ],
+
+    // run karma against the test bundle in the production-like testing.js bundle
+    [ "production-bundle-tests" ],
+
+    // build the production bundle, minify it, and build jsdocs to dist folder
     [ "bundle" ],
-    [ "make-dist" ]
+    [ "chdir-intermediate" ],
+    [ "launch-closure-compiler", "copy-artifacts-to-dist" ],
+    [ "chdir-up" ],
+    [ "fixup-closure-compiler-source-map", "jsdoc" ]
   );
 });
 
-gulp.task("prebundle-checks", function(done) {
+gulp.task("test-bundle", [ "json-to-scss" ], function() {
+  // intermediate folder files that will be the inputs and outputs for the closure compiler
+  closureCompilerSourceList = [ 'testing.js' ];
+  closureCompilerOutputFile = 'testing.closureCompiler.js';
+  closureCompilerSourceMap = 'testing.js|testing.js.map';
+  closureCompilerOutputMap = 'testing.closureCompiler.js.map';
+
+  // map of closure compiled sources in intermediate folder to testing bundle files written to intermediate folder
+  finalInputOutputMap = { "testing.closureCompiler.js": "./intermediate/testing.min.js" };
+
+  return gulp.src(moduleEntryPoints.concat(["lib/**/*.spec.js", "lib/**/*.integration.js", "lib/**/*.system.js"]))
+    .pipe(named())
+    .pipe(webpackStream(configureWebpack({
+      enableSourceMaps: true,
+      outputPath: __dirname + "/intermediate",
+      outputFilename: "testing.js",
+      emitSingleChunk: true,
+      isProductionBundle: true
+    })), webpack)
+    .pipe(gulp.dest("intermediate/"));
+});
+
+gulp.task("production-bundle-tests", function(done) {
   karma.server.start({
-    configFile: __dirname + "/karma.prebundle.conf.js",
+    configFile: __dirname + "/karma.prodBundle.conf.js",
     singleRun: true,
     autoWatch: false
   }, done);
@@ -97,7 +136,16 @@ gulp.task("json-to-scss", function() {
     .pipe(gulp.dest("./lib/styles"));
 });
 
-gulp.task("bundle", function() {
+gulp.task("bundle", [ "json-to-scss" ], function() {
+  // intermediate folder files that will be the inputs and outputs for the closure compiler
+  closureCompilerSourceList = [ 'Main.js' ];
+  closureCompilerOutputFile = 'Main.closureCompiler.js';
+  closureCompilerSourceMap = 'Main.js|Main.js.map';
+  closureCompilerOutputMap = 'Main.closureCompiler.js.map';
+
+  // map of closure compiled sources in intermediate folder to final production bundle files written to dist folder
+  finalInputOutputMap = { "Main.closureCompiler.js": "./dist/Main.min.js" };
+
   return gulp.src(moduleEntryPoints)
     // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
     .pipe(named())
@@ -116,15 +164,6 @@ gulp.task("copy-artifacts-to-dist", function() {
   ]).pipe(gulp.dest("../dist"));
 });
 
-gulp.task("make-dist", function() {
-  return runSequence(
-    [ "chdir-intermediate" ],
-    [ "launch-closure-compiler", "copy-artifacts-to-dist" ],
-    [ "chdir-up" ],
-    [ "fixup-closure-compiler-source-map", "jsdoc" ]
-  );
-});
-
 gulp.task("chdir-intermediate", function() {
   process.chdir("intermediate");
 });
@@ -135,30 +174,37 @@ gulp.task("chdir-up", function() {
 
 gulp.task("launch-closure-compiler", function() {
   // expects the gulp process' cwd to be run from the source/target folder
-  return gulp.src(['Main.js'])
+  return gulp.src(closureCompilerSourceList)
     .pipe(closureCompiler({
       compilerPath: __dirname + '/bin/compiler.jar',
-      fileName: 'Main.closureCompiler.js',
+      fileName: closureCompilerOutputFile,
       compilerFlags: {
         charset: "UTF-8",
         compilation_level: 'ADVANCED_OPTIMIZATIONS',
-        create_source_map: 'Main.closureCompiler.js.map',
-        source_map_input: 'Main.js|Main.js.map',
+        create_source_map: closureCompilerOutputMap,
+        source_map_input: closureCompilerSourceMap,
         third_party: null,
         use_types_for_optimization: null,
         warning_level: 'VERBOSE',
-        output_wrapper: "%output%\n//# sourceMappingURL=Main.closureCompiler.js.map"
+        output_wrapper: "%output%\n//# sourceMappingURL=" + closureCompilerOutputMap,
+        externs: ["../lib/testing.externs.js"]
       }
     }))
     .pipe(gulp.dest('.'));
 });
 
 gulp.task("fixup-closure-compiler-source-map", function() {
-  var chain = sorcery.loadSync("./intermediate/Main.closureCompiler.js", {
-    includeContent: true
-  });
+  var ccSource;
 
-  chain.writeSync("./dist/Main.min.js");
+  for(ccSource in finalInputOutputMap) {
+    if(finalInputOutputMap.hasOwnProperty(ccSource)) {
+      var chain = sorcery.loadSync("./intermediate/" + ccSource, {
+        includeContent: true
+      });
+
+      chain.writeSync(finalInputOutputMap[ccSource]);
+    }
+  }
 });
 
 gulp.task("install-prereqs", function() {
@@ -193,7 +239,7 @@ gulp.task("install-closure-compiler", function() {
     .pipe(gulp.dest("./bin"));
 });
 
-gulp.task("unit-single", function(done) {
+gulp.task("unit-single", [ "json-to-scss" ], function(done) {
   karma.server.start({
     configFile: __dirname + "/karma.unit.conf.js",
     singleRun: true,
@@ -201,7 +247,7 @@ gulp.task("unit-single", function(done) {
   }, done);
 });
 
-gulp.task("integration-single", function(done) {
+gulp.task("integration-single", [ "json-to-scss" ], function(done) {
   karma.server.start({
     configFile: __dirname + "/karma.integrationAndCoverage.conf.js",
     singleRun: true,
@@ -209,7 +255,7 @@ gulp.task("integration-single", function(done) {
   }, done);
 });
 
-gulp.task("unit-watcher", function(done) {
+gulp.task("unit-watcher", [ "json-to-scss" ], function(done) {
   karma.server.start({
     configFile: __dirname + "/karma.unit.conf.js",
     singleRun: false,
@@ -217,7 +263,7 @@ gulp.task("unit-watcher", function(done) {
   }, done);
 });
 
-gulp.task("integration-watcher", function(done) {
+gulp.task("integration-watcher", [ "json-to-scss" ], function(done) {
   karma.server.start({
     configFile: __dirname + "/karma.integrationAndCoverage.conf.js",
     singleRun: false,
@@ -348,7 +394,7 @@ gulp.task("start-harness-content", function() {
   server.listen(9080);
 });
 
-gulp.task("start-harness-server", function(callback) {
+gulp.task("start-harness-server", [ "json-to-scss" ], function(callback) {
   var currentGitUser,
     server;
 

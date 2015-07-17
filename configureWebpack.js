@@ -13,6 +13,8 @@ var path = require("path"),
  * @param {string} options.outputPath absolute path to folder where module should be written, if necessary
  * @param {string} options.outputFilename filename or filename pattern of module that should be written
  * @param {string} options.outputChunkFilename name of chunk files that are written
+ * @param {boolean} [options.emitSingleChunk=false] when true, all chunks are merged into a single output file.  When
+ *        false, more than one JavaScript chunk file may be emitted if webpack wants
  * @param {boolean} options.enableSourceMaps
  * @param {boolean} options.isProductionBundle
  * @param {boolean} options.isRunningTests
@@ -164,6 +166,12 @@ function configureWebpack(options) {
   }
 
   config.plugins.push(new webpack.ProvidePlugin(providedModules));
+
+  if(options.emitSingleChunk) {
+    config.plugins.push(new webpack.optimize.LimitChunkCountPlugin({
+      maxChunks: 1
+    }));
+  }
 
   definedConstants = {
     PRODUCTION_MODE: JSON.stringify(options.isProductionBundle),

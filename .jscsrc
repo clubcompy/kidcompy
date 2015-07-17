@@ -205,7 +205,8 @@
     "checkAnnotations": {
       "preset": "jsdoc3",
       "extra": {
-        "export": false
+        "export": false,
+        "externs": false
       }
     },
     "checkParamNames": true,

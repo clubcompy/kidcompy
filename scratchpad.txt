@@ -1,13 +1,13 @@
 Todos
 =====
-- Production build
- - webpack
+- Fix the jscs config so that spaces inside square brackets are no longer required
 
 
 Daily Kidcompy developer steps
 ==============================
 1. 'git pull'
-2. Add any new ideas you have for features or technical work items to the parking lot so we can discuss and prioritize them
+2. Add any new ideas you have for features or technical work items to the parking lot so we can discuss and prioritize
+   them
 3. Identify work items from Todos that will be worked on today, update or elaborate as needed
 4. In a terminal, run 'gulp dev' (or 'gulp integration' if you want to TDD with the integration tests as well)
   * Once Karma starts, capture more browsers for running tests as needed by going to http://localhost:9876/
@@ -15,7 +15,8 @@ Daily Kidcompy developer steps
 5. TDD+H:  Red, Green, Refactor, Harness
   * Little 'git commit's as you go, baby steps.
   * The code should always pass tests/bundle successfully or it should be disabled with a feature toggle before commit
-  * The harness is a sandbox for the feature you are working on.  Use it to experiment with css styles, scripts and markup
+  * The harness is a sandbox for the feature you are working on.  Use it to experiment with css styles, scripts and
+    markup
 6. At the end of the day or when a work item is complete
   * Tweak feature toggles if necessary, is it time to enable previously dev-only flags in production builds?
   * Spot check that the harness app is still functional
@@ -32,5 +33,5 @@ Parking lot or rocket science stuff that is too much research/effort to work on 
 
 Annoying things that annoy me
 =============================
-- On windows, it seems like the ctrl-c handler doesn't allow me to shutdown the web driver for the code harness.  Windows devs will
-have to close the harness Firefox instance manually.
+- On windows, it seems like the ctrl-c handler doesn't allow me to shutdown the web driver for the code harness.
+Windows devs will have to close the harness Firefox instance manually.

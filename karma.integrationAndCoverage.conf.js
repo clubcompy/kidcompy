@@ -6,7 +6,7 @@ var configureWebpack = require("./configureWebpack");
 /* jshint -W079 */
 var _ = require("lodash");
 
-module.exports = function(config) {
+module.exports = function(config, isProductionBundle) {
   var baseKarmaConfig = require("./karma.base.conf")(config);
 
   return _.extend(baseKarmaConfig, {
@@ -50,7 +50,7 @@ module.exports = function(config) {
 
     webpack: configureWebpack({
       enableSourceMaps: true,
-      isProductionBundle: false,
+      isProductionBundle: isProductionBundle || false,
       isRunningTests: true,
       isLintingCode: true,
       isGeneratingCoverage: true

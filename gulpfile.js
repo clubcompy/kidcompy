@@ -75,7 +75,7 @@ gulp.task("help", function() {
 gulp.task("build", function() {
   return runSequence(
     // run the integration test suite once before minification
-    [ "integration-single" ],
+    [ "production-mode-integration-single" ],
 
     // build a closure-compiled, minified test bundle with integration tests included
     // this should (hopefully) catch errors induced by closure-compiler's optimizations
@@ -242,6 +242,14 @@ gulp.task("install-closure-compiler", function() {
 gulp.task("unit-single", [ "json-to-scss" ], function(done) {
   karma.server.start({
     configFile: __dirname + "/karma.unit.conf.js",
+    singleRun: true,
+    autoWatch: false
+  }, done);
+});
+
+gulp.task("production-mode-integration-single", [ "json-to-scss" ], function(done) {
+  karma.server.start({
+    configFile: __dirname + "/karma.prodIntegrationAndCoverage.conf.js",
     singleRun: true,
     autoWatch: false
   }, done);

@@ -81,9 +81,7 @@
   "disallowSpacesInsideArrayBrackets": null,
   "disallowSpacesInsideBrackets": null,
   "disallowSpacesInsideObjectBrackets": null,
-  "disallowSpacesInsideParentheses": {
-    "only": [ "{", "}" ]
-  },
+  "disallowSpacesInsideParentheses": null,
   "disallowTrailingComma": true,
   "disallowTrailingWhitespace": "ignoreEmptyLines",
   "disallowYodaConditions": true,
@@ -180,13 +178,9 @@
   "requireSpacesInNamedFunctionExpression": {
     "beforeOpeningCurlyBrace": true
   },
-  "requireSpacesInsideArrayBrackets": "allButNested",
-  "requireSpacesInsideBrackets": {
-    "allExcept": [ "[", "]", "{", "}" ]
-  },
-  "requireSpacesInsideObjectBrackets": {
-    "allExcept": [ "]", "}", ")" ]
-  },
+  "requireSpacesInsideArrayBrackets": null,
+  "requireSpacesInsideBrackets": null,
+  "requireSpacesInsideObjectBrackets": null,
   "requireSpacesInsideParentheses": null,
   "requireTrailingComma": null,
   "requireYodaConditions": null,

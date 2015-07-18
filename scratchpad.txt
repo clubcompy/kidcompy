@@ -1,6 +1,5 @@
 Todos
 =====
-- Fix the jscs config so that spaces inside square brackets are no longer required
 
 
 Daily Kidcompy developer steps

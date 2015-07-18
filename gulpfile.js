@@ -1,8 +1,8 @@
 "use strict";
 
-/* jscs: disable */
-var path = require("path"),
-  closureCompiler = require("gulp-closure-compiler"),
+// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
+
+var closureCompiler = require("gulp-closure-compiler"),
   gulp = require("gulp"),
   jsonSass = require("gulp-json-sass"),
   spawn = require("child_process").spawn,
@@ -40,10 +40,7 @@ var path = require("path"),
   closureCompilerOutputFile = "",
   closureCompilerSourceMap = "",
   closureCompilerOutputMap = "",
-  finalInputOutputMap = {},
-
-  projectName = "kidcompy",
-  projectDescription = "The kidcompy module reveals a fun-loving character that lives at the heart of every computer";
+  finalInputOutputMap = {};
 
 gulp.task("default", [ "help" ], function() {
 });
@@ -74,6 +71,7 @@ gulp.task("help", function() {
 
 gulp.task("build", function() {
   return runSequence(
+
     // run the integration test suite once before minification
     [ "production-mode-integration-single" ],
 
@@ -99,10 +97,10 @@ gulp.task("build", function() {
 
 gulp.task("test-bundle", [ "json-to-scss" ], function() {
   // intermediate folder files that will be the inputs and outputs for the closure compiler
-  closureCompilerSourceList = [ 'testing.js' ];
-  closureCompilerOutputFile = 'testing.closureCompiler.js';
-  closureCompilerSourceMap = 'testing.js|testing.js.map';
-  closureCompilerOutputMap = 'testing.closureCompiler.js.map';
+  closureCompilerSourceList = [ "testing.js" ];
+  closureCompilerOutputFile = "testing.closureCompiler.js";
+  closureCompilerSourceMap = "testing.js|testing.js.map";
+  closureCompilerOutputMap = "testing.closureCompiler.js.map";
 
   // map of closure compiled sources in intermediate folder to testing bundle files written to intermediate folder
   finalInputOutputMap = { "testing.closureCompiler.js": "./intermediate/testing.min.js" };
@@ -138,17 +136,16 @@ gulp.task("json-to-scss", function() {
 
 gulp.task("bundle", [ "json-to-scss" ], function() {
   // intermediate folder files that will be the inputs and outputs for the closure compiler
-  closureCompilerSourceList = [ 'Main.js' ];
-  closureCompilerOutputFile = 'Main.closureCompiler.js';
-  closureCompilerSourceMap = 'Main.js|Main.js.map';
-  closureCompilerOutputMap = 'Main.closureCompiler.js.map';
+  closureCompilerSourceList = [ "Main.js" ];
+  closureCompilerOutputFile = "Main.closureCompiler.js";
+  closureCompilerSourceMap = "Main.js|Main.js.map";
+  closureCompilerOutputMap = "Main.closureCompiler.js.map";
 
   // map of closure compiled sources in intermediate folder to final production bundle files written to dist folder
   finalInputOutputMap = { "Main.closureCompiler.js": "./dist/Main.min.js" };
 
   return gulp.src(moduleEntryPoints)
-    // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
-    .pipe(named())
+    .pipe(named()) // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
     .pipe(webpackStream(configureWebpack({
       enableSourceMaps: true,
       isProductionBundle: true
@@ -176,29 +173,30 @@ gulp.task("launch-closure-compiler", function() {
   // expects the gulp process' cwd to be run from the source/target folder
   return gulp.src(closureCompilerSourceList)
     .pipe(closureCompiler({
-      compilerPath: __dirname + '/bin/compiler.jar',
+      compilerPath: __dirname + "/bin/compiler.jar",
       fileName: closureCompilerOutputFile,
       compilerFlags: {
         charset: "UTF-8",
-        compilation_level: 'ADVANCED_OPTIMIZATIONS',
+        compilation_level: "ADVANCED_OPTIMIZATIONS",
         create_source_map: closureCompilerOutputMap,
         source_map_input: closureCompilerSourceMap,
         third_party: null,
         use_types_for_optimization: null,
-        warning_level: 'VERBOSE',
+        warning_level: "VERBOSE",
         output_wrapper: "%output%\n//# sourceMappingURL=" + closureCompilerOutputMap,
         externs: ["../lib/testing.externs.js"]
       }
     }))
-    .pipe(gulp.dest('.'));
+    .pipe(gulp.dest("."));
 });
 
 gulp.task("fixup-closure-compiler-source-map", function() {
-  var ccSource;
+  var ccSource,
+    chain;
 
   for(ccSource in finalInputOutputMap) {
     if(finalInputOutputMap.hasOwnProperty(ccSource)) {
-      var chain = sorcery.loadSync("./intermediate/" + ccSource, {
+      chain = sorcery.loadSync("./intermediate/" + ccSource, {
         includeContent: true
       });
 
@@ -215,6 +213,11 @@ gulp.task("install-prereqs", function() {
 
 gulp.task("install-selenium", function(done) {
   selenium.install({
+    /**
+     * Simple echo logger
+     *
+     * @param {*} message
+     */
     logger: function(message) {
       console.log(message);
     }
@@ -231,7 +234,12 @@ gulp.task("install-selenium", function(done) {
 gulp.task("install-closure-compiler", function() {
   return download("http://dl.google.com/closure-compiler/compiler-latest.zip")
     .pipe(unzip({
-      filter : function(entry){
+      /**
+       * filter all files from being unzipped except for the compiler jar
+       *
+       * @param {string} entry
+       */
+      filter: function(entry) {
         return minimatch(entry.path, "**/compiler.jar");
       }
     }))
@@ -282,10 +290,18 @@ gulp.task("integration-watcher", [ "json-to-scss" ], function(done) {
 /* Try to gracefully shutdown the harness browser and selenium server if user hits ctrl-c because
    those things don't appear to happen automatically. */
 gulp.task("force-termination-after-sigint", function() {
+  /**
+   * Shutdown the harness browser
+   *
+   * @param {Function} onComplete
+   */
   function stopHarnessBrowser(onComplete) {
-    var chainCompletion = function() {
+    /**
+     * Stop the selenium server after the browser close is complete
+     */
+    function chainCompletion() {
       stopSeleniumServer(onComplete);
-    };
+    }
 
     if(runningHarnessBrowser) {
       try {
@@ -303,6 +319,11 @@ gulp.task("force-termination-after-sigint", function() {
     }
   }
 
+  /**
+   * Kills the selenium server and calls the onComplete callback when that is through
+   *
+   * @param {Function} onComplete
+   */
   function stopSeleniumServer(onComplete) {
     if(runningSelenium) {
       try {
@@ -320,6 +341,11 @@ gulp.task("force-termination-after-sigint", function() {
     }
   }
 
+  /**
+   * Closes the harness browser and selenium server on non-windows hosts and only kills the selenium server on windows
+   *
+   * @param {Function} onComplete
+   */
   function quitHandler(onComplete) {
     // windows does not give us any grace period during SIGINT to shutdown the harness browser before hard killing
     // our parent process, so we'll just leave the harness browser running on that platform.  Sorry Windows devs!
@@ -331,6 +357,9 @@ gulp.task("force-termination-after-sigint", function() {
     }
   }
 
+  /**
+   * Callback called when user hits ctrl-c on the gulp process
+   */
   function sigintHandler() {
     quitHandler(function() {
       process.exit();
@@ -485,19 +514,6 @@ gulp.task("spawn-harness-browser", function() {
   fp.setPreference("devtools.inspector.enabled", true);
   fp.setPreference("devtools.toolbar.enabled", true);
 
-  // activate the console, net, and script panels
-//  fp.setPreference("extensions.firebug.console.enableSites", true);
-//  fp.setPreference("extensions.firebug.alwaysShowCommandLine", true);
-//  fp.setPreference("extensions.firebug.script.enableSites", true);
-
-  // activate and open firebug by default for all sites
-//  fp.setPreference("extensions.firebug.allPagesActivation", "on");
-
-  // show the console panel
-//  fp.setPreference("extensions.firebug.defaultPanelName", "script");
-//  fp.setPreference("extensions.firebug.showFirstRunPage", false);
-//  fp.setPreference("extensions.firebug.delayLoad", false);
-
   fp.setPreference("datareporting.healthreport.service.firstRun", true);
   fp.setPreference("datareporting.healthreport.uploadEnabled", false);
   fp.setPreference("browser.rights.3.shown", true);
@@ -506,7 +522,7 @@ gulp.task("spawn-harness-browser", function() {
   fp.updatePreferences();
 
   // you can install multiple extensions at the same time
-  fp.addExtensions([ /* "./harnessContent/firebug-2.0.9.xpi" */ ], function() {
+  fp.addExtensions([ ], function() {
     fp.encoded(function(zippedProfile) {
       runningHarnessBrowser =
         browser.init({
@@ -521,10 +537,10 @@ gulp.task("spawn-harness-browser", function() {
 });
 
 /**
- * @param {Array.<String>} srcGlobPatterns
- * @param {Array.<String>} params in-order list of command line params to send to jsdoc.
+ * @param {Array.<string>} srcGlobPatterns
+ * @param {Array.<string>} params in-order list of command line params to send to jsdoc.
  *        See http://usejsdoc.org/about-commandline.html for valid params
- * @param {function} callback completion callback
+ * @param {Function} callback completion callback
  */
 function callJsdoc(srcGlobPatterns, params, callback) {
   var srcFiles = gulp.src(srcGlobPatterns),
@@ -537,7 +553,7 @@ function callJsdoc(srcGlobPatterns, params, callback) {
       fileList.push(vinylFile.path);
     }
   }).on("end", function() {
-      execFile("./node_modules/.bin/jsdoc" + (platformIsWindows ? ".cmd" : ""), [].concat(params).concat(fileList), {
+    execFile("./node_modules/.bin/jsdoc" + (platformIsWindows ? ".cmd" : ""), [].concat(params).concat(fileList), {
       stdio: "inherit"
     }, function(error) {
       if(error) {

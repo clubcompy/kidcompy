@@ -215,7 +215,8 @@ gulp.task("fixup-closure-compiler-source-map", function() {
 
 gulp.task("install-prereqs", function() {
   return runSequence(
-    [ "install-selenium", "install-closure-compiler" ]
+    [ "install-closure-compiler" ],
+    [ "install-selenium" ]
   );
 });
 

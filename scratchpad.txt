@@ -1,5 +1,6 @@
 Todos
 =====
+- get all non-essentials out of the root kidcompy project folder
 
 
 Daily Kidcompy developer steps

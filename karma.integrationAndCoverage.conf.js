@@ -7,7 +7,7 @@ var configureWebpack = require("./configureWebpack");
 var _ = require("lodash");
 
 module.exports = function(config, isProductionBundle) {
-  var baseKarmaConfig = require("./karma.base.conf")(config);
+  var baseKarmaConfig = require("./etc/karma.base.conf.js")(config);
 
   return _.extend(baseKarmaConfig, {
     // test results reporter to use

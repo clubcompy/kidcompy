@@ -1,14 +1,14 @@
 "use strict";
 
 // jscs: disable
-var configureWebpack = require("./configureWebpack");
+var configureWebpack = require("./../configureWebpack");
 /* jshint -W079 */
 var _ = require("lodash");
 
 module.exports = function(config) {
   return _.extend(config, {
     // base path that will be used to resolve all patterns (eg. files, exclude)
-    basePath: '',
+    basePath: '../),
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter

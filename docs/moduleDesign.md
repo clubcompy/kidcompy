@@ -18,7 +18,9 @@ scripts:  a bootstrap script, a polyfills script, and the main kidcompy script.
  
 ![JavaScript module loading process flow diagram](./ModuleLoadingFlow.svg) 
  
-In the diagram above, the bootstrap script will be the minimum amount of code to shim a compatible 
+In the diagram above, the bootstrap script will detect if shim/polyfill legacy IE browsers enough that we can implement Kidcompy 
+vital functions.  There will be some non-required subsystems, like audio or joysticks, that may never be supported 
+due to lack of shims or polyfills.
 
 Webpack is currently the script bundler that we are using for Kidcompy, but we will probably not employ any of its
 advanced features like chunking for fear of upsetting any old Internet Explorer ghosts.  If necessary, we will use our

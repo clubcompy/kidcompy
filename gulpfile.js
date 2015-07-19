@@ -32,7 +32,7 @@ var path = require("path"),
   platformIsWindows = hostPlatform.indexOf("win") === 0,
 
   moduleEntryPoints = [
-    "./lib/Main.js"
+    path.resolve(__dirname, "./lib/Main.js")
   ],
 
   runningSelenium = null,

@@ -2,9 +2,11 @@
 
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 
-var closureCompiler = require("gulp-closure-compiler"),
+var path = require("path"),
+  closureCompiler = require("gulp-closure-compiler"),
   gulp = require("gulp"),
   jsonSass = require("gulp-json-sass"),
+  rm = require("gulp-rm"),
   spawn = require("child_process").spawn,
   execFile = require("child_process").execFile,
   execFileSync = require("child_process").execFileSync,
@@ -21,7 +23,7 @@ var closureCompiler = require("gulp-closure-compiler"),
   http = require("http"),
   serveStatic = require("serve-static"),
   named = require("vinyl-named"),
-  configureWebpack = require("./configureWebpack"),
+  configureWebpack = require("./etc/configureWebpack"),
   sorcery = require("sorcery"),
   download = require("gulp-download"),
   unzip = require("gulp-unzip"),
@@ -51,14 +53,20 @@ gulp.task("help", function() {
   console.log("Copyright © Woldrich, Inc");
   console.log("==============================");
   console.log(" ");
-  console.log("Gulp tasks:");
+  console.log("Usage:");
+  console.log(" ");
+  console.log("  gulp <task_name>");
+  console.log(" ");
+  console.log("where <task_name> is one of the following");
+  console.log(" ");
+  console.log("Main tasks:");
   console.log("  build               - Run all lints/tests/coverage, build production bundle, and build JSDocs");
   console.log("  dev                 - Run karma watcher for unit tests. Launch hot-reloading code harness page");
   console.log("  integration         - Run karma watcher for all tests w/ coverage. Launch hot-reloading harness page");
   console.log("  jsdoc               - Builds public API and developer doc JSDocs");
   console.log(" ");
-  console.log("Gulp support tasks:");
-  console.log("  install-selenium    - Installs selenium. Run at least once prior to 'gulp dev' or 'gulp integration'");
+  console.log("Support tasks:");
+  console.log("  install-prereqs     - Downloads binaries. Run at least once prior to 'gulp dev' or 'gulp integration'");
   console.log("  unit-single         - Run unit tests once and then exit");
   console.log("  unit-watcher        - Run unit tests with a watcher");
   console.log("  integration-single  - Run all tests (unit, integration, and system) w/ coverage once and then exit");
@@ -173,7 +181,7 @@ gulp.task("launch-closure-compiler", function() {
   // expects the gulp process' cwd to be run from the source/target folder
   return gulp.src(closureCompilerSourceList)
     .pipe(closureCompiler({
-      compilerPath: __dirname + "/bin/compiler.jar",
+      compilerPath: path.resolve(__dirname, "./etc/closureCompiler/compiler.jar"),
       fileName: closureCompilerOutputFile,
       compilerFlags: {
         charset: "UTF-8",
@@ -244,7 +252,7 @@ gulp.task("install-closure-compiler", function() {
       }
     }))
     .pipe(flatten())
-    .pipe(gulp.dest("./bin"));
+    .pipe(gulp.dest("./etc/closureCompiler"));
 });
 
 gulp.task("unit-single", [ "json-to-scss" ], function(done) {
@@ -447,7 +455,7 @@ gulp.task("start-harness-server", [ "json-to-scss" ], function(callback) {
       configureWebpack({
         moduleEntryPoints: moduleEntryPoints,
         outputModuleName: "harness",
-        outputPath: __dirname + "/intermediate",
+        outputPath: path.resolve(__dirname, "./intermediate"),
         outputFilename: "[name].js",
         outputChunkFilename: "[id].js",
         enableSourceMaps: true,
@@ -573,12 +581,12 @@ gulp.task("jsdoc", function() {
 
 gulp.task("jsdoc-public-api", function(done) {
   callJsdoc([ "./lib/**/*.js", "!./lib/**/*.spec.js", "!./lib/**/*.integration.js", "!./lib/**/*.system.js",
-              "README.md" ],
+      "!./lib/testing.externs.js", "README.md" ],
     [
       "--access", "public,undefined",
-      "--configure", __dirname + "/jsdoc.conf.json",
-      "--destination", __dirname + "/dist/public-api",
-      "--template", __dirname + "/node_modules/ink-docstrap/template",
+      "--configure", path.resolve(__dirname, "./etc/jsdoc.conf.json"),
+      "--destination", path.resolve(__dirname, "./dist/public-api"),
+      "--template", path.resolve(__dirname, "./node_modules/ink-docstrap/template"),
       "--verbose"
     ],
     done);
@@ -586,14 +594,19 @@ gulp.task("jsdoc-public-api", function(done) {
 
 gulp.task("jsdoc-dev-docs", function(done) {
   callJsdoc([ "./lib/**/*.js", "!./lib/**/*.spec.js", "!./lib/**/*.integration.js", "!./lib/**/*.system.js",
-      "README.md" ],
+      "!./lib/testing.externs.js", "README.md" ],
     [
       "--access", "all",
       "--private",
-      "--configure", __dirname + "/jsdoc.conf.json",
-      "--destination", __dirname + "/dist/developer-docs",
-      "--template", __dirname + "/node_modules/ink-docstrap/template",
+      "--configure", path.resolve(__dirname, "./etc/jsdoc.conf.json"),
+      "--destination", path.resolve(__dirname, "./dist/developer-docs"),
+      "--template", path.resolve(__dirname, "./node_modules/ink-docstrap/template"),
       "--verbose"
     ],
     done);
+});
+
+gulp.task("clean", function() {
+  return gulp.src([ "./intermediate/**/*", "./dist/**/*", "./intermediate", "./dist" ], { read: false })
+    .pipe(rm());
 });

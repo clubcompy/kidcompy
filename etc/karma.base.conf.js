@@ -1,14 +1,15 @@
 "use strict";
 
 // jscs: disable
-var configureWebpack = require("./../configureWebpack");
+var configureWebpack = require("./configureWebpack");
 /* jshint -W079 */
-var _ = require("lodash");
+var path = require("path"),
+  _ = require("lodash");
 
 module.exports = function(config) {
-  return _.extend(config, {
+  var commonSettings = {
     // base path that will be used to resolve all patterns (eg. files, exclude)
-    basePath: '../),
+    basePath: path.resolve(__dirname, ".."),
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
@@ -37,7 +38,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      "lib/**/*.spec.js"
+      path.resolve(__dirname, "../lib/**/*.spec.js")
     ],
 
     // list of files to exclude
@@ -46,9 +47,7 @@ module.exports = function(config) {
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {
-      "lib/**/*.spec.js": ["webpack", "sourcemap"]
-    },
+    preprocessors: {},
 
     webpack: configureWebpack({
       enableSourceMaps: true,
@@ -88,5 +87,9 @@ module.exports = function(config) {
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
     singleRun: false
-  });
+  };
+
+  commonSettings.preprocessors[path.resolve(__dirname, "../lib/**/*.spec.js")] = ["webpack", "sourcemap"];
+
+  return _.extend(config, commonSettings);
 };

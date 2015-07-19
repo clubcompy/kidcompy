@@ -1,14 +1,16 @@
 "use strict";
 
 // jscs: disable
-var configureWebpack = require("./../configureWebpack");
+var configureWebpack = require("./configureWebpack");
 /* jshint -W079 */
-var _ = require("lodash");
+var path = require("path"),
+  _ = require("lodash");
 
 module.exports = function(config) {
-  var baseKarmaConfig = require("./karma.base.conf.js")(config);
+  var baseKarmaConfig = require("./karma.base.conf.js")(config),
+    configOverrides;
 
-  return _.extend(baseKarmaConfig, {
+  configOverrides = {
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
@@ -16,14 +18,12 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      "lib/**/*.spec.js"
+      path.resolve(__dirname, "../lib/**/*.spec.js")
     ],
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {
-      "lib/**/*.spec.js": ["webpack", "sourcemap"]
-    },
+    preprocessors: {},
 
     webpack: configureWebpack({
       enableSourceMaps: true,
@@ -31,5 +31,9 @@ module.exports = function(config) {
       isRunningTests: true,
       isLintingCode: true
     })
-  });
+  };
+
+  configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/*.spec.js")] = ["webpack", "sourcemap"];
+
+  return _.extend(baseKarmaConfig, configOverrides);
 };

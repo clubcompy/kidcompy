@@ -1,15 +1,17 @@
 "use strict";
 
 // jscs: disable
-var configureWebpack = require("./../configureWebpack");
+var configureWebpack = require("./configureWebpack");
 
 /* jshint -W079 */
-var _ = require("lodash");
+var path = require("path"),
+  _ = require("lodash");
 
 module.exports = function(config, isProductionBundle) {
-  var baseKarmaConfig = require("./karma.base.conf.js")(config);
+  var baseKarmaConfig = require("./karma.base.conf.js")(config),
+    configOverrides;
 
-  return _.extend(baseKarmaConfig, {
+  configOverrides = {
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
@@ -26,27 +28,22 @@ module.exports = function(config, isProductionBundle) {
     coverageReporter: {
       reporters: [
         {
-          type : "html",
-          dir : "intermediate/test_coverage/"
+          type: "html",
+          dir: path.resolve(__dirname, "../intermediate/test_coverage/")
         }
       ]
     },
 
     // list of files / patterns to load in the browser
     files: [
-      "lib/**/*.spec.js",
-      "lib/**/*.integration.js",
-      "lib/**/*.system.js"
+      path.resolve(__dirname, "../lib/**/*.spec.js"),
+      path.resolve(__dirname, "../lib/**/*.integration.js"),
+      path.resolve(__dirname, "../lib/**/*.system.js")
     ],
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {
-      "lib/**/([a-zA-Z0-9_]+).js": ["webpack", "coverage", "sourcemap"],
-      "lib/**/*.spec.js": ["webpack", "sourcemap"],
-      "lib/**/*.integration.js": ["webpack", "sourcemap"],
-      "lib/**/*.system.js": ["webpack", "sourcemap"]
-    },
+    preprocessors: {},
 
     webpack: configureWebpack({
       enableSourceMaps: true,
@@ -55,5 +52,12 @@ module.exports = function(config, isProductionBundle) {
       isLintingCode: true,
       isGeneratingCoverage: true
     })
-  });
+  };
+
+  configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/([a-zA-Z0-9_]+).js")] = ["webpack", "coverage", "sourcemap"];
+  configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/*.spec.js")] = ["webpack", "sourcemap"];
+  configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/*.integration.js")] = ["webpack", "sourcemap"];
+  configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/*.system.js")] = ["webpack", "sourcemap"];
+
+  return _.extend(baseKarmaConfig, configOverrides);
 };

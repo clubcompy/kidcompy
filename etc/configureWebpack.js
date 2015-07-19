@@ -120,7 +120,7 @@ function configureWebpack(options) {
     /* .scss : SASS file encoded into scripts that can be reloaded */
     config.module.loaders.push({
       test: /\.scss$/,
-      loader: "style!css!sass?outputStyle=expanded&includePaths[]=" + path.resolve(__dirname, "./node_modules")
+      loader: "style!css!sass?outputStyle=expanded&includePaths[]=" + path.resolve(__dirname, "../node_modules")
     });
   }
   else {
@@ -129,12 +129,12 @@ function configureWebpack(options) {
       test: /\.scss$/,
       loader: "style/url?limit=0!file?name=css/[name].css?[hash]!sass?outputStyle=" +
               (options.isProductionBundle ? "compressed" : "expanded") + "&includePaths[]=" +
-              path.resolve(__dirname, "./node_modules")
+              path.resolve(__dirname, "../node_modules")
     });
   }
 
   if(options.isGeneratingCoverage) {
-    config.module.postLoaders.push({ // << add subject as webpack's postloader
+    config.module.postLoaders.push({
       test: /\/([a-zA-Z0-9_]+)\.js$/,
       exclude: /(node_modules)\//,
       loader: "istanbul-instrumenter"
@@ -155,14 +155,14 @@ function configureWebpack(options) {
   // map of local variable name to module name that are auto-require'd into all modules in the bundle
   providedModules = {
     _: "lodash",
-    exportGlobal: "./export/exportSymbol",
-    exportPrototypeProperties: "./export/exportPrototypeProperties",
-    exportStaticProperties: "./export/exportStaticProperties"
+    exportGlobal: path.resolve(__dirname, "../lib/export/exportSymbol"),
+    exportPrototypeProperties: path.resolve(__dirname, "../lib/export/exportPrototypeProperties"),
+    exportStaticProperties: path.resolve(__dirname, "../lib/export/exportStaticProperties")
   };
 
   if(!options.isProductionBundle) {
     // featureFlags is an actual object in development mode that is auto-require'd using the ProvidePlugin
-    providedModules.featureFlags = path.resolve(__dirname, "./featureFlags");
+    providedModules.featureFlags = path.resolve(__dirname, "../featureFlags");
   }
 
   config.plugins.push(new webpack.ProvidePlugin(providedModules));
@@ -180,16 +180,18 @@ function configureWebpack(options) {
 
   if(options.isProductionBundle) {
     // get the featureFlags and regenerate them, if needed
-    featureFlags = require("./featureFlags");
+    featureFlags = require(path.resolve(__dirname, "../featureFlags"));
     featureFlags.generateFeatureFlags(options.isProductionBundle, currentGitUser);
     featureFlagSummary = {};
 
     // Feature flags are defined as constants in the production build so that they can be used to elide disabled
     // features by-way of the UglifyJsPlugin that follows
     for(featureFlag in featureFlags) {
-      if(featureFlags.hasOwnProperty(featureFlag) && typeof featureFlags[ featureFlag ] !== "function") {
-        definedConstants[ "featureFlags." + featureFlag ] = JSON.stringify(featureFlags[ featureFlag ]);
-        featureFlagSummary[ featureFlag ] = featureFlags[ featureFlag ];
+      if(featureFlags.hasOwnProperty(featureFlag)) {
+        if(typeof featureFlags[featureFlag] !== "function") {
+          definedConstants["featureFlags." + featureFlag] = JSON.stringify(featureFlags[featureFlag]);
+          featureFlagSummary[featureFlag] = featureFlags[featureFlag];
+        }
       }
     }
 

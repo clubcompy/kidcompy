@@ -57,13 +57,14 @@ gulp.task("help", function() {
   console.log(" ");
   console.log("  gulp <task_name>");
   console.log(" ");
-  console.log("where <task_name> is one of the following");
+  console.log("where <task_name> is one of the following -");
   console.log(" ");
   console.log("Main tasks:");
-  console.log("  build               - Run all lints/tests/coverage, build production bundle, and build JSDocs");
+  console.log("  build               - Run all lints/tests/coverage, build production bundle and JSDocs to dist folder");
   console.log("  dev                 - Run karma watcher for unit tests. Launch hot-reloading code harness page");
   console.log("  integration         - Run karma watcher for all tests w/ coverage. Launch hot-reloading harness page");
-  console.log("  jsdoc               - Builds public API and developer doc JSDocs");
+  console.log("  jsdoc               - Builds public API and developer doc JSDocs to dist");
+  console.log("  clean               - Deletes intermediate and dist folders");
   console.log(" ");
   console.log("Support tasks:");
   console.log("  install-prereqs     - Downloads binaries. Run at least once prior to 'gulp dev' or 'gulp integration'");
@@ -75,6 +76,12 @@ gulp.task("help", function() {
   console.log("  jsdoc-dev-docs      - Builds JSDocs for all symbols in the codebase, internal use for library developers");
   console.log("  help                - This help text");
   console.log(" ");
+});
+
+gulp.task("post-npm-install-tasks", [ "install-prereqs" ], function() {
+  return runSequence(
+    [ "help" ]
+  );
 });
 
 gulp.task("build", function() {
@@ -103,6 +110,11 @@ gulp.task("build", function() {
   );
 });
 
+gulp.task("clean", function() {
+  return gulp.src([ "./intermediate/**/*", "./dist/**/*", "./intermediate", "./dist" ], { read: false })
+    .pipe(rm());
+});
+
 gulp.task("test-bundle", [ "json-to-scss" ], function() {
   // intermediate folder files that will be the inputs and outputs for the closure compiler
   closureCompilerSourceList = [ "testing.js" ];
@@ -125,23 +137,6 @@ gulp.task("test-bundle", [ "json-to-scss" ], function() {
     .pipe(gulp.dest("intermediate/"));
 });
 
-gulp.task("production-bundle-tests", function(done) {
-  karma.server.start({
-    configFile: __dirname + "/etc/karma.prodBundle.conf.js",
-    singleRun: true,
-    autoWatch: false
-  }, done);
-});
-
-gulp.task("json-to-scss", function() {
-  return gulp
-    .src("./lib/styles/styleVars.json")
-    .pipe(jsonSass({
-      sass: false
-    }))
-    .pipe(gulp.dest("./lib/styles"));
-});
-
 gulp.task("bundle", [ "json-to-scss" ], function() {
   // intermediate folder files that will be the inputs and outputs for the closure compiler
   closureCompilerSourceList = [ "Main.js" ];
@@ -161,20 +156,12 @@ gulp.task("bundle", [ "json-to-scss" ], function() {
     .pipe(gulp.dest("intermediate/"));
 });
 
-gulp.task("copy-artifacts-to-dist", function() {
-  return gulp.src([
-    "**/*",
-    "!*.js",
-    "!*.map"
-  ]).pipe(gulp.dest("../dist"));
-});
-
-gulp.task("chdir-intermediate", function() {
-  process.chdir("intermediate");
-});
-
-gulp.task("chdir-up", function() {
-  process.chdir("..");
+gulp.task("production-bundle-tests", function(done) {
+  karma.server.start({
+    configFile: __dirname + "/etc/karma.prodBundle.conf.js",
+    singleRun: true,
+    autoWatch: false
+  }, done);
 });
 
 gulp.task("launch-closure-compiler", function() {
@@ -607,7 +594,28 @@ gulp.task("jsdoc-dev-docs", function(done) {
     done);
 });
 
-gulp.task("clean", function() {
-  return gulp.src([ "./intermediate/**/*", "./dist/**/*", "./intermediate", "./dist" ], { read: false })
-    .pipe(rm());
+gulp.task("json-to-scss", function() {
+  return gulp
+    .src("./lib/styles/styleVars.json")
+    .pipe(jsonSass({
+      sass: false
+    }))
+    .pipe(gulp.dest("./lib/styles"));
 });
+
+gulp.task("copy-artifacts-to-dist", function() {
+  return gulp.src([
+    "**/*",
+    "!*.js",
+    "!*.map"
+  ]).pipe(gulp.dest("../dist"));
+});
+
+gulp.task("chdir-intermediate", function() {
+  process.chdir("intermediate");
+});
+
+gulp.task("chdir-up", function() {
+  process.chdir("..");
+});
+

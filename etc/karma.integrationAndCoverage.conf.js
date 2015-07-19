@@ -1,13 +1,13 @@
 "use strict";
 
 // jscs: disable
-var configureWebpack = require("./configureWebpack");
+var configureWebpack = require("./../configureWebpack");
 
 /* jshint -W079 */
 var _ = require("lodash");
 
 module.exports = function(config, isProductionBundle) {
-  var baseKarmaConfig = require("./etc/karma.base.conf.js")(config);
+  var baseKarmaConfig = require("./karma.base.conf.js")(config);
 
   return _.extend(baseKarmaConfig, {
     // test results reporter to use

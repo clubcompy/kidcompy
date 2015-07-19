@@ -119,7 +119,7 @@ gulp.task("test-bundle", [ "json-to-scss" ], function() {
 
 gulp.task("production-bundle-tests", function(done) {
   karma.server.start({
-    configFile: __dirname + "/karma.prodBundle.conf.js",
+    configFile: __dirname + "/etc/karma.prodBundle.conf.js",
     singleRun: true,
     autoWatch: false
   }, done);
@@ -249,7 +249,7 @@ gulp.task("install-closure-compiler", function() {
 
 gulp.task("unit-single", [ "json-to-scss" ], function(done) {
   karma.server.start({
-    configFile: __dirname + "/karma.unit.conf.js",
+    configFile: __dirname + "/etc/karma.unit.conf.js",
     singleRun: true,
     autoWatch: false
   }, done);
@@ -257,7 +257,7 @@ gulp.task("unit-single", [ "json-to-scss" ], function(done) {
 
 gulp.task("production-mode-integration-single", [ "json-to-scss" ], function(done) {
   karma.server.start({
-    configFile: __dirname + "/karma.prodIntegrationAndCoverage.conf.js",
+    configFile: __dirname + "/etc/karma.prodIntegrationAndCoverage.conf.js",
     singleRun: true,
     autoWatch: false
   }, done);
@@ -265,7 +265,7 @@ gulp.task("production-mode-integration-single", [ "json-to-scss" ], function(don
 
 gulp.task("integration-single", [ "json-to-scss" ], function(done) {
   karma.server.start({
-    configFile: __dirname + "/karma.integrationAndCoverage.conf.js",
+    configFile: __dirname + "/etc/karma.integrationAndCoverage.conf.js",
     singleRun: true,
     autoWatch: false
   }, done);
@@ -273,7 +273,7 @@ gulp.task("integration-single", [ "json-to-scss" ], function(done) {
 
 gulp.task("unit-watcher", [ "json-to-scss" ], function(done) {
   karma.server.start({
-    configFile: __dirname + "/karma.unit.conf.js",
+    configFile: __dirname + "/etc/karma.unit.conf.js",
     singleRun: false,
     autoWatch: true
   }, done);
@@ -281,7 +281,7 @@ gulp.task("unit-watcher", [ "json-to-scss" ], function(done) {
 
 gulp.task("integration-watcher", [ "json-to-scss" ], function(done) {
   karma.server.start({
-    configFile: __dirname + "/karma.integrationAndCoverage.conf.js",
+    configFile: __dirname + "/etc/karma.integrationAndCoverage.conf.js",
     singleRun: false,
     autoWatch: true
   }, done);

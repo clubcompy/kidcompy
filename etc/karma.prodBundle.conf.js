@@ -6,7 +6,7 @@
 var _ = require("lodash");
 
 module.exports = function(config) {
-  var baseKarmaConfig = require("./etc/karma.base.conf.js")(config);
+  var baseKarmaConfig = require("./karma.base.conf.js")(config);
 
   return _.extend(baseKarmaConfig, {
     // test results reporter to use
@@ -16,7 +16,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      "intermediate/testing.min.js"
+      "../intermediate/testing.min.js"
     ],
 
     // preprocess matching files before serving them to the browser

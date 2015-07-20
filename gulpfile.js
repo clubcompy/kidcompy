@@ -78,12 +78,6 @@ gulp.task("help", function() {
   console.log(" ");
 });
 
-gulp.task("post-npm-install-tasks", [ "install-prereqs" ], function() {
-  return runSequence(
-    [ "help" ]
-  );
-});
-
 gulp.task("build", function() {
   return runSequence(
 
@@ -204,6 +198,15 @@ gulp.task("install-prereqs", function() {
   return runSequence(
     [ "install-closure-compiler" ],
     [ "install-selenium" ]
+  );
+});
+
+// variation of install-prereqs that also prints the help text, called automatically after npm install
+gulp.task("post-npm-install-tasks", function() {
+  return runSequence(
+    [ "install-closure-compiler" ],
+    [ "install-selenium" ],
+    [ "help" ]
   );
 });
 

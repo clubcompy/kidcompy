@@ -155,9 +155,9 @@ function configureWebpack(options) {
   // map of local variable name to module name that are auto-require'd into all modules in the bundle
   providedModules = {
     _: "lodash",
-    exportGlobal: path.resolve(__dirname, "../lib/export/exportSymbol"),
-    exportPrototypeProperties: path.resolve(__dirname, "../lib/export/exportPrototypeProperties"),
-    exportStaticProperties: path.resolve(__dirname, "../lib/export/exportStaticProperties")
+    exportGlobal: path.resolve(__dirname, "../lib/symbols/exportSymbol"),
+    exportPrototypeProperties: path.resolve(__dirname, "../lib/symbols/exportPrototypeProperties"),
+    exportStaticProperties: path.resolve(__dirname, "../lib/symbols/exportStaticProperties")
   };
 
   if(!options.isProductionBundle) {

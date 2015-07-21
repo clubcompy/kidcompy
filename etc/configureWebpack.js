@@ -161,8 +161,8 @@ function configureWebpack(options) {
   };
 
   if(!options.isProductionBundle) {
-    // featureFlags is an actual object in development mode that is auto-require'd using the ProvidePlugin
-    providedModules.featureFlags = path.resolve(__dirname, "../featureFlags");
+    // In the development build, featureFlags is an actual object that is auto-require'd via the ProvidePlugin
+    providedModules.featureFlags = path.resolve(__dirname, "../lib/featureFlags");
   }
 
   config.plugins.push(new webpack.ProvidePlugin(providedModules));
@@ -180,12 +180,12 @@ function configureWebpack(options) {
 
   if(options.isProductionBundle) {
     // get the featureFlags and regenerate them, if needed
-    featureFlags = require(path.resolve(__dirname, "../featureFlags"));
+    featureFlags = require(path.resolve(__dirname, "../lib/featureFlags"));
     featureFlags.generateFeatureFlags(options.isProductionBundle, currentGitUser);
     featureFlagSummary = {};
 
-    // Feature flags are defined as constants in the production build so that they can be used to elide disabled
-    // features by-way of the UglifyJsPlugin that follows
+    // In the production build, feature flags are parsed in-place here and defined as constant booleans that are used to
+    // totally elide disabled features by-way of the Closure Compiler that follows after the webpack bundle is generated
     for(featureFlag in featureFlags) {
       if(featureFlags.hasOwnProperty(featureFlag)) {
         if(typeof featureFlags[featureFlag] !== "function") {

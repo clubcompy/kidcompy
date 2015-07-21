@@ -1,7 +1,15 @@
 Todos
 =====
-- get all non-essentials out of the root kidcompy project folder
-
+- Start a developer blog
+  - Jekyll?  Tumblr?
+  - Introduce clubcompy, tell a bit of its history
+  - can we point woldie.com at the developer blog?
+- Do some initial design work on paper or in the clubcompy wiki that we can use to kick-off proper TDD development
+  - Playfield, FlipBuffer, Display?
+- Initial development
+- Get everything running
+- Merge to master, delete develop branch, and do a proper release
+  - Branch, build, remove dist line from .gitignore, push, tag, delete branch, back to master?
 
 Daily Kidcompy developer steps
 ==============================
@@ -18,9 +26,9 @@ Daily Kidcompy developer steps
   * The harness is a sandbox for the feature you are working on.  Use it to experiment with css styles, scripts and
     markup
 6. At the end of the day or when a work item is complete
-  * Tweak feature toggles if necessary, is it time to enable previously dev-only flags in production builds?
-  * Spot check that the harness app is still functional
+  * Tweak feature toggles if necessary: is it time to enable previously dev-only flags in the production builds?
   * 'gulp build' and make sure all lints and tests pass
+  * Spot check that the harness app is still functional, would be nice if this was never broken
 7. If the status of work items changed, update scratchpad.txt accordingly
 8. Do any final commits and 'git push'
 9. Update any issue tickets at github or tag releases as needed
@@ -35,3 +43,8 @@ Annoying things that annoy me
 =============================
 - On windows, it seems like the ctrl-c handler doesn't allow me to shutdown the web driver for the code harness.
 Windows devs will have to close the harness Firefox instance manually.
+
+
+Other Thoughts
+==============
+Trunk-based development, Closure Compiler dead code elimination, feature flags are all complementary

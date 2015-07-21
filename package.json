@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/clubcompy/kidcompy",
   "devDependencies": {
-    "closure-compiler": "0.2.6",
     "css-loader": "0.10.1",
     "ejs-loader": "0.2.1",
     "event-stream": "3.3.0",

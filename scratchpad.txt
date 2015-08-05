@@ -1,5 +1,6 @@
 Todos
 =====
+* Get the build working on Windows (again)
 - Start a developer blog
   - Jekyll?  Tumblr?
   - Introduce clubcompy, tell a bit of its history

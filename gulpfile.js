@@ -104,9 +104,21 @@ gulp.task("build", function() {
   );
 });
 
-gulp.task("clean", function() {
-  return gulp.src([ "./intermediate/**/*", "./dist/**/*", "./intermediate", "./dist" ], { read: false })
+gulp.task("del-files", function() {
+  return gulp.src([ "./intermediate/**/*", "./dist/**/*" ])
     .pipe(rm());
+});
+
+gulp.task("del-folders", function() {
+  return gulp.src([ "./intermediate", "./dist" ])
+    .pipe(rm());
+});
+
+gulp.task("clean", function() {
+  return runSequence(
+    [ "del-files" ],
+    [ "del-folders" ]
+  );
 });
 
 gulp.task("test-bundle", [ "json-to-scss" ], function() {
@@ -205,8 +217,7 @@ gulp.task("install-prereqs", function() {
 gulp.task("post-npm-install-tasks", function() {
   return runSequence(
     [ "install-closure-compiler" ],
-    [ "install-selenium" ],
-    [ "help" ]
+    [ "install-selenium" ]
   );
 });
 
@@ -396,7 +407,7 @@ gulp.task("start-selenium", function() {
 
   runningSelenium.on("close", function(code) {
     if(code) {
-      console.log(" ");
+      console.log("Exited with code: " + code);
       console.log(" ");
       console.log("    **************************************** README ****************************************");
       console.log("    *                                                                                      *");
@@ -431,14 +442,15 @@ gulp.task("start-harness-content", function() {
 });
 
 gulp.task("start-harness-server", [ "json-to-scss" ], function(callback) {
-  var currentGitUser,
+  var execOutput,
+    currentGitUser,
     server;
 
   try {
     currentGitUser = execFileSync("git", [ "config", "user.name" ]).toString("utf-8").trim();
   }
-  catch(e) {
-    console.log("Was unable to determine the current git user.name");
+  catch(er) {
+    console.log("Was unable to determine the current git user.name: " + er);
   }
 
   server = new WebpackDevServer(
@@ -552,11 +564,20 @@ function callJsdoc(srcGlobPatterns, params, callback) {
       fileList.push(vinylFile.path);
     }
   }).on("end", function() {
-    execFile("./node_modules/.bin/jsdoc" + (platformIsWindows ? ".cmd" : ""), [].concat(params).concat(fileList), {
+    var jsdocCommand = "./node_modules/.bin/jsdoc",
+      ps;
+
+    if(platformIsWindows) {
+      jsdocCommand += ".cmd";
+    }
+
+    ps = spawn(path.resolve(__dirname, jsdocCommand), [].concat(params).concat(fileList), {
       stdio: "inherit"
-    }, function(error) {
-      if(error) {
-        console.log(error);
+    });
+
+    ps.on("close", function(code) {
+      if(code !== 0) {
+        console.log("jsdoc exited with code: " + code);
       }
 
       callback();
@@ -621,4 +642,3 @@ gulp.task("chdir-intermediate", function() {
 gulp.task("chdir-up", function() {
   process.chdir("..");
 });
-

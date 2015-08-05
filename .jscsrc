@@ -1,7 +1,4 @@
 {
-  "plugins": [
-    "jscs-jsdoc"
-  ],
   "excludeFiles": [
     "node_modules/**"
   ],

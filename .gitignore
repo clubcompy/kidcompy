@@ -4,5 +4,5 @@ etc/closureCompiler
 intermediate
 .idea
 
-# this file is generated from styleVars.json
+# this file is generated from styleVars.json during the build process
 lib/styles/styleVars.scss

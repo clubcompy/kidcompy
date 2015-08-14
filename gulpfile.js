@@ -8,7 +8,6 @@ var path = require("path"),
   jsonSass = require("gulp-json-sass"),
   rm = require("gulp-rm"),
   spawn = require("child_process").spawn,
-  execFile = require("child_process").execFile,
   execFileSync = require("child_process").execFileSync,
   hostPlatform = require("os").platform(),
   karma = require("karma"),
@@ -29,6 +28,8 @@ var path = require("path"),
   unzip = require("gulp-unzip"),
   flatten = require("gulp-flatten"),
   minimatch = require("minimatch"),
+  eventStream = require("event-stream"),
+  concat = require("gulp-concat"),
   platformIsWindows = hostPlatform.indexOf("win") === 0,
 
   moduleEntryPoints = [
@@ -123,7 +124,7 @@ gulp.task("clean", function() {
 
 gulp.task("test-bundle", [ "json-to-scss" ], function() {
   // intermediate folder files that will be the inputs and outputs for the closure compiler
-  closureCompilerSourceList = [ "testing.js" ];
+  closureCompilerSourceList = [ "./etc/closureCompiler/closure/goog/deps.js", "testing.js" ];
   closureCompilerOutputFile = "testing.closureCompiler.js";
   closureCompilerSourceMap = "testing.js|testing.js.map";
   closureCompilerOutputMap = "testing.closureCompiler.js.map";
@@ -179,11 +180,15 @@ gulp.task("launch-closure-compiler", function() {
       compilerFlags: {
         charset: "UTF-8",
         compilation_level: "ADVANCED_OPTIMIZATIONS",
+        language_in: "ECMASCRIPT5_STRICT",
+        language_out: "ECMASCRIPT3",
         create_source_map: closureCompilerOutputMap,
         source_map_input: closureCompilerSourceMap,
+        jscomp_off: "deprecatedAnnotations",
         third_party: null,
         use_types_for_optimization: null,
         warning_level: "VERBOSE",
+        extra_annotation_name: "@module",
         output_wrapper: "%output%\n//# sourceMappingURL=" + closureCompilerOutputMap,
         externs: ["../lib/symbols/externs.js"]
       }
@@ -442,8 +447,7 @@ gulp.task("start-harness-content", function() {
 });
 
 gulp.task("start-harness-server", [ "json-to-scss" ], function(callback) {
-  var execOutput,
-    currentGitUser,
+  var currentGitUser,
     server;
 
   try {

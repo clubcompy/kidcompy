@@ -197,7 +197,9 @@
       "preset": "jsdoc3",
       "extra": {
         "export": false,
-        "externs": false
+        "externs": false,
+        "final": false,
+        "package": false
       }
     },
     "checkParamNames": true,

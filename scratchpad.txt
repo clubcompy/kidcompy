@@ -1,6 +1,22 @@
 Todos
 =====
-* Get the build working on Windows (again)
+- Experiment with changing closure compiler's role in the production build.  There is no
+way to do a direct integration with webpack. Need to break up the code into four bundles: bootstrap.js, ie8polyfill.js,
+html5polyfill.js, and kidcompy.js.  These bundles should have 3 different build types for loading into different
+target environments:
+  - Development testing mode: no minification. bootstrap.js directly includes ie8polyfill.js, html5polyfill.js, and
+    kidcompy.js contents.  Webpack bundling is setup to facilitate straightforward hot-redeploy and CI rather than mimic
+    the script separations found in the production builds
+  - Production testing mode:  webpack used to bundle bootstrap.js, uglify.js for mangling and minification.  Closure
+    compiler or UglifyJS used for ie8polyfill.js, html5polyfill.js.  Closure Compiler used for kidcompy.js CommonJS-mode
+    mangling, optimization, and minification.  kidcompy.js will be bundled along with all of its karma unit and
+    functional tests.  Karma loads bootstrap.js which then ajaxically loads the remaining scripts as needed.  Karma
+    server will be launched directly on bootstrap.js rather than using webpack's karma integration.  bootstrap.js will
+    bundle to a standalone script that can execute without a webpack-dev-server to host it
+  - Production bundle mode:  webpack used to bundle bootstrap.js, uglify.js for mangling and minification.  Closure
+    compiler or UglifyJS used for ie8polyfill.js, html5polyfill.js.  Closure Compiler used for kidcompy.js CommonJS-mode
+    mangling, optimization, and minification.  A host page will load bootstrap.js which will then ajaxically load all
+    remaining scripts as needed
 - Start a developer blog
   - Jekyll?  Tumblr?
   - Introduce clubcompy, tell a bit of its history

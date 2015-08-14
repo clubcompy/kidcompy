@@ -4,61 +4,42 @@
 
 var path = require("path"),
   webpack = require("webpack"),
-  execFileSync = require("child_process").execFileSync;
+  execFileSync = require("child_process").execFileSync,
+  packageJson = require("../package.json");
 
 /**
- * @param {Object} options
- * @param {Array.<string>} options.moduleEntryPoints js modules that serve as entry points to the generated webpack bundle
- * @param {string} options.outputModuleName name of the outputted module that represents the moduleEntryPoints
- * @param {string} options.outputPath absolute path to folder where module should be written, if necessary
- * @param {string} options.outputFilename filename or filename pattern of module that should be written
- * @param {string} options.outputChunkFilename name of chunk files that are written
- * @param {boolean} [options.emitSingleChunk=false] when true, all chunks are merged into a single output file.  When
- *        false, more than one JavaScript chunk file may be emitted if webpack wants
- * @param {boolean} options.enableSourceMaps
- * @param {boolean} options.isProductionBundle
- * @param {boolean} options.isRunningTests
- * @param {boolean} options.isLintingCode
- * @param {boolean} options.isGeneratingCoverage
- * @param {boolean} options.isHotReloading
- * @returns {Object} webpack configuration object
+ * Spawn a git subprocess to retrieve the current git user name
+ *
+ * @returns {String}
  */
-function configureWebpack(options) {
-  var currentGitUser,
-    entryPoints,
-    providedModules,
-    definedConstants,
-    featureFlags,
-    featureFlag,
-    featureFlagSummary,
-    config = {
-      module: {
-        preLoaders: [],
-        loaders: [],
-        postLoaders: []
-      },
-      plugins: []
-    };
+function fetchCurrentGitUserName() {
+  var currentGitUser;
 
   try {
-    currentGitUser = execFileSync("git", [ "config", "user.name" ]).toString("utf-8").trim();
+    currentGitUser = execFileSync("git", ["config", "user.name"]).toString("utf-8").trim();
   }
-  catch(e) {
-    console.log("Was unable to determine the current git user.name");
+  catch (e) {
+    console.log("Unable to determine the current git user.name");
+    currentGitUser = "anonymous";
   }
 
+  return currentGitUser;
+}
+
+function configureOptionalEntryPoints(config, options) {
   if(options.outputModuleName && options.moduleEntryPoints) {
-    config.entry = {
-    };
+    config.entry = {};
 
-    entryPoints = options.moduleEntryPoints;
+    var entryPoints = options.moduleEntryPoints;
     if(options.isHotReloading) {
-      entryPoints = [ "webpack/hot/dev-server" ].concat(entryPoints);
+      entryPoints = ["webpack/hot/dev-server"].concat(entryPoints);
     }
 
-    config.entry[ options.outputModuleName ] = entryPoints;
+    config.entry[options.outputModuleName] = entryPoints;
   }
+}
 
+function configureOptionalOutputPath(config, options) {
   if(options.outputPath || options.outputFilename || options.outputChunkFilename) {
     config.output = {};
 
@@ -74,7 +55,8 @@ function configureWebpack(options) {
       config.output.chunkFilename = options.outputChunkFilename;
     }
   }
-
+}
+function configureOptionalSourceMapGeneration(config, options) {
   if(options.enableSourceMaps) {
     if(options.isRunningTests) {
       // webpack configuration -- eval is the fast method of getting sourcemap info into the sources, but
@@ -85,7 +67,9 @@ function configureWebpack(options) {
       config.devtool = "source-map";
     }
   }
+}
 
+function configureOptionalCodeLinters(config, options) {
   if(options.isLintingCode) {
     config.module.preLoaders.push({
       // include .js files
@@ -100,19 +84,27 @@ function configureWebpack(options) {
       loader: "jscs-loader"
     });
 
+    config.jshint = {
+      // fail the build and emit as errors if we're making a production bundle and a violation occurs
+      emitErrors: options.isProductionBundle,
+      failOnHint: options.isProductionBundle
+    };
+
     config.jscs = {
-      emitErrors: true,
       maxErrors: 50,
       verbose: true,
 
-      // fail the build if we're making a production bundle and a violation occurs
+      // fail the build and emit as errors if we're making a production bundle and a violation occurs
+      emitErrors: options.isProductionBundle,
       failOnHint: options.isProductionBundle
     };
   }
+}
 
+function configureCustomModuleLoaders(config, options) {
   config.module.loaders.push(
     /* .ejs : precompiled lodash template */
-    { test: /\.ejs$/, loader: "ejs" }
+    {test: /\.ejs$/, loader: "ejs"}
   );
 
   // the SASS loader in test mode simply bundles the SASS into the script.  Non-test builds emit them to standalone CSS
@@ -132,7 +124,9 @@ function configureWebpack(options) {
               path.resolve(__dirname, "../node_modules")
     });
   }
+}
 
+function configureOptionalTestCodeCoverageMeasurement(config, options) {
   if(options.isGeneratingCoverage) {
     config.module.postLoaders.push({
       test: /\/([a-zA-Z0-9_]+)\.js$/,
@@ -140,8 +134,19 @@ function configureWebpack(options) {
       loader: "istanbul-instrumenter"
     });
   }
+}
 
-  // configure plugins
+function configureWebpackPlugins(config, options) {
+  var providedModules,
+    definedConstants,
+    featureFlags,
+    featureFlag,
+    featureFlagSummary,
+    currentGitUser;
+
+  //
+  // HotModuleReplacementPlugin
+  //
 
   if(options.isHotReloading) {
     config.dist = {
@@ -152,6 +157,11 @@ function configureWebpack(options) {
     config.plugins.push(new webpack.HotModuleReplacementPlugin());
   }
 
+
+  //
+  // ProvidePlugin - auto registers modules into all require'd modules on-demand
+  //
+
   // map of local variable name to module name that are auto-require'd into all modules in the bundle
   providedModules = {
     _: "lodash",
@@ -160,12 +170,12 @@ function configureWebpack(options) {
     exportStaticProperties: path.resolve(__dirname, "../lib/symbols/exportStaticProperties")
   };
 
-  if(!options.isProductionBundle) {
-    // In the development build, featureFlags is an actual object that is auto-require'd via the ProvidePlugin
-    providedModules.featureFlags = path.resolve(__dirname, "../lib/featureFlags");
-  }
-
   config.plugins.push(new webpack.ProvidePlugin(providedModules));
+
+
+  //
+  // LimitChunkCountPlugin - forces webpack to emit only a single JS bundle file
+  //
 
   if(options.emitSingleChunk) {
     config.plugins.push(new webpack.optimize.LimitChunkCountPlugin({
@@ -173,40 +183,51 @@ function configureWebpack(options) {
     }));
   }
 
+
+  //
+  // DefinePlugin - Defines constants that may be used in require'd modules, used to
+  //                provide build constants and feature flag summary to the build
+  //
+
+  currentGitUser = fetchCurrentGitUserName();
+
   definedConstants = {
     PRODUCTION_MODE: JSON.stringify(options.isProductionBundle),
-    GIT_USERNAME: JSON.stringify(currentGitUser)
+    GIT_USERNAME: JSON.stringify(currentGitUser),
+    BUILD_VERSION: JSON.stringify(packageJson.version)
   };
 
-  if(options.isProductionBundle) {
-    // get the featureFlags and regenerate them, if needed
-    featureFlags = require(path.resolve(__dirname, "../lib/featureFlags"));
-    featureFlags.generateFeatureFlags(options.isProductionBundle, currentGitUser);
-    featureFlagSummary = {};
+  // get the featureFlags and regenerate them, if needed
+  featureFlags = require(path.resolve(__dirname, "../lib/featureFlags"));
+  featureFlags.generateFeatureFlags(options.isProductionBundle, currentGitUser);
+  featureFlagSummary = {};
 
-    // In the production build, feature flags are parsed in-place here and defined as constant booleans that are used to
-    // totally elide disabled features by-way of the Closure Compiler that follows after the webpack bundle is generated
-    for(featureFlag in featureFlags) {
-      if(featureFlags.hasOwnProperty(featureFlag)) {
-        if(typeof featureFlags[featureFlag] !== "function") {
-          definedConstants["featureFlags." + featureFlag] = JSON.stringify(featureFlags[featureFlag]);
-          featureFlagSummary[featureFlag] = featureFlags[featureFlag];
-        }
+  // In the production build, feature flags are parsed in-place here and defined as constant booleans that are used to
+  // totally elide disabled features by-way of the Closure Compiler that follows after the webpack bundle is generated
+  for(featureFlag in featureFlags) {
+    if(featureFlags.hasOwnProperty(featureFlag)) {
+      if(typeof featureFlags[featureFlag] !== "function") {
+        definedConstants["featureFlags." + featureFlag] = JSON.stringify(featureFlags[featureFlag]);
+        featureFlagSummary[featureFlag] = featureFlags[featureFlag];
       }
     }
-
-    // Make a constant out of the feature flags so that we can dump them for debugging purposes in production mode
-    // builds.  There is a similar global FEATURE_FLAGS variable object in development-mode builds that can be used
-    // in the same way as this constant.
-    definedConstants.FEATURE_FLAGS = JSON.stringify(featureFlagSummary);
   }
+
+  // Make a constant out of the feature flags so that we can dump them for debugging builds.
+  definedConstants.FEATURE_FLAG_SUMMARY = JSON.stringify(featureFlagSummary);
 
   config.plugins.push(new webpack.DefinePlugin(definedConstants));
 
-  // Closure compiler is our minifier in production mode builds, but there are aspects to the webpack bundles that
-  // Closure Compiler chokes on.  This UglifyJsPlugin does some light post-processing compression on the output bundle
-  // that has the effect of eliding code blocks that have been disabled by feature flags.  This gets Closure Compiler
-  // past the Webpack-generated trouble spots.
+
+  //
+  // UglifyJsPlugin - Closure compiler is our minifier in production mode builds, but there
+  //                  are aspects to the webpack bundles that Closure Compiler chokes on.
+  //                  This UglifyJsPlugin does some light post-processing compression on the
+  //                  output bundle that has the effect of eliding code blocks that have
+  //                  been disabled by feature flags.  This light UglifyJS treatment gets
+  //                  Closure Compiler past the Webpack-generated trouble spots.
+  //
+
   if(options.isProductionBundle) {
     config.plugins.push(new webpack.optimize.UglifyJsPlugin({
       compress: {
@@ -222,6 +243,42 @@ function configureWebpack(options) {
       comments: "all"
     }));
   }
+}
+
+/**
+ * @param {Object} options
+ * @param {Array.<string>} options.moduleEntryPoints js modules that serve as entry points to the generated webpack bundle
+ * @param {string} options.outputModuleName name of the outputted module that represents the moduleEntryPoints
+ * @param {string} options.outputPath absolute path to folder where module should be written, if necessary
+ * @param {string} options.outputFilename filename or filename pattern of module that should be written
+ * @param {string} options.outputChunkFilename name of chunk files that are written
+ * @param {boolean} [options.emitSingleChunk=false] when true, all chunks are merged into a single output file.  When
+ *        false, more than one JavaScript chunk file may be emitted if webpack wants
+ * @param {boolean} options.enableSourceMaps
+ * @param {boolean} options.isProductionBundle
+ * @param {boolean} options.isRunningTests
+ * @param {boolean} options.isLintingCode
+ * @param {boolean} options.isGeneratingCoverage
+ * @param {boolean} options.isHotReloading
+ * @returns {Object} webpack configuration object
+ */
+function configureWebpack(options) {
+  var config = {
+      module: {
+        preLoaders: [],
+        loaders: [],
+        postLoaders: []
+      },
+      plugins: []
+    };
+
+  configureOptionalEntryPoints(config, options);
+  configureOptionalOutputPath(config, options);
+  configureOptionalSourceMapGeneration(config, options);
+  configureOptionalCodeLinters(config, options);
+  configureCustomModuleLoaders(config, options);
+  configureOptionalTestCodeCoverageMeasurement(config, options);
+  configureWebpackPlugins(config, options);
 
   return config;
 }

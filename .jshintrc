@@ -104,6 +104,8 @@
     "exportGlobal": false,
     "exportPrototypeProperties": false,
     "GIT_USERNAME": false,
-    "PRODUCTION_MODE": false
+    "PRODUCTION_MODE": false,
+    "BUILD_VERSION": false,
+    "FEATURE_FLAG_SUMMARY": false
   }
 }

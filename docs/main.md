@@ -10,33 +10,39 @@ support like Java or Flash.  We will support two types of browsers in KidCompy: 
 browsers and legacy Internet Explorer 6-8.  
 
 The design goal with modern browsers is to achieve consistently high (60Hz) framerates on desktop and mobile and to 
-exploit performance enhancers the platform offers like Web Workers and ASM.js so that we squeeze every last ounce of 
+exploit performance enhancers the platform offers (like Web Workers and ASM.js0 so that we squeeze every last ounce of 
 performance out of the host.  The goal with legacy Internet Explorer support is to create any sort of functioning 
-simulation at all, leveraging polyfills and the few fast paths that IE offers to put together a useful environment.
+simulation at all, leveraging polyfills and exploit any fast paths that IE offers to create a usable environment.
 
-A working prototype of this environment looked like this:
+A working prototype of the KidCompy operating environment looks like this:
 
 ![Screenshots of the original KidCompy prototype](./Prototype_Screenshots.png) 
 
 
-Why are we building KidCompy, and what is it good for?
-------------------------------------------------------
-This is a fair question because the KidCompy concept is quite retro, and kids of today might not care for it.  6 years 
-ago when I (woldie) started working on KidCompy, it occurred to me that a generation of coders raised on Commodore, 
-Atari, and Apple 8-bit micros were now having kids.  I believed these computer-savvy parents would be interested in 
-reliving their formative years learning to code on a retro-styled virtual computer with their little kids.  That 
-window in time for my generation to have kids in the intended age range that would enjoy KidCompy is starting to close.
-So, does it still make sense to pursue creating this retro-styled virtual machine for kids?
+KidCompy architectural tenets
+-----------------------------
 
-Yes, KidCompy makes sense now and far into the future for a few reasons:
+## Balance the challenge level posed by the environment to new developers
 
-  1. Modern development environments that are accessible to kids are either:
-    * too advanced:  assumes the kid has an understanding of file systems, installing programs, and importing from 
-      software libraries.  Or,
-    * too constrained:  drag n' drop, lego blocks, visual programming experience centered on event handling and 
-      multimedia
+Systems for modern software development commonly provided to kids for learning about computers 
+tend to fall into two classes:  too advanced or too constrained.  The too advanced systems are typically based on 
+computer languages that adults use for regular productivity.  These computer languages carry with them all the 
+baggage that assumes the kid will have an understanding of.  An understanding of command line tools, type systems, 
+operating systems primitives, and linking with 3rd party software libraries are common prerequisites for kids before 
+they can begin to build any significant computer program like the videogame of their dreams. 
+
+Conversely, the too constrained systems work hard to create a simple drag n' drop, lego blocks building-style or visual 
+oriented programming experience centered on event handling and displaying multimedia.  A focus on event triggering and 
+handling is important and helps to teach program flow, but there are additional aspects of computer programming that 
+these systems abstract away.  Data structures, recursion, math and trigonometric functions, and subroutines are a 
+big part of a software developer's toolkit that can become glossed over in these constrained systems.
+
+The KidCompy operating environment will try to strike a balance and offer expert computer programming features typical
+of advanced systems while being easy to pick up and use, like constrained systems. 
+
      
-     KidCopy will strike a balance between full-featured1 and accessible to computer newbies
+     The design of KidCompy tries to strike a balance between being full-featured and being accessible to computer 
+     newbies
   2. Built-in library programming environments (like BASIC on 8-bit micros) provide everything one needs to write a 
      program.  Just like BASIC, everything the computer can do can be documented as part of the language guide, which 
      is perfect for a beginner.  KidCompy will be a fully programmable virtual computer, but will still be simple enough 

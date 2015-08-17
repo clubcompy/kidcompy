@@ -190,7 +190,7 @@ gulp.task("launch-closure-compiler", function() {
         warning_level: "VERBOSE",
         extra_annotation_name: "@module",
         output_wrapper: "%output%\n//# sourceMappingURL=" + closureCompilerOutputMap,
-        externs: ["../lib/symbols/externs.js"]
+        externs: ["../lib/symbols/externs.js","../lib/symbols/testingExterns.js"]
       }
     }))
     .pipe(gulp.dest("."));
@@ -597,7 +597,7 @@ gulp.task("jsdoc", function() {
 
 gulp.task("jsdoc-public-api", function(done) {
   callJsdoc([ "./lib/**/*.js", "!./lib/**/*.spec.js", "!./lib/**/*.integration.js", "!./lib/**/*.system.js",
-      "!./lib/symbols/externs.js", "!./lib/featureFlags.js", "README.md" ],
+      "!./lib/symbols/testingExterns.js", "!./lib/featureFlags.js", "README.md" ],
     [
       "--access", "public,undefined",
       "--configure", path.resolve(__dirname, "./etc/jsdoc.conf.json"),
@@ -610,7 +610,7 @@ gulp.task("jsdoc-public-api", function(done) {
 
 gulp.task("jsdoc-dev-docs", function(done) {
   callJsdoc([ "./lib/**/*.js", "!./lib/**/*.spec.js", "!./lib/**/*.integration.js", "!./lib/**/*.system.js",
-      "!./lib/symbols/externs.js", "README.md" ],
+      "!./lib/symbols/testingExterns.js", "README.md" ],
     [
       "--access", "all",
       "--private",

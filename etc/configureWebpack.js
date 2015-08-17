@@ -164,10 +164,7 @@ function configureWebpackPlugins(config, options) {
 
   // map of local variable name to module name that are auto-require'd into all modules in the bundle
   providedModules = {
-    _: "lodash",
-    exportGlobal: path.resolve(__dirname, "../lib/symbols/exportSymbol"),
-    exportPrototypeProperties: path.resolve(__dirname, "../lib/symbols/exportPrototypeProperties"),
-    exportStaticProperties: path.resolve(__dirname, "../lib/symbols/exportStaticProperties")
+    _: "lodash"
   };
 
   config.plugins.push(new webpack.ProvidePlugin(providedModules));

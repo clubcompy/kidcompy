@@ -78,6 +78,7 @@
     "webpack-stream": "2.0.0"
   },
   "dependencies": {
+    "URIjs": "^1.16.0",
     "lodash": "3.7.0",
     "rx": "2.5.2"
   }

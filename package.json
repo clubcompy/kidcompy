@@ -4,7 +4,7 @@
   "description": "The kidcompy module reveals a fun-loving character that lives at the heart of every computer",
   "main": "index.js",
   "scripts": {
-    "postinstall": "node node_modules/gulp/bin/gulp.js post-npm-install-tasks"
+    "postinstall": "node node_modules/gulp/bin/gulp.js install-prereqs"
   },
   "repository": {
     "type": "git",

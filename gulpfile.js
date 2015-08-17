@@ -124,7 +124,7 @@ gulp.task("clean", function() {
 
 gulp.task("test-bundle", [ "json-to-scss" ], function() {
   // intermediate folder files that will be the inputs and outputs for the closure compiler
-  closureCompilerSourceList = [ "./etc/closureCompiler/closure/goog/deps.js", "testing.js" ];
+  closureCompilerSourceList = [ "./etc/closureCompiler/closure-library-master/closure/goog/deps.js", "testing.js" ];
   closureCompilerOutputFile = "testing.closureCompiler.js";
   closureCompilerSourceMap = "testing.js|testing.js.map";
   closureCompilerOutputMap = "testing.closureCompiler.js.map";
@@ -146,7 +146,7 @@ gulp.task("test-bundle", [ "json-to-scss" ], function() {
 
 gulp.task("bundle", [ "json-to-scss" ], function() {
   // intermediate folder files that will be the inputs and outputs for the closure compiler
-  closureCompilerSourceList = [ "Main.js" ];
+  closureCompilerSourceList = [ "./etc/closureCompiler/closure-library-master/closure/goog/deps.js", "Main.js" ];
   closureCompilerOutputFile = "Main.closureCompiler.js";
   closureCompilerSourceMap = "Main.js|Main.js.map";
   closureCompilerOutputMap = "Main.closureCompiler.js.map";
@@ -214,14 +214,7 @@ gulp.task("fixup-closure-compiler-source-map", function() {
 gulp.task("install-prereqs", function() {
   return runSequence(
     [ "install-closure-compiler" ],
-    [ "install-selenium" ]
-  );
-});
-
-// variation of install-prereqs that also prints the help text, called automatically after npm install
-gulp.task("post-npm-install-tasks", function() {
-  return runSequence(
-    [ "install-closure-compiler" ],
+    [ "install-closure-library" ],
     [ "install-selenium" ]
   );
 });
@@ -259,6 +252,21 @@ gulp.task("install-closure-compiler", function() {
       }
     }))
     .pipe(flatten())
+    .pipe(gulp.dest("./etc/closureCompiler"));
+});
+
+gulp.task("install-closure-library", function() {
+  return download("https://github.com/google/closure-library/archive/master.zip")
+    .pipe(unzip({
+      /**
+       * filter all files from being unzipped except for the closure library sources
+       *
+       * @param {string} entry
+       */
+      filter: function(entry) {
+        return minimatch(entry.path, "closure-library-master/closure/**/*");
+      }
+    }))
     .pipe(gulp.dest("./etc/closureCompiler"));
 });
 

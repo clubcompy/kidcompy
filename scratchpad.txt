@@ -64,4 +64,59 @@ Windows devs will have to close the harness Firefox instance manually.
 
 Other Thoughts
 ==============
-Trunk-based development, Closure Compiler dead code elimination, feature flags are all complementary
+Doing trunk-based development, having Closure Compiler dead code elimination as part of the build, and using feature
+flags to tag builds are all complementary things.
+
+
+Closure Compiler module styles
+==============================
+
+mutable fields are declared in the constructor as instance variables (attached to the this)
+static immutable and mutable fields are attached to the constructor
+static functions are attached to the constructor
+member functions are attached to the constructor's prototype
+only one top-level var statement can appear in a module, and only variables assigned to require statements may be
+  listed there in a comma-delimited list.  If you want private/protected static variables in a module, attach them
+  to the constructor and mark them @private or @protected as appropriate.
+"var self = this;" is allowed in any function with 4 or more statements containing this, or any function that has a
+  closure
+'this' keyword may not appear in any static functions or at the top-level of a module.
+every module must end in "module.exports = ..." and you may assign either the constructor to module.exports, or you
+  may immediately construct a singleton to the class and assign that.  Add a @module JSDoc comment for documentation
+  purposes for exporting classes, like ...
+
+  /**
+   * require("./bootstrap/XHConn2.js") &rArr; {@link XHConn2}
+   *
+   * @module bootstrap/XHConn2.js
+   */
+  module.exports = XHConn2;
+
+or, for singleton instances, like ...
+
+  /**
+   * require("./bootstrap/main") &rArr; singleton instance of {@link Main}
+   *
+   * @module bootstrap/main
+   */
+  module.exports = new Main();
+
+If you are returning a singleton instance, the filename of the module should be a lower-camelCase version of the
+class name (so, singleton instance of Main --> main.js).  Otherwise, the filename should exactly match the name of the
+class being defined.
+
+There may be odd cases where you want to export a static utility function rather than a Class or a singleton, to do
+that, use ...
+
+  function extend() { ... }
+
+  /**
+   * require("./symbols/extend") &rArr; {@link extend}
+   *
+   * @module symbols/extend
+   */
+  module.exports = extend;
+
+Use the new keyword to construct object instances, don't hide object construction with constructor tricks.
+So as to eliminate circular references, use the closure factory pattern to instantiate closures rather than using
+inline anonymous functions.

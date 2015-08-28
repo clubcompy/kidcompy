@@ -120,3 +120,8 @@ that, use ...
 Use the new keyword to construct object instances, don't hide object construction with constructor tricks.
 So as to eliminate circular references, use the closure factory pattern to instantiate closures rather than using
 inline anonymous functions.
+
+If you want any static or member fields or functions to be accessible by an unmangled name from the global scope, mark
+the symbol @public in the JSDoc and export it using symbols/exportPublicProperties.js or
+symbols/exportPrototypeProperties.js.  Public members of your classes that you will not be exporting to the global
+scope should NOT be marked @public.  We will use @public to find in files all of the symbols we plan to export.

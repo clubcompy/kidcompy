@@ -199,7 +199,8 @@
         "export": false,
         "externs": false,
         "final": false,
-        "package": false
+        "package": false,
+        "dict": false
       }
     },
     "checkParamNames": true,

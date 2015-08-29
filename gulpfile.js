@@ -468,7 +468,9 @@ gulp.task("start-harness-server", [ "json-to-scss" ], function(callback) {
   server = new WebpackDevServer(
     webpack(
       configureWebpack({
-        moduleEntryPoints: moduleEntryPoints,
+        moduleEntryPoints: [
+          path.resolve(__dirname, "./lib/bootstrap/main.js")
+        ],
         outputModuleName: "harness",
         outputPath: path.resolve(__dirname, "./intermediate"),
         outputFilename: "[name].js",

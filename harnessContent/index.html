@@ -12,5 +12,11 @@
   <!-- It is important that you point to the full url -->
   <script type="text/javascript" src="http://localhost:8080/webpack-dev-server.js"></script>
   <script type="text/javascript" src="harness.js"></script>
+  <script type="text/javascript">
+    kidcompy.lifecycleEvents.addOnCodeGoHandler(function() {
+      document.getElementById("test").innerHTML = "ON CODE GOOOOO";
+      console.log("on code go callback");
+    });
+  </script>
 </body>
 </html>

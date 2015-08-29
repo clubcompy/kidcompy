@@ -30,7 +30,8 @@ function fetchCurrentGitUserName() {
  * @returns {Object} computed defined constants
  */
 function computeDefinedConstants(options) {
-  var featureFlagSummary,
+  var featureFlagModule,
+    featureFlagSummary,
     featureFlag,
     currentGitUser,
     definedConstants;
@@ -44,14 +45,14 @@ function computeDefinedConstants(options) {
   };
 
   // get the featureFlags and regenerate them using our isProduction flag and caller's git user name
-  featureFlagSummary = require(path.resolve(__dirname, "../lib/featureFlags"));
-  kidcompy.generateFeatureFlags(options.isProductionBundle, currentGitUser);
+  featureFlagModule = require(path.resolve(__dirname, "../lib/featureFlags"));
+  featureFlagSummary = featureFlagModule.generateFeatureFlags(options.isProductionBundle, currentGitUser);
 
   // In the production build, feature flags are parsed in-place here and defined as constant booleans that are used to
   // totally elide disabled features by-way of the Closure Compiler that follows after the webpack bundle is generated
-  for(featureFlag in featureFlagSummary) {
-    if(featureFlags.hasOwnProperty(featureFlag)) {
-      definedConstants["featureFlags." + featureFlag] = JSON.stringify(featureFlagSummary[featureFlag]);
+  for(featureFlag in featureFlagModule) {
+    if(featureFlagModule.hasOwnProperty(featureFlag) && typeof featureFlagModule[featureFlag] !== "function") {
+      definedConstants["featureFlags." + featureFlag] = JSON.stringify(featureFlagModule[featureFlag]);
     }
   }
 

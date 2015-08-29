@@ -25,6 +25,8 @@ module.exports = function(config) {
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {},
 
+    logLevel: "LOG_DEBUG",
+
     webpack: configureWebpack({
       enableSourceMaps: true,
       isProductionBundle: false,

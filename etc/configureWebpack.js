@@ -4,27 +4,8 @@
 
 var path = require("path"),
   webpack = require("webpack"),
-  execFileSync = require("child_process").execFileSync,
-  packageJson = require("../package.json");
 
-/**
- * Spawn a git subprocess to retrieve the current git user name
- *
- * @returns {String}
- */
-function fetchCurrentGitUserName() {
-  var currentGitUser;
-
-  try {
-    currentGitUser = execFileSync("git", ["config", "user.name"]).toString("utf-8").trim();
-  }
-  catch (e) {
-    console.log("Unable to determine the current git user.name");
-    currentGitUser = "anonymous";
-  }
-
-  return currentGitUser;
-}
+  computeDefinedConstants = require("./computeDefinedConstants");
 
 function configureOptionalEntryPoints(config, options) {
   if(options.outputModuleName && options.moduleEntryPoints) {
@@ -138,11 +119,7 @@ function configureOptionalTestCodeCoverageMeasurement(config, options) {
 
 function configureWebpackPlugins(config, options) {
   var providedModules,
-    definedConstants,
-    featureFlags,
-    featureFlag,
-    featureFlagSummary,
-    currentGitUser;
+    definedConstants;
 
   //
   // HotModuleReplacementPlugin
@@ -186,33 +163,7 @@ function configureWebpackPlugins(config, options) {
   //                provide build constants and feature flag summary to the build
   //
 
-  currentGitUser = fetchCurrentGitUserName();
-
-  definedConstants = {
-    PRODUCTION_MODE: JSON.stringify(options.isProductionBundle),
-    GIT_USERNAME: JSON.stringify(currentGitUser),
-    BUILD_VERSION: JSON.stringify(packageJson.version)
-  };
-
-  // get the featureFlags and regenerate them, if needed
-  featureFlags = require(path.resolve(__dirname, "../lib/featureFlags"));
-  featureFlags.generateFeatureFlags(options.isProductionBundle, currentGitUser);
-  featureFlagSummary = {};
-
-  // In the production build, feature flags are parsed in-place here and defined as constant booleans that are used to
-  // totally elide disabled features by-way of the Closure Compiler that follows after the webpack bundle is generated
-  for(featureFlag in featureFlags) {
-    if(featureFlags.hasOwnProperty(featureFlag)) {
-      if(typeof featureFlags[featureFlag] !== "function") {
-        definedConstants["featureFlags." + featureFlag] = JSON.stringify(featureFlags[featureFlag]);
-        featureFlagSummary[featureFlag] = featureFlags[featureFlag];
-      }
-    }
-  }
-
-  // Make a constant out of the feature flags so that we can dump them for debugging builds.
-  definedConstants.FEATURE_FLAG_SUMMARY = JSON.stringify(featureFlagSummary);
-
+  definedConstants = computeDefinedConstants(options);
   config.plugins.push(new webpack.DefinePlugin(definedConstants));
 
 

@@ -139,7 +139,8 @@ gulp.task("test-bundle", [ "json-to-scss" ], function() {
       outputPath: __dirname + "/intermediate",
       outputFilename: "testing.js",
       emitSingleChunk: true,
-      isProductionBundle: true
+      isProductionBundle: true,
+      areBundlesSplit: true
     })), webpack)
     .pipe(gulp.dest("intermediate/"));
 });
@@ -158,7 +159,8 @@ gulp.task("bundle", [ "json-to-scss" ], function() {
     .pipe(named()) // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
     .pipe(webpackStream(configureWebpack({
       enableSourceMaps: true,
-      isProductionBundle: true
+      isProductionBundle: true,
+      areBundlesSplit: true
     })), webpack)
     .pipe(gulp.dest("intermediate/"));
 });
@@ -480,6 +482,7 @@ gulp.task("start-harness-server", [ "json-to-scss" ], function(callback) {
         isLintingCode: false,
         isGeneratingCoverage: false,
         isProductionBundle: false,
+        areBundlesSplit: false,
         isHotReloading: true
       })
     ),

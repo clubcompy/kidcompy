@@ -184,8 +184,8 @@ function configureWebpackPlugins(config, options) {
         negate_iife: false
       },
 
-      // Closure Compiler will take care of mangling
-      mangle: false,
+      // minify to get a realistic feel for the running the tests minified
+      mangle: true,
 
       // preserve all the comments so that the jsdoc's are fed to Closure Compiler
       comments: "all"
@@ -204,6 +204,7 @@ function configureWebpackPlugins(config, options) {
  *        false, more than one JavaScript chunk file may be emitted if webpack wants
  * @param {boolean} options.enableSourceMaps
  * @param {boolean} options.isProductionBundle
+ * @param {boolean} options.areBundlesSplit
  * @param {boolean} options.isRunningTests
  * @param {boolean} options.isLintingCode
  * @param {boolean} options.isGeneratingCoverage

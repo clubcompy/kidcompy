@@ -7,7 +7,7 @@ var configureWebpack = require("./configureWebpack");
 var path = require("path"),
   _ = require("lodash");
 
-module.exports = function(config, isProductionBundle) {
+module.exports = function(config, isProductionBundle, areBundlesSplit) {
   var baseKarmaConfig = require("./karma.base.conf.js")(config),
     configOverrides;
 
@@ -48,6 +48,7 @@ module.exports = function(config, isProductionBundle) {
     webpack: configureWebpack({
       enableSourceMaps: true,
       isProductionBundle: isProductionBundle || false,
+      areBundlesSplit: areBundlesSplit || false,
       isRunningTests: true,
       isLintingCode: true,
       isGeneratingCoverage: true

@@ -26,7 +26,7 @@ function fetchCurrentGitUserName() {
 /**
  * Compute the defined constants that will be used in the build based on options and the caller's environment
  *
- * @param {{ isProductionBundle: boolean }} options
+ * @param {{ isProductionBundle: boolean, areBundlesSplit: boolean  }} options
  * @returns {Object} computed defined constants
  */
 function computeDefinedConstants(options) {
@@ -40,6 +40,7 @@ function computeDefinedConstants(options) {
 
   definedConstants = {
     PRODUCTION_MODE: JSON.stringify(options.isProductionBundle),
+    SPLIT_BUNDLES: JSON.stringify(options.areBundlesSplit),
     GIT_USERNAME: JSON.stringify(currentGitUser),
     BUILD_VERSION: JSON.stringify(packageJson.version)
   };

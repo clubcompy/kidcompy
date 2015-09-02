@@ -105,6 +105,7 @@
     "ActiveXObject": false,
     "GIT_USERNAME": false,
     "PRODUCTION_MODE": false,
+    "SPLIT_BUNDLES": false,
     "BUILD_VERSION": false,
     "FEATURE_FLAG_SUMMARY": false
   }

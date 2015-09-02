@@ -28,6 +28,7 @@ module.exports = function(config) {
     webpack: configureWebpack({
       enableSourceMaps: true,
       isProductionBundle: false,
+      areBundlesSplit: false,
       isRunningTests: true,
       isLintingCode: true
     })

@@ -1,7 +1,5 @@
 Todos
 =====
-- production-mode-integration-single probably should be production mode, but single bundle with all polyfills and
-  tests included and bundled with webpack and minified with UglifyJS
 - three new targets should generate the iePolyfills, html5Polyfills, and kidcompy bundles
 - test-bundle - beforehand, bundle the production iePolyfills, html5Polyfills, and kidcompy bundles using Closure
   Compiler with CommonJS support.  Bootstrap should be built as minified with UglifyJS.  Kidcompy bundle should include

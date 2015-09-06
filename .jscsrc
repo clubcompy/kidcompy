@@ -200,7 +200,8 @@
         "externs": false,
         "final": false,
         "package": false,
-        "dict": false
+        "dict": false,
+        "define": false
       }
     },
     "checkParamNames": true,

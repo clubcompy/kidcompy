@@ -39,10 +39,10 @@ function computeDefinedConstants(options) {
   currentGitUser = fetchCurrentGitUserName();
 
   definedConstants = {
-    PRODUCTION_MODE: JSON.stringify(options.isProductionBundle),
-    SPLIT_BUNDLES: JSON.stringify(options.areBundlesSplit),
-    GIT_USERNAME: JSON.stringify(currentGitUser),
-    BUILD_VERSION: JSON.stringify(packageJson.version)
+    "PRODUCTION_MODE": JSON.stringify(options.isProductionBundle),
+    "SPLIT_BUNDLES": JSON.stringify(options.areBundlesSplit),
+    "GIT_USERNAME": JSON.stringify(currentGitUser),
+    "BUILD_VERSION": JSON.stringify(packageJson.version)
   };
 
   // get the featureFlags and regenerate them using our isProduction flag and caller's git user name
@@ -58,7 +58,7 @@ function computeDefinedConstants(options) {
   }
 
   // Make a JSON object constant out of the feature flags so that we can dump them for debugging builds.
-  definedConstants.FEATURE_FLAG_SUMMARY = JSON.stringify(featureFlagSummary);
+  // definedConstants.FEATURE_FLAG_SUMMARY = JSON.stringify(featureFlagSummary);
 
   return definedConstants;
 }

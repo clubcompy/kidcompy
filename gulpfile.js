@@ -3,7 +3,7 @@
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 
 var path = require("path"),
-  closureCompiler = require("gulp-closure-compiler"),
+  fs = require("fs"),
   gulp = require("gulp"),
   jsonSass = require("gulp-json-sass"),
   rm = require("gulp-rm"),
@@ -23,14 +23,15 @@ var path = require("path"),
   serveStatic = require("serve-static"),
   named = require("vinyl-named"),
   configureWebpack = require("./etc/configureWebpack"),
+  configureClosureCompiler = require("./etc/configureClosureCompiler"),
   sorcery = require("sorcery"),
   download = require("gulp-download"),
   unzip = require("gulp-unzip"),
   flatten = require("gulp-flatten"),
   minimatch = require("minimatch"),
-  eventStream = require("event-stream"),
-  concat = require("gulp-concat"),
   platformIsWindows = hostPlatform.indexOf("win") === 0,
+  uglifyJs = require("uglify-js"),
+  computeDefinedConstants = require("./etc/computeDefinedConstants"),
 
   moduleEntryPoints = [
     path.resolve(__dirname, "./lib/Main.js")
@@ -39,11 +40,13 @@ var path = require("path"),
   runningSelenium = null,
   runningHarnessBrowser = null,
 
+  closureCompilerConfig = {},
   closureCompilerSourceList = [],
   closureCompilerOutputFile = "",
   closureCompilerSourceMap = "",
   closureCompilerOutputMap = "",
-  finalInputOutputMap = {};
+  finalInputOutputMap = {},
+  gulpFolder = "" + __dirname;
 
 gulp.task("default", [ "help" ], function() {
 });
@@ -82,7 +85,8 @@ gulp.task("help", function() {
 gulp.task("build", function() {
   return runSequence(
 
-    // run the integration test suite once before minification
+    // run the integration test suite with production mode once before minification as a quick check to verify
+    // that the production build passes all tests
     [ "production-mode-integration-single" ],
 
     // build a closure-compiled, minified test bundle with integration tests included
@@ -105,6 +109,91 @@ gulp.task("build", function() {
   );
 });
 
+gulp.task("closure-compiler", function(done) {
+  return runSequence(
+    [ "chdir-intermediate" ],
+    [ "launch-closure-compiler" ],
+    [ "minify-closure-compiler-output" ],
+    [ "chdir-gulp-folder" ],
+    done
+  );
+});
+
+gulp.task("launch-closure-compiler", function(done) {
+  var i, ii,
+    paramName,
+    paramValue,
+    params = [
+      "-jar",
+      "-XX:+TieredCompilation",
+      closureCompilerConfig.compilerPath
+    ];
+
+  for(paramName in closureCompilerConfig.compilerFlags) {
+    if(closureCompilerConfig.compilerFlags.hasOwnProperty(paramName)) {
+      paramValue = closureCompilerConfig.compilerFlags[paramName];
+
+      if(paramValue === null) {
+        params.push("--" + paramName);
+      }
+      else if(Object.prototype.toString.call(paramValue) === "[object Array]") {
+        for(i = 0, ii = paramValue.length; i < ii; i++) {
+          params.push("--" + paramName);
+          params.push(paramValue[i]);
+        }
+      }
+      else {
+        params.push("--" + paramName);
+        params.push(paramValue);
+      }
+    }
+  }
+
+  // source files
+  for(i = 0, ii = closureCompilerConfig.sourceFiles.length; i < ii; i++) {
+    params.push("--js");
+    params.push(closureCompilerConfig.sourceFiles[i]);
+  }
+
+  // output file
+  params.push("--js_output_file");
+  params.push(closureCompilerConfig.fileName);
+
+  // async spawn java with params
+  spawn("java", params, { stdio: "inherit" }).on("close", function(code) {
+    if(code) {
+      console.log("Error: " + code);
+    }
+
+    done();
+  });
+});
+
+gulp.task("minify-closure-compiler-output", function() {
+  try {
+    var result = uglifyJs.minify(closureCompilerConfig.fileName, {
+      inSourceMap: closureCompilerConfig.fileName + ".map",
+      outSourceMap: closureCompilerConfig.minifiedFileName + ".map",
+      mangle: false,
+      output: {
+        screw_ie8: false,
+        comments: true,
+        max_line_len: 3999
+      },
+      compress: {
+        side_effects: false,
+        global_defs: computeDefinedConstants({isProductionBundle: true, areBundlesSplit: true})
+      }
+    });
+
+    fs.writeFileSync(closureCompilerConfig.minifiedFileName, result.code);
+    fs.writeFileSync(closureCompilerConfig.minifiedFileName + ".map", result.map);
+  }
+  catch(e) {
+    console.log(JSON.stringify(e, null, " "));
+  }
+});
+
 gulp.task("del-files", function() {
   return gulp.src([ "./intermediate/**/*", "./dist/**/*" ])
     .pipe(rm());
@@ -115,11 +204,36 @@ gulp.task("del-folders", function() {
     .pipe(rm());
 });
 
-gulp.task("clean", function() {
+gulp.task("clean", function(done) {
   return runSequence(
     [ "del-files" ],
-    [ "del-folders" ]
+    [ "del-folders" ],
+    done
   );
+});
+
+gulp.task("html5-polyfill-production-bundle", function(done) {
+  return runSequence(
+    [ "html5-polyfill-cc-config" ],
+    [ "closure-compiler" ],
+    done
+  );
+});
+
+gulp.task("html5-polyfill-cc-config", function(done) {
+  resolveGlobs(["./lib/html5Polyfill/main.js", "./lib/html5Polyfill/**/*.js", "./lib/symbols/**/*.js"], function(srcFiles) {
+    closureCompilerConfig = configureClosureCompiler({
+      isProductionBundle: true,
+      areBundlesSplit: true,
+      sourceFiles: srcFiles,
+      sourceFolder: "./lib/html5Polyfill",
+      targetFolder: "intermediate",
+      outputFile: "html5Polyfill.closureCompiler.js",
+      minifiedFile: "html5Polyfill.min.js"
+    });
+
+    done();
+  });
 });
 
 gulp.task("test-bundle", [ "json-to-scss" ], function() {
@@ -171,31 +285,6 @@ gulp.task("production-bundle-tests", function(done) {
     singleRun: true,
     autoWatch: false
   }, done);
-});
-
-gulp.task("launch-closure-compiler", function() {
-  // expects the gulp process' cwd to be run from the source/target folder
-  return gulp.src(closureCompilerSourceList)
-    .pipe(closureCompiler({
-      compilerPath: path.resolve(__dirname, "./etc/closureCompiler/compiler.jar"),
-      fileName: closureCompilerOutputFile,
-      compilerFlags: {
-        charset: "UTF-8",
-        compilation_level: "ADVANCED_OPTIMIZATIONS",
-        language_in: "ECMASCRIPT5_STRICT",
-        language_out: "ECMASCRIPT3",
-        create_source_map: closureCompilerOutputMap,
-        source_map_input: closureCompilerSourceMap,
-        jscomp_off: "deprecatedAnnotations",
-        third_party: null,
-        use_types_for_optimization: null,
-        warning_level: "VERBOSE",
-        extra_annotation_name: "@module",
-        output_wrapper: "%output%\n//# sourceMappingURL=" + closureCompilerOutputMap,
-        externs: ["../lib/symbols/externs.js","../lib/symbols/testingExterns.js"]
-      }
-    }))
-    .pipe(gulp.dest("."));
 });
 
 gulp.task("fixup-closure-compiler-source-map", function() {
@@ -659,3 +748,30 @@ gulp.task("chdir-intermediate", function() {
 gulp.task("chdir-up", function() {
   process.chdir("..");
 });
+
+gulp.task("chdir-gulp-folder", function() {
+  process.chdir(gulpFolder);
+});
+
+/**
+ * resolve glob patterns to absolute files, dupes are removed
+ *
+ * @param {Array.<string>} globs
+ * @param {function(Array.<string>)} done callback called with resolved globFiles with dupes removed
+ */
+function resolveGlobs(globs, done) {
+  var globFiles = [],
+    srcFiles = gulp.src(globs);
+
+  srcFiles.on("readable", function() {
+    var vinylFile;
+
+    while((vinylFile = srcFiles.read()) !== null) {
+      if(globFiles.indexOf(vinylFile) < 0) {
+        globFiles.push(vinylFile.path);
+      }
+    }
+  }).on("end", function() {
+    done(globFiles);
+  });
+}

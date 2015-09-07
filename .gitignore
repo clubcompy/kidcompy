@@ -1,3 +1,4 @@
+lib/constantExterns.js
 node_modules
 dist
 etc/closureCompiler

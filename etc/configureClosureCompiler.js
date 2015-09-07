@@ -51,26 +51,46 @@ function configureClosureCompiler(options) {
       jscomp_off: "deprecatedAnnotations",
       use_types_for_optimization: null,
       warning_level: "VERBOSE",
-      extra_annotation_name: ["@module" ,"@namespace" ],
+      extra_annotation_name: ["@module" ,"@namespace"],
       output_wrapper: "(function(){%output%}).call(window);//# sourceMappingURL=" + options.outputFile + ".map",
       externs: [ path.resolve("./lib/externs.js"),
                  path.resolve("./lib/testingExterns.js"),
-                 path.resolve("./intermediate/constants.js") ]
+                 path.resolve("./lib/constantExterns.js") ]
     }
   };
 
-  // copy in all the defined constants as --define parameters
-  constantsOut = "/** @externs */\n\n";
+  // build a dynamic externs constants.js file that the closure compiler can use to protect our constant symbols from
+  // being elided or mangled
+  constantsOut = "/**\n" +
+    " * GENERATED FILE - Do not add to source control.  Used to declare kidcompy's constant symbols as externs to\n" +
+    " * the Closure Compiler so they are protected from mangling.  UglifyJS2 is used on Closure Compiler's output\n" +
+    " * to do the actual constant symbol substitutions and do the dead code removal on any blocks that should be\n" +
+    " * elided as a result of those substitutions.\n" +
+    " *\n" +
+    " * @externs\n" +
+    " */\n\n" +
+    "// jshint -W079\n" +
+    "// jshint -W098\n" +
+    "// jscs:disable requireMultipleVarDecl\n\n";
+
   constantNamespaces = {};
   for(constantName in constants) {
     if(constants.hasOwnProperty(constantName)) {
       constantValue = constants[constantName];
 
+      // make constantValue truthy just in case Closure Compiler ever does something with it
+      if(typeof constantValue === "boolean") {
+        constantValue = true;
+      }
+      else if(typeof constantValue === "number") {
+        constantValue = 1;
+      }
+
       groups = /([^\.]*)\..*/i.exec(constantName);
       if(groups) {
         if(typeof constantNamespaces[groups[1]] === "undefined") {
           constantsOut += "/** @namespace */\n";
-          constantsOut += "var " + groups[1] + " = {};\n";
+          constantsOut += "var " + groups[1] + " = {};\n\n";
           constantNamespaces[groups[1]] = true;
         }
 
@@ -82,7 +102,7 @@ function configureClosureCompiler(options) {
     }
   }
 
-  fs.writeFileSync(path.resolve("./intermediate/constants.js"), constantsOut);
+  fs.writeFileSync(path.resolve("./lib/constantExterns.js"), constantsOut);
 
   // make all the source files relative paths to the target folder
   config.sourceFiles = [];

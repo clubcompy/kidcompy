@@ -82,7 +82,7 @@ gulp.task("help", function() {
   console.log(" ");
 });
 
-gulp.task("build", function() {
+gulp.task("build", function(done) {
   return runSequence(
 
     // run the integration test suite with production mode once before minification as a quick check to verify
@@ -105,7 +105,9 @@ gulp.task("build", function() {
     [ "chdir-intermediate" ],
     [ "launch-closure-compiler", "copy-artifacts-to-dist" ],
     [ "chdir-up" ],
-    [ "fixup-closure-compiler-source-map", "jsdoc" ]
+    [ "fixup-closure-compiler-source-map", "jsdoc" ],
+
+    done
   );
 });
 
@@ -169,6 +171,10 @@ gulp.task("launch-closure-compiler", function(done) {
   });
 });
 
+/* Closure Compiler doesn't have a convenient way to declare global constants that its
+ * CommonJS support can grok.  That leads us to declare any feature flags or global constants
+ * as externs in Closure Compiler - this made those symbols appear as
+ */
 gulp.task("minify-closure-compiler-output", function() {
   try {
     var result = uglifyJs.minify(closureCompilerConfig.fileName, {
@@ -195,7 +201,7 @@ gulp.task("minify-closure-compiler-output", function() {
 });
 
 gulp.task("del-files", function() {
-  return gulp.src([ "./intermediate/**/*", "./dist/**/*" ])
+  return gulp.src([ "./intermediate/**/*", "./dist/**/*", "./lib/constantExterns.js" ])
     .pipe(rm());
 });
 
@@ -302,11 +308,12 @@ gulp.task("fixup-closure-compiler-source-map", function() {
   }
 });
 
-gulp.task("install-prereqs", function() {
+gulp.task("install-prereqs", function(done) {
   return runSequence(
     [ "install-closure-compiler" ],
     [ "install-closure-library" ],
-    [ "install-selenium" ]
+    [ "install-selenium" ],
+    done
   );
 });
 
@@ -484,21 +491,23 @@ gulp.task("force-termination-after-sigint", function() {
   process.on("SIGINT", sigintHandler);
 });
 
-gulp.task("dev", function() {
+gulp.task("dev", function(done) {
   return runSequence(
     [ "force-termination-after-sigint" ],
     [ "start-selenium", "start-harness-content" ],
     [ "start-harness-server" ],
-    [ "spawn-harness-browser", "unit-watcher" ]
+    [ "spawn-harness-browser", "unit-watcher" ],
+    done
   );
 });
 
-gulp.task("integration", function() {
+gulp.task("integration", function(done) {
   return runSequence(
     [ "force-termination-after-sigint" ],
     [ "start-selenium", "start-harness-content" ],
     [ "start-harness-server" ],
-    [ "spawn-harness-browser", "integration-watcher" ]
+    [ "spawn-harness-browser", "integration-watcher" ],
+    done
   );
 });
 
@@ -691,15 +700,16 @@ function callJsdoc(srcGlobPatterns, params, callback) {
   });
 }
 
-gulp.task("jsdoc", function() {
+gulp.task("jsdoc", function(done) {
   return runSequence(
-    [ "jsdoc-public-api", "jsdoc-dev-docs" ]
+    [ "jsdoc-public-api", "jsdoc-dev-docs" ],
+    done
   );
 });
 
 gulp.task("jsdoc-public-api", function(done) {
   callJsdoc([ "./lib/**/*.js", "!./lib/**/*.spec.js", "!./lib/**/*.integration.js", "!./lib/**/*.system.js",
-      "!./lib/symbols/testingExterns.js", "!./lib/featureFlags.js", "README.md" ],
+      "!./lib/testingExterns.js", "!./lib/constantExterns.js", "!./lib/featureFlags.js", "README.md" ],
     [
       "--access", "public,undefined",
       "--configure", path.resolve(__dirname, "./etc/jsdoc.conf.json"),
@@ -742,6 +752,10 @@ gulp.task("copy-artifacts-to-dist", function() {
 });
 
 gulp.task("chdir-intermediate", function() {
+  if(!fs.existsSync("intermediate")) {
+    fs.mkdirSync("intermediate");
+  }
+
   process.chdir("intermediate");
 });
 

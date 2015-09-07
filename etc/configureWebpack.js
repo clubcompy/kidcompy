@@ -168,12 +168,7 @@ function configureWebpackPlugins(config, options) {
 
 
   //
-  // UglifyJsPlugin - Closure compiler is our minifier in production mode builds, but there
-  //                  are aspects to the webpack bundles that Closure Compiler chokes on.
-  //                  This UglifyJsPlugin does some light post-processing compression on the
-  //                  output bundle that has the effect of eliding code blocks that have
-  //                  been disabled by feature flags.  This light UglifyJS treatment gets
-  //                  Closure Compiler past the Webpack-generated trouble spots.
+  // UglifyJsPlugin - Minification and obfuscation for webpack.
   //
 
   if(options.isProductionBundle) {
@@ -181,14 +176,12 @@ function configureWebpackPlugins(config, options) {
       compress: {
         warnings: false,
         properties: false,
-        negate_iife: false
+        negate_iife: false,
+        screw_ie8: false
       },
 
       // minify to get a realistic feel for the running the tests minified
-      mangle: true,
-
-      // preserve all the comments so that the jsdoc's are fed to Closure Compiler
-      comments: "all"
+      mangle: true
     }));
   }
 }

@@ -218,6 +218,42 @@ gulp.task("clean", function(done) {
   );
 });
 
+gulp.task("bootstrap-production-bundle", [ "json-to-scss" ], function() {
+  return gulp.src([ "./lib/bootstrap/main.js" ])
+    .pipe(named()) // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
+    .pipe(webpackStream(configureWebpack({
+      enableSourceMaps: true,
+      isProductionBundle: true,
+      areBundlesSplit: true,
+      outputFilename: "bootstrap.min.js"
+    })), webpack)
+    .pipe(gulp.dest("intermediate/"));
+});
+
+gulp.task("ie-polyfill-production-bundle", function(done) {
+  return runSequence(
+    [ "ie-polyfill-cc-config" ],
+    [ "closure-compiler" ],
+    done
+  );
+});
+
+gulp.task("ie-polyfill-cc-config", function(done) {
+  resolveGlobs(["./lib/iePolyfill/main.js", "./lib/iePolyfill/**/*.js", "./lib/symbols/**/*.js"], function(srcFiles) {
+    closureCompilerConfig = configureClosureCompiler({
+      isProductionBundle: true,
+      areBundlesSplit: true,
+      sourceFiles: srcFiles,
+      sourceFolder: "./lib/iePolyfill",
+      targetFolder: "intermediate",
+      outputFile: "iePolyfill.closureCompiler.js",
+      minifiedFile: "iePolyfill.min.js"
+    });
+
+    done();
+  });
+});
+
 gulp.task("html5-polyfill-production-bundle", function(done) {
   return runSequence(
     [ "html5-polyfill-cc-config" ],
@@ -236,6 +272,31 @@ gulp.task("html5-polyfill-cc-config", function(done) {
       targetFolder: "intermediate",
       outputFile: "html5Polyfill.closureCompiler.js",
       minifiedFile: "html5Polyfill.min.js"
+    });
+
+    done();
+  });
+});
+
+gulp.task("kidcompy-testing-bundle", function(done) {
+  return runSequence(
+    [ "kidcompy-testing-cc-config" ],
+    [ "closure-compiler" ],
+    done
+  );
+});
+
+gulp.task("kidcompy-testing-cc-config", function(done) {
+  resolveGlobs(["./lib/kidcompy/main.js", "./lib/kidcompy/**/*.js", "./lib/symbols/**/*.js",
+                "./lib/root.spec.js"], function(srcFiles) {
+    closureCompilerConfig = configureClosureCompiler({
+      isProductionBundle: true,
+      areBundlesSplit: true,
+      sourceFiles: srcFiles,
+      sourceFolder: "./lib/kidcompy",
+      targetFolder: "intermediate",
+      outputFile: "kidcompy.closureCompiler.js",
+      minifiedFile: "kidcompy.min.js"
     });
 
     done();

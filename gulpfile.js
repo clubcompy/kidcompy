@@ -293,81 +293,6 @@ gulp.task("production-bundle-tests", function(done) {
   }, done);
 });
 
-gulp.task("fixup-closure-compiler-source-map", function() {
-  var ccSource,
-    chain;
-
-  for(ccSource in finalInputOutputMap) {
-    if(finalInputOutputMap.hasOwnProperty(ccSource)) {
-      chain = sorcery.loadSync("./intermediate/" + ccSource, {
-        includeContent: true
-      });
-
-      chain.writeSync(finalInputOutputMap[ccSource]);
-    }
-  }
-});
-
-gulp.task("install-prereqs", function(done) {
-  return runSequence(
-    [ "install-closure-compiler" ],
-    [ "install-closure-library" ],
-    [ "install-selenium" ],
-    done
-  );
-});
-
-gulp.task("install-selenium", function(done) {
-  selenium.install({
-    /**
-     * Simple echo logger
-     *
-     * @param {*} message
-     */
-    logger: function(message) {
-      console.log(message);
-    }
-  }, function(error) {
-    if(error) {
-      done(error);
-    }
-    else {
-      done();
-    }
-  });
-});
-
-gulp.task("install-closure-compiler", function() {
-  return download("http://dl.google.com/closure-compiler/compiler-latest.zip")
-    .pipe(unzip({
-      /**
-       * filter all files from being unzipped except for the compiler jar
-       *
-       * @param {string} entry
-       */
-      filter: function(entry) {
-        return minimatch(entry.path, "**/compiler.jar");
-      }
-    }))
-    .pipe(flatten())
-    .pipe(gulp.dest("./etc/closureCompiler"));
-});
-
-gulp.task("install-closure-library", function() {
-  return download("https://github.com/google/closure-library/archive/master.zip")
-    .pipe(unzip({
-      /**
-       * filter all files from being unzipped except for the closure library sources
-       *
-       * @param {string} entry
-       */
-      filter: function(entry) {
-        return minimatch(entry.path, "closure-library-master/closure/**/*");
-      }
-    }))
-    .pipe(gulp.dest("./etc/closureCompiler"));
-});
-
 gulp.task("unit-single", [ "json-to-scss" ], function(done) {
   karma.server.start({
     configFile: __dirname + "/etc/karma.unit.conf.js",
@@ -789,3 +714,80 @@ function resolveGlobs(globs, done) {
     done(globFiles);
   });
 }
+
+gulp.task("install-prereqs", function(done) {
+  return runSequence(
+    [ "install-closure-compiler" ],
+    [ "install-closure-library" ],
+    [ "install-selenium" ],
+    done
+  );
+});
+
+gulp.task("install-selenium", function(done) {
+  selenium.install({
+    /**
+     * Simple echo logger
+     *
+     * @param {*} message
+     */
+    logger: function(message) {
+      console.log(message);
+    }
+  }, function(error) {
+    if(error) {
+      done(error);
+    }
+    else {
+      done();
+    }
+  });
+});
+
+gulp.task("install-closure-compiler", function() {
+  return download("http://dl.google.com/closure-compiler/compiler-latest.zip")
+    .pipe(unzip({
+      /**
+       * filter all files from being unzipped except for the compiler jar
+       *
+       * @param {string} entry
+       */
+      filter: function(entry) {
+        return minimatch(entry.path, "**/compiler.jar");
+      }
+    }))
+    .pipe(flatten())
+    .pipe(gulp.dest("./etc/closureCompiler"));
+});
+
+gulp.task("install-closure-library", function() {
+  return download("https://github.com/google/closure-library/archive/master.zip")
+    .pipe(unzip({
+      /**
+       * filter all files from being unzipped except for the closure library sources
+       *
+       * @param {string} entry
+       */
+      filter: function(entry) {
+        return minimatch(entry.path, "closure-library-master/closure/**/*");
+      }
+    }))
+    .pipe(gulp.dest("./etc/closureCompiler"));
+});
+
+// is this unused?  safe to delete?
+gulp.task("fixup-closure-compiler-source-map", function() {
+  var ccSource,
+    chain;
+
+  for(ccSource in finalInputOutputMap) {
+    if(finalInputOutputMap.hasOwnProperty(ccSource)) {
+      chain = sorcery.loadSync("./intermediate/" + ccSource, {
+        includeContent: true
+      });
+
+      chain.writeSync(finalInputOutputMap[ccSource]);
+    }
+  }
+});
+

@@ -18,7 +18,12 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      path.resolve(__dirname, "../intermediate/testing.min.js")
+      {pattern: path.resolve(__dirname, "../intermediate/bootstrap.min.js"), included: true, served: true, nocache: true},
+
+      // these files will be served on demand from disk
+      {pattern: path.resolve(__dirname, "../intermediate/iePolyfill.min.js"), included: false, served: true, nocache: true},
+      {pattern: path.resolve(__dirname, "../intermediate/html5Polyfill.min.js"), included: false, served: true, nocache: true},
+      {pattern: path.resolve(__dirname, "../intermediate/kidcompy.min.js"), included: false, served: true, nocache: true}
     ],
 
     // preprocess matching files before serving them to the browser
@@ -28,7 +33,7 @@ module.exports = function(config) {
     logLevel: config.LOG_ERROR
   };
 
-  configOverrides.preprocessors[path.resolve(__dirname, "../intermediate/testing.min.js")] = ["sourcemap"];
+  configOverrides.preprocessors[path.resolve(__dirname, "../intermediate/bootstrap.min.js")] = ["sourcemap"];
 
   return _.extend(baseKarmaConfig, configOverrides);
 };

@@ -89,23 +89,31 @@ gulp.task("build", function(done) {
     // that the production build passes all tests
     [ "production-mode-integration-single" ],
 
-    // build a closure-compiled, minified test bundle with integration tests included
-    // this should (hopefully) catch errors induced by closure-compiler's optimizations
-    [ "test-bundle" ],
-    [ "chdir-intermediate" ],
-    [ "launch-closure-compiler" ],
-    [ "chdir-up" ],
-    [ "fixup-closure-compiler-source-map" ],
+    // build out mocha test-rigged versions of the production bundles for bootstrapper, iePolyfill, html5Polyfill, and
+    // the main kidcompy modules
+    [ "bootstrap-testing-production-bundle", "ie-polyfill-production-bundle" ],
+    [ "html5-polyfill-production-bundle" ],
+    [ "kidcompy-testing-production-bundle" ],
 
-    // run karma against the test bundle in the production-like testing.js bundle
+    // run the production bundle tests in the browser via karma
     [ "production-bundle-tests" ],
 
-    // build the production bundle, minify it, and build jsdocs to dist folder
-    [ "bundle" ],
-    [ "chdir-intermediate" ],
-    [ "launch-closure-compiler", "copy-artifacts-to-dist" ],
-    [ "chdir-up" ],
-    [ "fixup-closure-compiler-source-map", "jsdoc" ],
+    //[ "chdir-intermediate" ],
+    //[ "launch-closure-compiler" ],
+    //[ "chdir-up" ],
+    //[ "fixup-closure-compiler-source-map" ],
+    //
+    //// run karma against the test bundle in the production-like testing.js bundle
+    //[ "production-bundle-tests" ],
+    //
+    //// build the production bundle, minify it, and build jsdocs to dist folder
+    //[ "bundle" ],
+    //[ "chdir-intermediate" ],
+    //[ "launch-closure-compiler", "copy-artifacts-to-dist" ],
+    //[ "chdir-up" ],
+    //[ "fixup-closure-compiler-source-map", "jsdoc" ],
+
+    [ "jsdoc" ],
 
     done
   );
@@ -126,8 +134,10 @@ gulp.task("launch-closure-compiler", function(done) {
     paramName,
     paramValue,
     params = [
-      "-jar",
+      "-server",
       "-XX:+TieredCompilation",
+      "-XX:+UseParallelGC",
+      "-jar",
       closureCompilerConfig.compilerPath
     ];
 
@@ -218,8 +228,8 @@ gulp.task("clean", function(done) {
   );
 });
 
-gulp.task("bootstrap-production-bundle", [ "json-to-scss" ], function() {
-  return gulp.src([ "./lib/bootstrap/main.js" ])
+gulp.task("bootstrap-testing-production-bundle", [ "json-to-scss" ], function() {
+  return gulp.src([ "./lib/bootstrap/testingMain.js" ])
     .pipe(named()) // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
     .pipe(webpackStream(configureWebpack({
       enableSourceMaps: true,
@@ -278,7 +288,7 @@ gulp.task("html5-polyfill-cc-config", function(done) {
   });
 });
 
-gulp.task("kidcompy-testing-bundle", function(done) {
+gulp.task("kidcompy-testing-production-bundle", function(done) {
   return runSequence(
     [ "kidcompy-testing-cc-config" ],
     [ "closure-compiler" ],
@@ -287,8 +297,7 @@ gulp.task("kidcompy-testing-bundle", function(done) {
 });
 
 gulp.task("kidcompy-testing-cc-config", function(done) {
-  resolveGlobs(["./lib/kidcompy/main.js", "./lib/kidcompy/**/*.js", "./lib/symbols/**/*.js",
-                "./lib/root.spec.js"], function(srcFiles) {
+  resolveGlobs(["./lib/kidcompy/main.js", "./lib/kidcompy/**/*.js", "./lib/symbols/**/*.js"], function(srcFiles) {
     closureCompilerConfig = configureClosureCompiler({
       isProductionBundle: true,
       areBundlesSplit: true,

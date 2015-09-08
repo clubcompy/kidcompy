@@ -11,3 +11,8 @@ before(function(done) {
   // inited before we attempt to run our tests
   kidcompy.lifecycleEvents.addOnCodeGoHandler(done);
 });
+
+// this is just here to get the before above to trigger
+it("starts with one test", function() {
+  proclaim.isTrue(true, "yeah, it passes");
+});

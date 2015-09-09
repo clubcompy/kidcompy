@@ -5,6 +5,7 @@
 var path = require("path"),
   fs = require("fs"),
   gulp = require("gulp"),
+  URI = require("URIjs"),
   jsonSass = require("gulp-json-sass"),
   rm = require("gulp-rm"),
   spawn = require("child_process").spawn,
@@ -98,22 +99,8 @@ gulp.task("build", function(done) {
     // run the production bundle tests in the browser via karma
     [ "production-bundle-tests" ],
 
-    //[ "chdir-intermediate" ],
-    //[ "launch-closure-compiler" ],
-    //[ "chdir-up" ],
-    //[ "fixup-closure-compiler-source-map" ],
-    //
-    //// run karma against the test bundle in the production-like testing.js bundle
-    //[ "production-bundle-tests" ],
-    //
-    //// build the production bundle, minify it, and build jsdocs to dist folder
-    //[ "bundle" ],
-    //[ "chdir-intermediate" ],
-    //[ "launch-closure-compiler", "copy-artifacts-to-dist" ],
-    //[ "chdir-up" ],
-    //[ "fixup-closure-compiler-source-map", "jsdoc" ],
-
-    [ "jsdoc" ],
+    // build the non-testing versions of bootstrap and kidcompy bundles and jsdocs
+    [ "bootstrap-production-bundle", "kidcompy-production-bundle", "jsdoc" ],
 
     done
   );
@@ -240,6 +227,18 @@ gulp.task("bootstrap-testing-production-bundle", [ "json-to-scss" ], function() 
     .pipe(gulp.dest("intermediate/"));
 });
 
+gulp.task("bootstrap-production-bundle", [ "json-to-scss" ], function() {
+  return gulp.src([ "./lib/bootstrap/main.js" ])
+    .pipe(named()) // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
+    .pipe(webpackStream(configureWebpack({
+      enableSourceMaps: true,
+      isProductionBundle: true,
+      areBundlesSplit: true,
+      outputFilename: "bootstrap.min.js"
+    })), webpack)
+    .pipe(gulp.dest("intermediate/"));
+});
+
 gulp.task("ie-polyfill-production-bundle", function(done) {
   return runSequence(
     [ "ie-polyfill-cc-config" ],
@@ -298,6 +297,31 @@ gulp.task("kidcompy-testing-production-bundle", function(done) {
 
 gulp.task("kidcompy-testing-cc-config", function(done) {
   resolveGlobs(["./lib/kidcompy/main.js", "./lib/kidcompy/**/*.js", "./lib/symbols/**/*.js"], function(srcFiles) {
+    closureCompilerConfig = configureClosureCompiler({
+      isProductionBundle: true,
+      areBundlesSplit: true,
+      sourceFiles: srcFiles,
+      sourceFolder: "./lib/kidcompy",
+      targetFolder: "intermediate",
+      outputFile: "kidcompy.closureCompiler.js",
+      minifiedFile: "kidcompy.min.js"
+    });
+
+    done();
+  });
+});
+
+gulp.task("kidcompy-production-bundle", function(done) {
+  return runSequence(
+    [ "kidcompy-cc-config" ],
+    [ "closure-compiler" ],
+    done
+  );
+});
+
+gulp.task("kidcompy-cc-config", function(done) {
+  resolveGlobs(["./lib/kidcompy/main.js", "./lib/kidcompy/**/*.js", "./lib/symbols/**/*.js",
+                "!./lib/**/*.spec.js", "!./lib/**/*.integration.js", "!./lib/**/*.system.js"], function(srcFiles) {
     closureCompilerConfig = configureClosureCompiler({
       isProductionBundle: true,
       areBundlesSplit: true,
@@ -506,6 +530,16 @@ gulp.task("integration", function(done) {
   );
 });
 
+gulp.task("production-harness", function(done) {
+  return runSequence(
+    [ "build" ],
+    [ "force-termination-after-sigint" ],
+    [ "start-selenium", "start-production-harness-content" ],
+    [ "spawn-harness-browser" ],
+    done
+  );
+});
+
 gulp.task("start-selenium", function() {
   runningSelenium = spawn("node", [ "./selenium-standalone", "start", "-timeout", 0x7fffffff ], {
     cwd: "./node_modules/selenium-standalone/bin",
@@ -538,7 +572,7 @@ gulp.task("start-harness-content", function() {
   // Serve up harnessContent folder
   var serve = serveStatic("./harnessContent", { index: [ "index.html", "index.htm" ]}),
 
-    // Create server
+  // Create server
     server = http.createServer(function(req, res) {
       var done = finalHandler(req, res);
 
@@ -547,6 +581,41 @@ gulp.task("start-harness-content", function() {
 
   // Listen
   server.listen(9080);
+});
+
+gulp.task("start-production-harness-content", function() {
+  // Serve up harnessContent folder
+  var serveHarnessContent = serveStatic("./harnessContent", { index: [ "index.html", "index.htm" ]}),
+    serveHarnessScripts = serveStatic("./intermediate", { index: [ "index.html", "index.htm" ]}),
+    server;
+
+  // Create server
+  server = http.createServer(function(req, res) {
+    var requestUrl = new URI(req.url),
+      done = finalHandler(req, res);
+
+    if(requestUrl.filename().endsWith(".js")) {
+      res.setHeader("Expires", new Date(0));
+
+      // redirect harness.js to the bootstrap.min.js file
+      if(requestUrl.filename() === "harness.js") {
+        res.writeHead(301, {
+          "location": requestUrl.directory() + "/bootstrap.min.js"
+        });
+        res.end();
+      }
+      else {
+        serveHarnessScripts(req, res, done);
+      }
+
+      return;
+    }
+
+    serveHarnessContent(req, res, done);
+  });
+
+  // Listen
+  server.listen(8080);
 });
 
 gulp.task("start-harness-server", [ "json-to-scss" ], function(callback) {

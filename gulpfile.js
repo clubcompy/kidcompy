@@ -34,18 +34,10 @@ var path = require("path"),
   uglifyJs = require("uglify-js"),
   computeDefinedConstants = require("./etc/computeDefinedConstants"),
 
-  moduleEntryPoints = [
-    path.resolve(__dirname, "./lib/Main.js")
-  ],
-
   runningSelenium = null,
   runningHarnessBrowser = null,
 
   closureCompilerConfig = {},
-  closureCompilerSourceList = [],
-  closureCompilerOutputFile = "",
-  closureCompilerSourceMap = "",
-  closureCompilerOutputMap = "",
   finalInputOutputMap = {},
   gulpFolder = "" + __dirname;
 
@@ -336,76 +328,9 @@ gulp.task("kidcompy-cc-config", function(done) {
   });
 });
 
-gulp.task("test-bundle", [ "json-to-scss" ], function() {
-  // intermediate folder files that will be the inputs and outputs for the closure compiler
-  closureCompilerSourceList = [ "./etc/closureCompiler/closure-library-master/closure/goog/deps.js", "testing.js" ];
-  closureCompilerOutputFile = "testing.closureCompiler.js";
-  closureCompilerSourceMap = "testing.js|testing.js.map";
-  closureCompilerOutputMap = "testing.closureCompiler.js.map";
-
-  // map of closure compiled sources in intermediate folder to testing bundle files written to intermediate folder
-  finalInputOutputMap = { "testing.closureCompiler.js": "./intermediate/testing.min.js" };
-
-  return gulp.src(moduleEntryPoints.concat(["lib/**/*.spec.js", "lib/**/*.integration.js", "lib/**/*.system.js"]))
-    .pipe(named())
-    .pipe(webpackStream(configureWebpack({
-      enableSourceMaps: true,
-      outputPath: __dirname + "/intermediate",
-      outputFilename: "testing.js",
-      emitSingleChunk: true,
-      isProductionBundle: true,
-      areBundlesSplit: true
-    })), webpack)
-    .pipe(gulp.dest("intermediate/"));
-});
-
-gulp.task("bundle", [ "json-to-scss" ], function() {
-  // intermediate folder files that will be the inputs and outputs for the closure compiler
-  closureCompilerSourceList = [ "./etc/closureCompiler/closure-library-master/closure/goog/deps.js", "Main.js" ];
-  closureCompilerOutputFile = "Main.closureCompiler.js";
-  closureCompilerSourceMap = "Main.js|Main.js.map";
-  closureCompilerOutputMap = "Main.closureCompiler.js.map";
-
-  // map of closure compiled sources in intermediate folder to final production bundle files written to dist folder
-  finalInputOutputMap = { "Main.closureCompiler.js": "./dist/Main.min.js" };
-
-  return gulp.src(moduleEntryPoints)
-    .pipe(named()) // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
-    .pipe(webpackStream(configureWebpack({
-      enableSourceMaps: true,
-      isProductionBundle: true,
-      areBundlesSplit: true
-    })), webpack)
-    .pipe(gulp.dest("intermediate/"));
-});
-
 gulp.task("production-bundle-tests", function(done) {
   karma.server.start({
     configFile: __dirname + "/etc/karma.prodBundle.conf.js",
-    singleRun: true,
-    autoWatch: false
-  }, done);
-});
-
-gulp.task("unit-single", [ "json-to-scss" ], function(done) {
-  karma.server.start({
-    configFile: __dirname + "/etc/karma.unit.conf.js",
-    singleRun: true,
-    autoWatch: false
-  }, done);
-});
-
-gulp.task("production-mode-integration-single", [ "json-to-scss" ], function(done) {
-  karma.server.start({
-    configFile: __dirname + "/etc/karma.prodIntegrationAndCoverage.conf.js",
-    singleRun: true,
-    autoWatch: false
-  }, done);
-});
-
-gulp.task("integration-single", [ "json-to-scss" ], function(done) {
-  karma.server.start({
-    configFile: __dirname + "/etc/karma.integrationAndCoverage.conf.js",
     singleRun: true,
     autoWatch: false
   }, done);
@@ -419,11 +344,35 @@ gulp.task("unit-watcher", [ "json-to-scss" ], function(done) {
   }, done);
 });
 
+gulp.task("unit-single", [ "json-to-scss" ], function(done) {
+  karma.server.start({
+    configFile: __dirname + "/etc/karma.unit.conf.js",
+    singleRun: true,
+    autoWatch: false
+  }, done);
+});
+
 gulp.task("integration-watcher", [ "json-to-scss" ], function(done) {
   karma.server.start({
     configFile: __dirname + "/etc/karma.integrationAndCoverage.conf.js",
     singleRun: false,
     autoWatch: true
+  }, done);
+});
+
+gulp.task("integration-single", [ "json-to-scss" ], function(done) {
+  karma.server.start({
+    configFile: __dirname + "/etc/karma.integrationAndCoverage.conf.js",
+    singleRun: true,
+    autoWatch: false
+  }, done);
+});
+
+gulp.task("production-mode-integration-single", [ "json-to-scss" ], function(done) {
+  karma.server.start({
+    configFile: __dirname + "/etc/karma.prodIntegrationAndCoverage.conf.js",
+    singleRun: true,
+    autoWatch: false
   }, done);
 });
 

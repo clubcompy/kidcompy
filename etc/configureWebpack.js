@@ -56,12 +56,12 @@ function configureOptionalCodeLinters(config, options) {
       // include .js files
       // exclude any and all files in the node_modules folder
       test: /\.js$/,
-      exclude: /node_modules/,
+      exclude: /(node_modules|firebug-lite)/,
       loader: "jshint-loader"
     });
     config.module.preLoaders.push({
       test: /\.js$/,
-      exclude: /node_modules/,
+      exclude: /(node_modules|firebug-lite)/,
       loader: "jscs-loader"
     });
 
@@ -173,15 +173,52 @@ function configureWebpackPlugins(config, options) {
 
   if(options.isProductionBundle) {
     config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+      // this list of compress flags is tuned to minify as much as IE6-IE8 can tolerate
       compress: {
         warnings: false,
         properties: false,
         negate_iife: false,
-        screw_ie8: false
+        screw_ie8: false,
+        drop_console: true      // always drop raw console.log calls to be friendly to legacy IE
       },
 
-      // minify to get a realistic feel for the running the tests minified
+      // mangle for great justice
       mangle: true
+    }));
+  }
+  else {
+    config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+      compress: {
+        sequences: false,
+        properties: false,
+        dead_code: true,
+        drop_debugger: false,   // leave debugger flags in for development mode
+        unsafe: false,
+        conditionals: false,
+        comparisons: false,
+        evaluate: false,
+        booleans: false,
+        loops: false,
+        unused: false,
+        hoist_funs: false,
+        hoist_vars: false,
+        if_return: false,
+        join_vars: false,
+        cascade: false,
+        warnings: false,
+        negate_iife: false,
+        pure_getters: false,
+        pure_funcs: null,
+        drop_console: true,     // always drop raw console.log calls to be friendly to legacy IE
+        keep_fargs: false,
+        keep_fnames: true
+      },
+
+      // don't drop any comments in developer mode
+      comments: "all",
+
+      // don't mangle in developer mode
+      mangle: false
     }));
   }
 }

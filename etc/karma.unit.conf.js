@@ -18,6 +18,9 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+      {pattern: path.resolve(__dirname, "../lib/bootstrap/main.js"), included: true, served: true, nocache: true},
+      {pattern: path.resolve(__dirname, "../etc/firebug-lite/build/firebug-lite.js"), included: false, served: true, nocache: true},
+
       path.resolve(__dirname, "../lib/**/*.spec.js")
     ],
 
@@ -34,6 +37,8 @@ module.exports = function(config) {
     })
   };
 
+  configOverrides.preprocessors[path.resolve(__dirname, "../lib/bootstrap/main.js")] = ["webpack", "sourcemap"];
+  configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/([a-zA-Z0-9_]+).js")] = ["webpack", "sourcemap"];
   configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/*.spec.js")] = ["webpack", "sourcemap"];
 
   return _.extend(baseKarmaConfig, configOverrides);

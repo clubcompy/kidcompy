@@ -36,6 +36,9 @@ module.exports = function(config, isProductionBundle, areBundlesSplit) {
 
     // list of files / patterns to load in the browser
     files: [
+      {pattern: path.resolve(__dirname, "../lib/bootstrap/main.js"), included: true, served: true, nocache: true},
+      {pattern: path.resolve(__dirname, "../etc/firebug-lite/build/firebug-lite.js"), included: false, served: true, nocache: true},
+
       path.resolve(__dirname, "../lib/**/*.spec.js"),
       path.resolve(__dirname, "../lib/**/*.integration.js"),
       path.resolve(__dirname, "../lib/**/*.system.js")
@@ -55,6 +58,7 @@ module.exports = function(config, isProductionBundle, areBundlesSplit) {
     })
   };
 
+  configOverrides.preprocessors[path.resolve(__dirname, "../lib/bootstrap/main.js")] = ["webpack", "coverage", "sourcemap"];
   configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/([a-zA-Z0-9_]+).js")] = ["webpack", "coverage", "sourcemap"];
   configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/*.spec.js")] = ["webpack", "sourcemap"];
   configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/*.integration.js")] = ["webpack", "sourcemap"];

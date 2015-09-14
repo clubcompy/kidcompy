@@ -2,20 +2,27 @@
 <html>
 <head lang="en">
   <meta charset="UTF-8">
-  <title>kidcompy test harness</title>
+  <title>Kidcompy test harness</title>
 </head>
 <body>
-  harness
+  Kidcompy Harness
 
   <div id="test"></div>
 
-  <!-- It is important that you point to the full url -->
-  <script type="text/javascript" src="http://localhost:8080/webpack-dev-server.js"></script>
   <script type="text/javascript" src="harness.js"></script>
+
+  <!-- Write the webpack hot dev server script tag.  It needs to be full and not relative, that's why it is built
+       using the window.location.href's URL as the base -->
+  <script type="text/javascript">
+    var pageUrl = "" + window.location.href,
+      devServerUrl = /([^\:]+\:\/\/[^\/]+\/).*/.exec(pageUrl)[1] + "webpack-dev-server.js";
+
+    document.write("<script type='text/javascript' src='" + devServerUrl + "'></scr" + "ipt>");
+  </script>
+
   <script type="text/javascript">
     kidcompy.lifecycleEvents.addOnCodeGoHandler(function() {
       document.getElementById("test").innerHTML = "ON CODE GOOOOO";
-      console.log("on code go callback");
     });
   </script>
 </body>

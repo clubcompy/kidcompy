@@ -5,5 +5,8 @@ etc/closureCompiler
 intermediate
 .idea
 
+# firebug-lite needed for IE7 and IE6 logging
+etc/firebug-lite
+
 # this file is generated from styleVars.json during the build process
 lib/styles/styleVars.scss

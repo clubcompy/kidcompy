@@ -9,7 +9,6 @@ var path = require("path"),
   jsonSass = require("gulp-json-sass"),
   rm = require("gulp-rm"),
   spawn = require("child_process").spawn,
-  execFileSync = require("child_process").execFileSync,
   hostPlatform = require("os").platform(),
   karma = require("karma"),
   webpack = require("webpack"),
@@ -23,6 +22,8 @@ var path = require("path"),
   http = require("http"),
   serveStatic = require("serve-static"),
   named = require("vinyl-named"),
+  gunzip = require("gulp-gunzip"),
+  untar = require("gulp-untar"),
   configureWebpack = require("./etc/configureWebpack"),
   configureClosureCompiler = require("./etc/configureClosureCompiler"),
   sorcery = require("sorcery"),
@@ -265,10 +266,33 @@ gulp.task("bootstrap-production-bundle", [ "json-to-scss" ], function() {
     .pipe(gulp.dest("intermediate/"));
 });
 
+/**
+ * resolve glob patterns to absolute files, dupes are removed
+ *
+ * @param {Array.<string>} globs
+ * @param {function(Array.<string>)} done callback called with resolved globFiles with dupes removed
+ */
+function resolveGlobs(globs, done) {
+  var globFiles = [],
+    srcFiles = gulp.src(globs);
+
+  srcFiles.on("readable", function() {
+    var vinylFile;
+
+    while((vinylFile = srcFiles.read()) !== null) {
+      if(globFiles.indexOf(vinylFile) < 0) {
+        globFiles.push(vinylFile.path);
+      }
+    }
+  }).on("end", function() {
+    done(globFiles);
+  });
+}
+
 gulp.task("ie-polyfill-production-bundle", function(done) {
   return runSequence(
-    [ "ie-polyfill-cc-config" ],
-    [ "closure-compiler" ],
+    ["ie-polyfill-cc-config"],
+    ["closure-compiler"],
     done
   );
 });
@@ -524,12 +548,27 @@ gulp.task("start-selenium", function() {
 gulp.task("start-harness-content", function() {
   // Serve up harnessContent folder
   var serve = serveStatic("./harnessContent", { index: [ "index.html", "index.htm" ]}),
+    serveFirebugLite = serveStatic("./etc"),
 
-  // Create server
+    // Create server
     server = http.createServer(function(req, res) {
-      var done = finalHandler(req, res);
+      var requestUrl = new URI(req.url),
+        done = finalHandler(req, res),
+        firebugLiteContentFilePath;
 
-      serve(req, res, done);
+      res.setHeader("Expires", new Date(0));
+
+      firebugLiteContentFilePath = gulpFolder + "/etc" +
+        (requestUrl.directory().length ? requestUrl.directory() + "/" : "/") + requestUrl.filename();
+
+      // try to serve firebug-lite content first and then fallback to harnessContent
+      try {
+        fs.accessSync(firebugLiteContentFilePath, fs.R_OK); // throws if file does not exist
+        serveFirebugLite(req, res, done);
+      }
+      catch(e) {
+        serve(req, res, done);
+      }
     });
 
   // Listen
@@ -540,7 +579,9 @@ gulp.task("start-production-harness-content", function() {
   // Serve up harnessContent folder
   var serveHarnessContent = serveStatic("./harnessContent", { index: [ "index.html", "index.htm" ]}),
     serveHarnessCode = serveStatic("./dist"),
-    distFilePath,
+    serveFirebugLite = serveStatic("./etc"),
+    firebugLiteContentFilePath,
+    harnessContentFilePath,
     server;
 
   // Create server
@@ -560,15 +601,24 @@ gulp.task("start-production-harness-content", function() {
 
     res.setHeader("Expires", new Date(0));
 
-    distFilePath = gulpFolder + "/dist" + (requestUrl.directory().length ? requestUrl.directory() + "/" : "/") +
-      requestUrl.filename();
+    firebugLiteContentFilePath = gulpFolder + "/etc" +
+      (requestUrl.directory().length ? requestUrl.directory() + "/" : "/") + requestUrl.filename();
 
     try {
-      fs.accessSync(distFilePath, fs.R_OK);
-      serveHarnessCode(req, res, done);
+      fs.accessSync(firebugLiteContentFilePath, fs.R_OK); // throws if file does not exist
+      serveFirebugLite(req, res, done);
     }
     catch(e) {
-      serveHarnessContent(req, res, done);
+      harnessContentFilePath = gulpFolder + "/harnessContent" +
+        (requestUrl.directory().length ? requestUrl.directory() + "/" : "/") + requestUrl.filename();
+
+      try {
+        fs.accessSync(harnessContentFilePath, fs.R_OK); // throws if file does not exist
+        serveHarnessContent(req, res, done);
+      }
+      catch(e2) {
+        serveHarnessCode(req, res, done);
+      }
     }
   });
 
@@ -577,15 +627,7 @@ gulp.task("start-production-harness-content", function() {
 });
 
 gulp.task("start-harness-server", [ "json-to-scss" ], function(callback) {
-  var currentGitUser,
-    server;
-
-  try {
-    currentGitUser = execFileSync("git", [ "config", "user.name" ]).toString("utf-8").trim();
-  }
-  catch(er) {
-    console.log("Was unable to determine the current git user.name: " + er);
-  }
+  var server;
 
   server = new WebpackDevServer(
     webpack(
@@ -642,7 +684,7 @@ gulp.task("start-harness-server", [ "json-to-scss" ], function(callback) {
     }
   );
 
-  server.listen(8080, "localhost", function() {
+  server.listen(8080, function() {
     callback();
   });
 });
@@ -767,6 +809,7 @@ gulp.task("json-to-scss", function() {
 
 gulp.task("copy-dist-artifacts", function() {
   return gulp.src([
+    "etc/firebug-lite.js",
     "intermediate/*.js*",
     "intermediate/**/*.css*",
     "!intermediate/*.closureCompiler.*"
@@ -789,34 +832,12 @@ gulp.task("chdir-gulp-folder", function() {
   process.chdir(gulpFolder);
 });
 
-/**
- * resolve glob patterns to absolute files, dupes are removed
- *
- * @param {Array.<string>} globs
- * @param {function(Array.<string>)} done callback called with resolved globFiles with dupes removed
- */
-function resolveGlobs(globs, done) {
-  var globFiles = [],
-    srcFiles = gulp.src(globs);
-
-  srcFiles.on("readable", function() {
-    var vinylFile;
-
-    while((vinylFile = srcFiles.read()) !== null) {
-      if(globFiles.indexOf(vinylFile) < 0) {
-        globFiles.push(vinylFile.path);
-      }
-    }
-  }).on("end", function() {
-    done(globFiles);
-  });
-}
-
 gulp.task("install-prereqs", function(done) {
   return runSequence(
     [ "install-closure-compiler" ],
     [ "install-closure-library" ],
     [ "install-selenium" ],
+    [ "install-firebug-lite" ],
     done
   );
 });
@@ -870,6 +891,13 @@ gulp.task("install-closure-library", function() {
       }
     }))
     .pipe(gulp.dest("./etc/closureCompiler"));
+});
+
+gulp.task("install-firebug-lite", function() {
+  return download("https://getfirebug.com/releases/lite/latest/firebug-lite.tar.tgz")
+    .pipe(gunzip())
+    .pipe(untar())
+    .pipe(gulp.dest("./etc"));
 });
 
 // is this unused?  safe to delete?

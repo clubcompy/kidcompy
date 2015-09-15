@@ -809,7 +809,7 @@ gulp.task("json-to-scss", function() {
 
 gulp.task("copy-dist-artifacts", function() {
   return gulp.src([
-    "etc/firebug-lite.js",
+    "etc/firebug-lite",
     "intermediate/*.js*",
     "intermediate/**/*.css*",
     "!intermediate/*.closureCompiler.*"

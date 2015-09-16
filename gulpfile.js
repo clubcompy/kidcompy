@@ -97,7 +97,7 @@ gulp.task("build", function(done) {
     [ "bootstrap-production-bundle", "kidcompy-production-bundle" ],
 
     // copy final scripts and stylesheets to dist and build jsdoc's to dist
-    [ "copy-dist-artifacts", "jsdoc" ],
+    [ "copy-dist-artifacts", "copy-dist-firebug-lite", "jsdoc" ],
 
     done
   );
@@ -809,11 +809,17 @@ gulp.task("json-to-scss", function() {
 
 gulp.task("copy-dist-artifacts", function() {
   return gulp.src([
-    "etc/firebug-lite",
     "intermediate/*.js*",
     "intermediate/**/*.css*",
-    "!intermediate/*.closureCompiler.*"
-  ]).pipe(gulp.dest("./dist"));
+    "!intermediate/*.closureCompiler.*",
+    "!intermediate/test_coverage/**/*"
+  ], { base: "intermediate" }).pipe(gulp.dest("./dist"));
+});
+
+gulp.task("copy-dist-firebug-lite", function() {
+  return gulp.src([
+    "etc/firebug-lite/**/*"
+  ], { base: "etc" }).pipe(gulp.dest("./dist"));
 });
 
 gulp.task("chdir-intermediate", function() {

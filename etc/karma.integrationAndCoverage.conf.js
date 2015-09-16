@@ -29,7 +29,7 @@ module.exports = function(config, isProductionBundle, areBundlesSplit) {
       reporters: [
         {
           type: "html",
-          dir: path.resolve(__dirname, "../intermediate/test_coverage/")
+          dir: path.resolve(__dirname, "../intermediate/test-coverage/")
         }
       ]
     },

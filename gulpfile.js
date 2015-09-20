@@ -793,7 +793,7 @@ gulp.task("jsdoc-public-api", function(done) {
 
 gulp.task("jsdoc-dev-docs", function(done) {
   callJsdoc([ "./lib/**/*.js", "!./lib/**/*.spec.js", "!./lib/**/*.integration.js", "!./lib/**/*.system.js",
-      "!./lib/testingExterns.js", "!./lib/constantExterns.js", "README.md" ],
+      "!./lib/testingExterns.js", "README.md" ],
     [
       "--access", "all",
       "--private",

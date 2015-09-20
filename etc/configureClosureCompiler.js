@@ -29,6 +29,7 @@ function configureClosureCompiler(projectRoot, options) {
     constants = computeDefinedConstants(options),
     constantName,
     constantValue,
+    constantValueType,
     absoluteSourceFolder = path.resolve(options.sourceFolder),
     absoluteTargetFolder = path.resolve(options.targetFolder),
     constantsOut,
@@ -87,12 +88,13 @@ function configureClosureCompiler(projectRoot, options) {
   for(constantName in constants) {
     if(constants.hasOwnProperty(constantName)) {
       constantValue = constants[constantName];
+      constantValueType = typeof JSON.parse(constantValue);
 
       // make constantValue truthy just in case Closure Compiler ever does something with it
-      if(typeof constantValue === "boolean") {
+      if(constantValueType === "boolean") {
         constantValue = true;
       }
-      else if(typeof constantValue === "number") {
+      else if(constantValueType === "number") {
         constantValue = 1;
       }
 
@@ -104,9 +106,11 @@ function configureClosureCompiler(projectRoot, options) {
           constantNamespaces[groups[1]] = true;
         }
 
+        constantsOut += "/** @type {" + constantValueType + "} */\n";
         constantsOut += constantName + " = " + constantValue + ";\n";
       }
       else {
+        constantsOut += "/** @type {" + constantValueType + "} */\n";
         constantsOut += "var " + constantName + " = " + constantValue + ";\n";
       }
     }

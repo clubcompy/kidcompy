@@ -196,9 +196,10 @@ gulp.task("launch-closure-compiler", function(done) {
 });
 
 /* Closure Compiler doesn't have a convenient way to declare global constants that its
- * CommonJS support can grok.  That leads us to declare any feature flags or global constants
- * as externs in Closure Compiler - this made those symbols appear as
- */
+ * CommonJS support can grok.  That leads us to declare all feature flags and global constants
+ * as externs in Closure Compiler.  Making feature flags appear as externs ensures that this
+ * minification pass will still have access to the unmangled feature flag symbol and any
+ * code hidden behind that feature flag can be elided if the feature flag is disabled. */
 gulp.task("minify-closure-compiler-output", function() {
   try {
     var result = uglifyJs.minify(closureCompilerConfig.fileName, {
@@ -211,7 +212,12 @@ gulp.task("minify-closure-compiler-output", function() {
         max_line_len: 3999
       },
       compress: {
-        side_effects: false,
+        side_effects: true,
+        warnings: false,
+        properties: false,
+        drop_console: false,
+        negate_iife: false,
+        drop_debugger: true,
         global_defs: computeDefinedConstants({isProductionBundle: true, areBundlesSplit: true})
       }
     });
@@ -299,7 +305,7 @@ gulp.task("ie-polyfill-production-bundle", function(done) {
 
 gulp.task("ie-polyfill-cc-config", function(done) {
   resolveGlobs(["./lib/iePolyfill/main.js", "./lib/iePolyfill/**/*.js", "./lib/symbols/**/*.js"], function(srcFiles) {
-    closureCompilerConfig = configureClosureCompiler({
+    closureCompilerConfig = configureClosureCompiler(gulpFolder, {
       isProductionBundle: true,
       areBundlesSplit: true,
       sourceFiles: srcFiles,
@@ -323,7 +329,7 @@ gulp.task("html5-polyfill-production-bundle", function(done) {
 
 gulp.task("html5-polyfill-cc-config", function(done) {
   resolveGlobs(["./lib/html5Polyfill/main.js", "./lib/html5Polyfill/**/*.js", "./lib/symbols/**/*.js"], function(srcFiles) {
-    closureCompilerConfig = configureClosureCompiler({
+    closureCompilerConfig = configureClosureCompiler(gulpFolder, {
       isProductionBundle: true,
       areBundlesSplit: true,
       sourceFiles: srcFiles,
@@ -347,7 +353,7 @@ gulp.task("kidcompy-testing-production-bundle", function(done) {
 
 gulp.task("kidcompy-testing-cc-config", function(done) {
   resolveGlobs(["./lib/kidcompy/main.js", "./lib/kidcompy/**/*.js", "./lib/symbols/**/*.js"], function(srcFiles) {
-    closureCompilerConfig = configureClosureCompiler({
+    closureCompilerConfig = configureClosureCompiler(gulpFolder, {
       isProductionBundle: true,
       areBundlesSplit: true,
       sourceFiles: srcFiles,
@@ -372,7 +378,7 @@ gulp.task("kidcompy-production-bundle", function(done) {
 gulp.task("kidcompy-cc-config", function(done) {
   resolveGlobs(["./lib/kidcompy/main.js", "./lib/kidcompy/**/*.js", "./lib/symbols/**/*.js",
                 "!./lib/**/*.spec.js", "!./lib/**/*.integration.js", "!./lib/**/*.system.js"], function(srcFiles) {
-    closureCompilerConfig = configureClosureCompiler({
+    closureCompilerConfig = configureClosureCompiler(gulpFolder, {
       isProductionBundle: true,
       areBundlesSplit: true,
       sourceFiles: srcFiles,
@@ -773,7 +779,8 @@ gulp.task("jsdoc", function(done) {
 
 gulp.task("jsdoc-public-api", function(done) {
   callJsdoc([ "./lib/**/*.js", "!./lib/**/*.spec.js", "!./lib/**/*.integration.js", "!./lib/**/*.system.js",
-      "!./lib/testingExterns.js", "!./lib/constantExterns.js", "!./lib/featureFlags.js", "README.md" ],
+      "!./lib/testingExterns.js", "!./lib/constantExterns.js", "!./lib/featureFlags.js", "!./lib/buildConfig.js",
+      "README.md" ],
     [
       "--access", "public,undefined",
       "--configure", path.resolve(__dirname, "./etc/jsdoc.conf.json"),
@@ -786,7 +793,7 @@ gulp.task("jsdoc-public-api", function(done) {
 
 gulp.task("jsdoc-dev-docs", function(done) {
   callJsdoc([ "./lib/**/*.js", "!./lib/**/*.spec.js", "!./lib/**/*.integration.js", "!./lib/**/*.system.js",
-      "!./lib/symbols/testingExterns.js", "README.md" ],
+      "!./lib/testingExterns.js", "!./lib/constantExterns.js", "README.md" ],
     [
       "--access", "all",
       "--private",

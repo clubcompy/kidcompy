@@ -2,6 +2,7 @@
 
 var path = require("path"),
   fs = require("fs"),
+  URI = require("URIjs"),
   computeDefinedConstants = require("./computeDefinedConstants");
 
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
@@ -9,6 +10,7 @@ var path = require("path"),
 /**
  * Build the closure compiler config object
  *
+ * @param {string} projectRoot absolute path to the root folder for this project
  * @param {Object} options
  * @param {boolean} options.isProductionBundle
  * @param {boolean} options.areBundlesSplit
@@ -22,7 +24,7 @@ var path = require("path"),
  *        built from options.outputFile
  * @returns {Object} closure compiler config object for the gulp-closure-compiler
  */
-function configureClosureCompiler(options) {
+function configureClosureCompiler(projectRoot, options) {
   var i, ii,
     constants = computeDefinedConstants(options),
     constantName,
@@ -32,7 +34,14 @@ function configureClosureCompiler(options) {
     constantsOut,
     constantNamespaces,
     groups,
-    config;
+    config,
+    sourceMapLocationMappings = [],
+    sourceFileUri;
+
+  for(i = 0, ii = options.sourceFiles.length; i < ii; i++) {
+    sourceFileUri = new URI(options.sourceFiles[i]);
+    sourceMapLocationMappings.push(options.sourceFiles[i] + "|" + path.relative(projectRoot, options.sourceFiles[i]));
+  }
 
   config = {
     compilerPath: path.resolve(__dirname, "./closureCompiler/compiler.jar"),
@@ -48,6 +57,7 @@ function configureClosureCompiler(options) {
       process_common_js_modules: null,
       common_js_entry_module: path.resolve(options.sourceFiles[0]),
       create_source_map: options.outputFile + ".map",
+      source_map_location_mapping: sourceMapLocationMappings,
       jscomp_off: "deprecatedAnnotations",
       use_types_for_optimization: null,
       warning_level: "VERBOSE",

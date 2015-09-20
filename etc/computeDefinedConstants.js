@@ -57,9 +57,6 @@ function computeDefinedConstants(options) {
     }
   }
 
-  // Make a JSON object constant out of the feature flags so that we can dump them for debugging builds.
-  // definedConstants.FEATURE_FLAG_SUMMARY = JSON.stringify(featureFlagSummary);
-
   return definedConstants;
 }
 

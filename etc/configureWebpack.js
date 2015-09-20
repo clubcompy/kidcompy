@@ -173,13 +173,39 @@ function configureWebpackPlugins(config, options) {
 
   if(options.isProductionBundle) {
     config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+      output: {
+        screw_ie8: false,
+        comments: true,
+        max_line_len: 3999
+      },
+
       // this list of compress flags is tuned to minify as much as IE6-IE8 can tolerate
       compress: {
-        warnings: false,
-        properties: false,
-        negate_iife: false,
-        screw_ie8: false,
-        drop_console: true      // always drop raw console.log calls to be friendly to legacy IE
+        sequences     : true,  // join consecutive statemets with the "comma operator"
+        properties    : false, // don't rewrite foo["bar"] to foo.bar
+        dead_code     : true,  // discard unreachable code
+        drop_debugger : true,  // discard “debugger” statements
+        unsafe        : false, // some unsafe optimizations (see below)
+        conditionals  : true,  // optimize if-s and conditional expressions
+        comparisons   : true,  // optimize comparisons
+        evaluate      : true,  // evaluate constant expressions
+        booleans      : true,  // optimize boolean expressions
+        loops         : true,  // optimize loops
+        unused        : true,  // drop unused variables/functions
+        hoist_funs    : true,  // hoist function declarations
+        hoist_vars    : false, // hoist variable declarations
+        if_return     : true,  // optimize if-s followed by return/continue
+        join_vars     : true,  // join var declarations
+        cascade       : true,  // try to cascade `right` into `left` in sequences
+        side_effects  : true,  // drop side-effect-free statements
+        warnings      : false, // do not warn about potentially dangerous optimizations/code
+        negate_iife   : false, // don't negate IIFE's to avoid surrounding the function with parens
+        drop_console  : false, // for now, do not strip console.log statements in production mode, we may in future
+        pure_getters  : false, // do not assume property access is side-effect free
+        pure_funcs    : null,  // do not assume any functions are side effect free
+        keep_fargs    : false, // do not prevent the compressor from discarding unused function parameters
+        keep_fnames   : false, // do not prevent the compressor from mangling or discarding function names
+        global_defs   : computeDefinedConstants(options)
       },
 
       // mangle for great justice
@@ -188,6 +214,12 @@ function configureWebpackPlugins(config, options) {
   }
   else {
     config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+      output: {
+        screw_ie8: false,
+        comments: true,
+        max_line_len: 3999
+      },
+
       compress: {
         sequences: false,
         properties: false,
@@ -209,9 +241,10 @@ function configureWebpackPlugins(config, options) {
         negate_iife: false,
         pure_getters: false,
         pure_funcs: null,
-        drop_console: true,     // always drop raw console.log calls to be friendly to legacy IE
+        drop_console: false,     // don't drop console.* calls
         keep_fargs: false,
-        keep_fnames: true
+        keep_fnames: true,
+        global_defs: computeDefinedConstants(options)
       },
 
       // don't drop any comments in developer mode

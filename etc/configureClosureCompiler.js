@@ -73,16 +73,16 @@ function configureClosureCompiler(projectRoot, options) {
   // build a dynamic externs constants.js file that the closure compiler can use to protect our constant symbols from
   // being elided or mangled
   constantsOut = "/**\n" +
-    " * GENERATED FILE - Do not add to source control.  Used to declare kidcompy's constant symbols as externs to\n" +
-    " * the Closure Compiler so they are protected from mangling.  UglifyJS2 is used on Closure Compiler's output\n" +
-    " * to do the actual constant symbol substitutions and do the dead code removal on any blocks that should be\n" +
-    " * elided as a result of those substitutions.\n" +
-    " *\n" +
-    " * @externs\n" +
-    " */\n\n" +
-    "// jshint -W079\n" +
-    "// jshint -W098\n" +
-    "// jscs:disable requireMultipleVarDecl\n\n";
+                 " * GENERATED FILE - Do not add to source control.  Used to declare kidcompy's constant symbols as\n" +
+                 " * externs to the Closure Compiler so they are protected from mangling.  UglifyJS2 is used on\n" +
+                 " * Closure Compiler's output to do the actual constant symbol substitutions and do the dead code\n" +
+                 " * removal on any blocks that should be elided as a result of those substitutions.\n" +
+                 " *\n" +
+                 " * @externs\n" +
+                 " */\n\n" +
+                 "// jshint -W079\n" +
+                 "// jshint -W098\n" +
+                 "// jscs:disable requireMultipleVarDecl\n\n";
 
   constantNamespaces = {};
   for(constantName in constants) {
@@ -98,7 +98,7 @@ function configureClosureCompiler(projectRoot, options) {
         constantValue = 1;
       }
 
-      groups = /([^\.]*)\..*/i.exec(constantName);
+      groups = /([^\.]*)\.(.*)/i.exec(constantName);
       if(groups) {
         if(typeof constantNamespaces[groups[1]] === "undefined") {
           constantsOut += "/** @namespace */\n";
@@ -106,11 +106,17 @@ function configureClosureCompiler(projectRoot, options) {
           constantNamespaces[groups[1]] = true;
         }
 
-        constantsOut += "/** @type {" + constantValueType + "} */\n";
+        constantsOut += "/**\n" +
+                        " * @see {@link featureFlagDefinitions." + groups[2] + "} for flag description\n" +
+                        " * @type {" + constantValueType + "}\n" +
+                        " */\n";
         constantsOut += constantName + " = " + constantValue + ";\n";
       }
       else {
-        constantsOut += "/** @type {" + constantValueType + "} */\n";
+        constantsOut += "/**\n" +
+                        " * @see {@link featureFlagDefinitions." + constantName + "} for flag description\n" +
+                        " * @type {" + constantValueType + "}\n" +
+                        " */\n";
         constantsOut += "var " + constantName + " = " + constantValue + ";\n";
       }
     }

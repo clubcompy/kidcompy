@@ -1,40 +1,14 @@
 Todos
 =====
-- three new targets should generate the iePolyfills, html5Polyfills, and kidcompy bundles
-- test-bundle - beforehand, bundle the production iePolyfills, html5Polyfills, and kidcompy bundles using Closure
-  Compiler with CommonJS support.  Bootstrap should be built as minified with UglifyJS.  Kidcompy bundle should include
-  all of the tests
+- Create a KidcompyHost class that will be the host for a compy instance.  Hide the constructor and instantiate it via
+a static function on the kidcompy namespace.
+  - takes a DOM Element that the compy will be displayed out of
+- Object.freeze the kidcompy namespace right before onCodeGo triggers
 
-- Experiment with changing closure compiler's role in the production build.  There is no
-way to do a direct integration with webpack. Need to break up the code into four bundles: bootstrap.js, ie8polyfill.js,
-html5polyfill.js, and kidcompy.js.  These bundles should have 3 different build types for loading into different
-target environments:
-  - Development testing mode: no minification. bootstrap.js directly includes ie8polyfill.js, html5polyfill.js, and
-    kidcompy.js contents.  Webpack bundling is setup to facilitate straightforward hot-redeploy and CI rather than mimic
-    the script separations found in the production builds
-  - Production testing mode:  webpack used to bundle bootstrap.js, uglify.js for mangling and minification.  Closure
-    compiler or UglifyJS used for ie8polyfill.js, html5polyfill.js.  Closure Compiler used for kidcompy.js CommonJS-mode
-    mangling, optimization, and minification.  kidcompy.js will be bundled along with all of its karma unit and
-    functional tests.  Karma loads bootstrap.js which then ajaxically loads the remaining scripts as needed.  Karma
-    server will be launched directly on bootstrap.js rather than using webpack's karma integration.  bootstrap.js will
-    bundle to a standalone script that can execute without a webpack-dev-server to host it
-  - Production bundle mode:  webpack used to bundle bootstrap.js, uglify.js for mangling and minification.  Closure
-    compiler or UglifyJS used for ie8polyfill.js, html5polyfill.js.  Closure Compiler used for kidcompy.js CommonJS-mode
-    mangling, optimization, and minification.  A host page will load bootstrap.js which will then ajaxically load all
-    remaining scripts as needed
-- Start a developer blog
-  - Jekyll?  Tumblr?
-  - Introduce clubcompy, tell a bit of its history
-  - can we point woldie.com at the developer blog?
-- Do some initial design work on paper or in the clubcompy wiki that we can use to kick-off proper TDD development
-  - Playfield, FlipBuffer, Display?
-- Initial development
-- Get everything running
-- Merge to master, delete develop branch, and do a proper release
-  - Branch, build, remove dist line from .gitignore, push, tag, delete branch, back to master?
 
-Daily Kidcompy developer steps
-==============================
+
+Thoughts on Daily Kidcompy developer steps
+==========================================
 1. 'git pull'
 2. Add any new ideas you have for features or technical work items to the parking lot so we can discuss and prioritize
    them
@@ -130,3 +104,19 @@ If you want any static or member fields or functions to be accessible by an unma
 the symbol @public in the JSDoc and export it using symbols/exportPublicProperties.js.  Public members of your classes
 that you will not be exporting to the global scope should NOT be marked @public.  We will use @public to find in files
 all of the symbols we plan to export.
+
+
+When do these get done?
+=======================
+
+- Start a developer blog
+  - Jekyll?  Tumblr?
+  - Introduce clubcompy, tell a bit of its history
+  - can we point woldie.com at the developer blog?
+- Do some initial design work on paper or in the clubcompy wiki that we can use to kick-off proper TDD development
+  - Playfield, FlipBuffer, Display?
+- Initial development
+- Get everything running
+- Merge to master, delete develop branch, and do a proper release
+  - Branch, build, remove dist line from .gitignore, push, tag, delete branch, back to master?
+

@@ -4,6 +4,7 @@ Todos
 a static function on the kidcompy namespace.
   - takes a DOM Element that the compy will be displayed out of
 - Object.freeze the kidcompy namespace right before onCodeGo triggers
+- turn off JSCS on tests completely, (but not JSHint)
 
 
 

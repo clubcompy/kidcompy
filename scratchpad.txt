@@ -5,7 +5,12 @@ a static function on the kidcompy namespace.
   - takes a DOM Element that the compy will be displayed out of
 - Object.freeze the kidcompy namespace right before onCodeGo triggers
 - turn off JSCS on tests completely, (but not JSHint)
-
+- It seems like typedarray.js polyfill is doing a lot of incompatible javascript with Closure Compiler.  I added
+typedarray.js to iePolyfill.js because it seemed like it would mostly serve legacy IE, but in reality, typedarrays
+are needed by some fairly recent versions of other browsers too.  I think that since iePolyfills is mainly going to
+contain the bitter end of all the polyfills we'll be loading, I'll leave it there.  And to cure all the Closure
+Compiler warnings, I'll switch to UglifyJS for minification on iePolyfill module, which (hopefully) won't have a
+problem with the way the code works.
 
 
 Thoughts on Daily Kidcompy developer steps

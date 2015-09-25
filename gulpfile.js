@@ -313,53 +313,78 @@ function resolveGlobs(globs, done) {
   });
 }
 
-gulp.task("ie-polyfill-production-bundle", function(done) {
-  return runSequence(
-    ["ie-polyfill-cc-config"],
-    ["closure-compiler"],
-    done
-  );
-});
-
-gulp.task("ie-polyfill-cc-config", function(done) {
-  resolveGlobs(["./lib/iePolyfill/main.js", "./lib/iePolyfill/**/*.js", "./lib/symbols/**/*.js"], function(srcFiles) {
-    closureCompilerConfig = configureClosureCompiler(gulpFolder, {
+gulp.task("ie-polyfill-production-bundle", function() {
+  return gulp.src([ "./lib/iePolyfill/main.js" ])
+    .pipe(named()) // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
+    .pipe(webpackStream(configureWebpack({
+      enableSourceMaps: true,
       isProductionBundle: true,
       areBundlesSplit: true,
-      sourceFiles: srcFiles,
-      sourceFolder: "./lib/iePolyfill",
-      targetFolder: "intermediate",
-      outputFile: "iePolyfill.closureCompiler.js",
-      minifiedFile: "iePolyfill.js"
-    });
-
-    done();
-  });
+      outputFilename: "iePolyfill.js"
+    })), webpack)
+    .pipe(gulp.dest("intermediate/"));
 });
 
-gulp.task("html5-polyfill-production-bundle", function(done) {
-  return runSequence(
-    [ "html5-polyfill-cc-config" ],
-    [ "closure-compiler" ],
-    done
-  );
-});
+//gulp.task("ie-polyfill-production-bundle", function(done) {
+//  return runSequence(
+//    ["ie-polyfill-cc-config"],
+//    ["closure-compiler"],
+//    done
+//  );
+//});
+//
+//gulp.task("ie-polyfill-cc-config", function(done) {
+//  resolveGlobs(["./lib/iePolyfill/main.js", "./lib/iePolyfill/**/*.js", "./lib/symbols/**/*.js"], function(srcFiles) {
+//    closureCompilerConfig = configureClosureCompiler(gulpFolder, {
+//      isProductionBundle: true,
+//      areBundlesSplit: true,
+//      sourceFiles: srcFiles,
+//      sourceFolder: "./lib/iePolyfill",
+//      targetFolder: "intermediate",
+//      outputFile: "iePolyfill.closureCompiler.js",
+//      minifiedFile: "iePolyfill.js"
+//    });
+//
+//    done();
+//  });
+//});
 
-gulp.task("html5-polyfill-cc-config", function(done) {
-  resolveGlobs(["./lib/html5Polyfill/main.js", "./lib/html5Polyfill/**/*.js", "./lib/symbols/**/*.js"], function(srcFiles) {
-    closureCompilerConfig = configureClosureCompiler(gulpFolder, {
+gulp.task("html5-polyfill-production-bundle", function() {
+  return gulp.src([ "./lib/html5Polyfill/main.js" ])
+    .pipe(named()) // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
+    .pipe(webpackStream(configureWebpack({
+      enableSourceMaps: true,
       isProductionBundle: true,
       areBundlesSplit: true,
-      sourceFiles: srcFiles,
-      sourceFolder: "./lib/html5Polyfill",
-      targetFolder: "intermediate",
-      outputFile: "html5Polyfill.closureCompiler.js",
-      minifiedFile: "html5Polyfill.js"
-    });
-
-    done();
-  });
+      outputFilename: "html5Polyfill.js"
+    })), webpack)
+    .pipe(gulp.dest("intermediate/"));
 });
+
+//gulp.task("html5-polyfill-production-bundle", function(done) {
+//  return runSequence(
+//    [ "html5-polyfill-cc-config" ],
+//    [ "closure-compiler" ],
+//    done
+//  );
+//});
+//
+//gulp.task("html5-polyfill-cc-config", function(done) {
+//  resolveGlobs(["./lib/html5Polyfill/main.js", "./lib/html5Polyfill/**/*.js", "./lib/symbols/**/*.js",
+//                "./node_modules/es6-promise/dist/es6-promise.js"], function(srcFiles) {
+//    closureCompilerConfig = configureClosureCompiler(gulpFolder, {
+//      isProductionBundle: true,
+//      areBundlesSplit: true,
+//      sourceFiles: srcFiles,
+//      sourceFolder: "./lib/html5Polyfill",
+//      targetFolder: "intermediate",
+//      outputFile: "html5Polyfill.closureCompiler.js",
+//      minifiedFile: "html5Polyfill.js"
+//    });
+//
+//    done();
+//  });
+//});
 
 gulp.task("kidcompy-testing-production-bundle", function(done) {
   return runSequence(

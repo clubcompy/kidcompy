@@ -201,7 +201,8 @@
         "final": false,
         "package": false,
         "dict": false,
-        "define": false
+        "define": false,
+        "nocollapse": false
       }
     },
     "checkParamNames": true,

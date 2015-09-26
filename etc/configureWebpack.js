@@ -74,12 +74,12 @@ function configureOptionalCodeLinters(config, options) {
       // include .js files
       // exclude any and all files in the node_modules folder
       test: /\.js$/,
-      exclude: /(node_modules|firebug-lite)/,
+      exclude: /node_modules/,
       loader: "jshint-loader"
     });
     config.module.preLoaders.push({
       test: /\.js$/,
-      exclude: /(node_modules|firebug-lite)/,
+      exclude: /node_modules/,
       loader: "jscs-loader"
     });
 

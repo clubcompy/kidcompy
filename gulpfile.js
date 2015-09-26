@@ -115,7 +115,7 @@ gulp.task("build", function(done) {
     [ "bootstrap-production-bundle", "kidcompy-production-bundle" ],
 
     // copy final scripts and stylesheets to dist and build jsdoc's to dist
-    [ "copy-dist-artifacts", "copy-dist-firebug-lite", "jsdoc" ],
+    [ "copy-dist-artifacts", "jsdoc" ],
 
     done
   );
@@ -597,7 +597,6 @@ gulp.task("start-selenium", function() {
 gulp.task("start-harness-content", function() {
   // Serve up harnessContent folder
   var serve = serveStatic("./harnessContent", { index: [ "index.html", "index.htm" ]}),
-    serveFirebugLite = serveStatic("./etc"),
 
     // Create server
     server = http.createServer(function(req, res) {
@@ -607,17 +606,7 @@ gulp.task("start-harness-content", function() {
 
       res.setHeader("Expires", new Date(0));
 
-      firebugLiteContentFilePath = gulpFolder + "/etc" +
-        (requestUrl.directory().length ? requestUrl.directory() + "/" : "/") + requestUrl.filename();
-
-      // try to serve firebug-lite content first and then fallback to harnessContent
-      try {
-        fs.accessSync(firebugLiteContentFilePath, fs.R_OK); // throws if file does not exist
-        serveFirebugLite(req, res, done);
-      }
-      catch(e) {
-        serve(req, res, done);
-      }
+      serve(req, res, done);
     });
 
   // Listen
@@ -866,12 +855,6 @@ gulp.task("copy-dist-artifacts", function() {
   ], { base: "intermediate" }).pipe(gulp.dest("./dist"));
 });
 
-gulp.task("copy-dist-firebug-lite", function() {
-  return gulp.src([
-    "etc/firebug-lite/**/*"
-  ], { base: "etc" }).pipe(gulp.dest("./dist"));
-});
-
 gulp.task("chdir-intermediate", function() {
   if(!fs.existsSync("intermediate")) {
     fs.mkdirSync("intermediate");
@@ -893,7 +876,6 @@ gulp.task("install-prereqs", function(done) {
     [ "install-closure-compiler" ],
     [ "install-closure-library" ],
     [ "install-selenium" ],
-    [ "install-firebug-lite" ],
     done
   );
 });
@@ -947,13 +929,6 @@ gulp.task("install-closure-library", function() {
       }
     }))
     .pipe(gulp.dest("./etc/closureCompiler"));
-});
-
-gulp.task("install-firebug-lite", function() {
-  return download("https://getfirebug.com/releases/lite/latest/firebug-lite.tar.tgz")
-    .pipe(gunzip())
-    .pipe(untar())
-    .pipe(gulp.dest("./etc"));
 });
 
 // is this unused?  safe to delete?

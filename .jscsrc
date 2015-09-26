@@ -202,7 +202,8 @@
         "package": false,
         "dict": false,
         "define": false,
-        "nocollapse": false
+        "nocollapse": false,
+        "struct": false
       }
     },
     "checkParamNames": true,

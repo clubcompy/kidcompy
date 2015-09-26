@@ -37,7 +37,6 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       {pattern: path.resolve(__dirname, "../lib/bootstrap/main.js"), included: true, served: true, nocache: true},
-      {pattern: path.resolve(__dirname, "../etc/firebug-lite/build/firebug-lite.js"), included: false, served: true, nocache: true},
 
       path.resolve(__dirname, "../lib/**/*.spec.js")
     ],

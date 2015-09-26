@@ -5,25 +5,55 @@
   <title>Kidcompy test harness</title>
 </head>
 <body>
-  Kidcompy Harness
+  Kidcompy Harness!
 
   <div id="test"></div>
 
-  <script type="text/javascript" src="harness.js"></script>
-
-  <!-- Write the webpack hot dev server script tag.  It needs to be full and not relative, that's why it is built
+  <!-- Write the webpack hot dev server script tag.  URL needs to be full and not relative, that's why it is built
        using the window.location.href's URL as the base -->
   <script type="text/javascript">
-    var pageUrl = "" + window.location.href,
-      devServerUrl = /([^\:]+\:\/\/[^\/]+\/).*/.exec(pageUrl)[1] + "webpack-dev-server.js";
+    // Legacy IE can be a real pain when it comes to console.log, so just make a dummy if it does not
+    // exist at startup
+    if(!window.console) {
+      window.console = {};
+    }
+    if(!console.log) {
+      console.log = function() {}
+    }
+    if(!console.group) {
+      console.group = function() {}
+    }
+    if(!console.groupCollapsed) {
+      console.groupCollapsed = function() {}
+    }
+    if(!console.groupEnd) {
+      console.groupEnd = function() {}
+    }
 
-    document.write("<script type='text/javascript' src='" + devServerUrl + "'></scr" + "ipt>");
+    // wait for kidcompy to appear before trying to register for the onCodeGo event
+    var intervalId = setInterval(function() {
+      if(!window.kidcompy) {
+        return;
+      }
+
+      clearInterval(intervalId);
+      intervalId = -1;
+
+      kidcompy.lifecycleEvents.addOnCodeGoHandler(function() {
+        var pageUrl = "" + window.location.href,
+          devServerUrl = /([^\:]+\:\/\/[^\/]+\/).*/.exec(pageUrl)[1] + "webpack-dev-server.js",
+          scriptTag = document.createElement("script");
+
+        scriptTag.setAttribute("type", "text/javascript");
+        scriptTag.setAttribute("src", devServerUrl);
+        document.getElementsByTagName("head")[0].appendChild(scriptTag);
+        scriptTag = null;
+
+        document.getElementById("test").innerHTML = "ON CODE GOOOOO";
+      });
+    }, 10);
   </script>
 
-  <script type="text/javascript">
-    kidcompy.lifecycleEvents.addOnCodeGoHandler(function() {
-      document.getElementById("test").innerHTML = "ON CODE GOOOOO";
-    });
-  </script>
+  <script type="text/javascript" src="harness.js"></script>
 </body>
 </html>

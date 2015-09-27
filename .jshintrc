@@ -99,7 +99,6 @@
     "sinon": false,
     "assert": false,
     "JSON": false,
-    "_": false,
     "featureFlags": false,
     "kidcompy": false,
     "ActiveXObject": false,

@@ -3,14 +3,13 @@ Todos
 - Create a KidcompyHost class that will be the host for a compy instance.  Hide the constructor and instantiate it via
 a static function on the kidcompy namespace.
   - takes a DOM Element that the compy will be displayed out of
+  - TBD, don't get undies in bundie
 - Object.freeze the kidcompy namespace right before onCodeGo triggers
 - turn off JSCS on tests completely, (but not JSHint)
-- It seems like typedarray.js polyfill is doing a lot of incompatible javascript with Closure Compiler.  I added
-typedarray.js to iePolyfill.js because it seemed like it would mostly serve legacy IE, but in reality, typedarrays
-are needed by some fairly recent versions of other browsers too.  I think that since iePolyfills is mainly going to
-contain the bitter end of all the polyfills we'll be loading, I'll leave it there.  And to cure all the Closure
-Compiler warnings, I'll switch to UglifyJS for minification on iePolyfill module, which (hopefully) won't have a
-problem with the way the code works.
+- can we get ES6 support going from webpack and closure compiler?
+- DomMutationsLog needs to be consulted in unit tests to verify that the dom is being mutated in the way we expected
+  (right now there's a lot of walking up parent nodes, when we have them that I'd like to avoid since there are
+  assumptions wrapped up in those assertions.)
 
 
 Thoughts on Daily Kidcompy developer steps

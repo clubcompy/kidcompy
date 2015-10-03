@@ -59,7 +59,7 @@ function configureClosureCompiler(projectRoot, options) {
 
   for(i = 0, ii = options.sourceFiles.length; i < ii; i++) {
     sourceFileUri = new URI(options.sourceFiles[i]);
-    sourceMapLocationMappings.push(options.sourceFiles[i] + "|" + path.relative(projectRoot, options.sourceFiles[i]));
+    sourceMapLocationMappings.push(options.sourceFiles[i] + "|" + path.relative(options.sourceFiles[i], projectRoot));
   }
 
   config = {
@@ -69,10 +69,9 @@ function configureClosureCompiler(projectRoot, options) {
     compilerFlags: {
       charset: "UTF-8",
       compilation_level: "ADVANCED_OPTIMIZATIONS",
-      language_in: "ECMASCRIPT5_STRICT",
+      language_in: "ECMASCRIPT6_STRICT",
       language_out: "ECMASCRIPT3",
       manage_closure_dependencies: null,
-      transform_amd_modules: null,
       process_common_js_modules: null,
       common_js_entry_module: path.resolve(options.sourceFiles[0]),
       create_source_map: options.outputFile + ".map",
@@ -80,7 +79,8 @@ function configureClosureCompiler(projectRoot, options) {
       jscomp_off: "deprecatedAnnotations",
       use_types_for_optimization: null,
       warning_level: "VERBOSE",
-      extra_annotation_name: ["@module" ,"@namespace"],
+      formatting: "PRETTY_PRINT",
+      extra_annotation_name: ["module" ,"namespace", "category", "alias"],
       output_wrapper: "(function(){%output%}).call(window);//# sourceMappingURL=" + options.outputFile + ".map",
       externs: [ path.resolve("./lib/externs.js"),
                  path.resolve("./lib/testingExterns.js"),

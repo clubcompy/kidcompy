@@ -40,8 +40,6 @@ var path = require("path"),
   http = require("http"),
   serveStatic = require("serve-static"),
   named = require("vinyl-named"),
-  gunzip = require("gulp-gunzip"),
-  untar = require("gulp-untar"),
   configureWebpack = require("./etc/configureWebpack"),
   configureClosureCompiler = require("./etc/configureClosureCompiler"),
   sorcery = require("sorcery"),
@@ -100,7 +98,7 @@ gulp.task("build", function(done) {
 
     // run the integration test suite with production mode once before minification as a quick check to verify
     // that the production build passes all tests
-    [ "production-mode-integration-single" ],
+    // [ "production-mode-integration-single" ],
 
     // build out mocha test-rigged versions of the production bundles for bootstrapper, iePolyfill, html5Polyfill, and
     // the main kidcompy modules
@@ -309,7 +307,23 @@ function resolveGlobs(globs, done) {
       }
     }
   }).on("end", function() {
-    done(globFiles);
+    // now sort tests to the end of the list
+    var i,
+      testFiles = [],
+      allFiles = [],
+      isTestRegex = /\.(spec|system|integration)\./;
+
+    for(i = globFiles.length; i--;) {
+      if(isTestRegex.test(globFiles[i])) {
+        testFiles.push(globFiles[i]);
+        globFiles.splice(i, 1);
+      }
+    }
+
+    allFiles.push.apply(allFiles, testFiles);
+    allFiles.push.apply(allFiles, globFiles);
+
+    done(allFiles);
   });
 }
 
@@ -325,30 +339,6 @@ gulp.task("ie-polyfill-production-bundle", function() {
     .pipe(gulp.dest("intermediate/"));
 });
 
-//gulp.task("ie-polyfill-production-bundle", function(done) {
-//  return runSequence(
-//    ["ie-polyfill-cc-config"],
-//    ["closure-compiler"],
-//    done
-//  );
-//});
-//
-//gulp.task("ie-polyfill-cc-config", function(done) {
-//  resolveGlobs(["./lib/iePolyfill/main.js", "./lib/iePolyfill/**/*.js", "./lib/symbols/**/*.js"], function(srcFiles) {
-//    closureCompilerConfig = configureClosureCompiler(gulpFolder, {
-//      isProductionBundle: true,
-//      areBundlesSplit: true,
-//      sourceFiles: srcFiles,
-//      sourceFolder: "./lib/iePolyfill",
-//      targetFolder: "intermediate",
-//      outputFile: "iePolyfill.closureCompiler.js",
-//      minifiedFile: "iePolyfill.js"
-//    });
-//
-//    done();
-//  });
-//});
-
 gulp.task("html5-polyfill-production-bundle", function() {
   return gulp.src([ "./lib/html5Polyfill/main.js" ])
     .pipe(named()) // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
@@ -361,31 +351,6 @@ gulp.task("html5-polyfill-production-bundle", function() {
     .pipe(gulp.dest("intermediate/"));
 });
 
-//gulp.task("html5-polyfill-production-bundle", function(done) {
-//  return runSequence(
-//    [ "html5-polyfill-cc-config" ],
-//    [ "closure-compiler" ],
-//    done
-//  );
-//});
-//
-//gulp.task("html5-polyfill-cc-config", function(done) {
-//  resolveGlobs(["./lib/html5Polyfill/main.js", "./lib/html5Polyfill/**/*.js", "./lib/symbols/**/*.js",
-//                "./node_modules/es6-promise/dist/es6-promise.js"], function(srcFiles) {
-//    closureCompilerConfig = configureClosureCompiler(gulpFolder, {
-//      isProductionBundle: true,
-//      areBundlesSplit: true,
-//      sourceFiles: srcFiles,
-//      sourceFolder: "./lib/html5Polyfill",
-//      targetFolder: "intermediate",
-//      outputFile: "html5Polyfill.closureCompiler.js",
-//      minifiedFile: "html5Polyfill.js"
-//    });
-//
-//    done();
-//  });
-//});
-
 gulp.task("kidcompy-testing-production-bundle", function(done) {
   return runSequence(
     [ "kidcompy-testing-cc-config" ],
@@ -395,7 +360,19 @@ gulp.task("kidcompy-testing-production-bundle", function(done) {
 });
 
 gulp.task("kidcompy-testing-cc-config", function(done) {
-  resolveGlobs(["./lib/kidcompy/main.js", "./lib/kidcompy/**/*.js", "./lib/symbols/**/*.js"], function(srcFiles) {
+  resolveGlobs(["./lib/kidcompy/main.js", "./lib/kidcompy/**/*.js", "./lib/symbols/**/*.js",
+                "./node_modules/lodash-compat/support.js",
+                "./node_modules/lodash-compat/internal/isLength.js",
+                "./node_modules/lodash-compat/internal/createBaseEach.js",
+                "./node_modules/lodash-compat/chain/*.js",
+                "./node_modules/lodash-compat/string/*.js",
+                "./node_modules/lodash-compat/date/*.js",
+                "./node_modules/lodash-compat/internal/*.js",
+                "./node_modules/lodash-compat/function/*.js",
+                "./node_modules/lodash-compat/array/*.js",
+                "./node_modules/lodash-compat/object/*.js",
+                "./node_modules/lodash-compat/utility/*.js",
+                "./node_modules/lodash-compat/lang/*.js"], function(srcFiles) {
     closureCompilerConfig = configureClosureCompiler(gulpFolder, {
       isProductionBundle: true,
       areBundlesSplit: true,
@@ -420,7 +397,19 @@ gulp.task("kidcompy-production-bundle", function(done) {
 
 gulp.task("kidcompy-cc-config", function(done) {
   resolveGlobs(["./lib/kidcompy/main.js", "./lib/kidcompy/**/*.js", "./lib/symbols/**/*.js",
-                "!./lib/**/*.spec.js", "!./lib/**/*.integration.js", "!./lib/**/*.system.js"], function(srcFiles) {
+                "./node_modules/lodash-compat/support.js",
+                "./node_modules/lodash-compat/internal/isLength.js",
+                "./node_modules/lodash-compat/internal/createBaseEach.js",
+                "./node_modules/lodash-compat/chain/*.js",
+                "./node_modules/lodash-compat/string/*.js",
+                "./node_modules/lodash-compat/date/*.js",
+                "./node_modules/lodash-compat/internal/*.js",
+                "./node_modules/lodash-compat/function/*.js",
+                "./node_modules/lodash-compat/array/*.js",
+                "./node_modules/lodash-compat/object/*.js",
+                "./node_modules/lodash-compat/utility/*.js",
+                "./node_modules/lodash-compat/lang/*.js",
+                "!./**/*.spec.js", "!./**/*.integration.js", "!./**/*.system.js"], function(srcFiles) {
     closureCompilerConfig = configureClosureCompiler(gulpFolder, {
       isProductionBundle: true,
       areBundlesSplit: true,
@@ -600,9 +589,7 @@ gulp.task("start-harness-content", function() {
 
     // Create server
     server = http.createServer(function(req, res) {
-      var requestUrl = new URI(req.url),
-        done = finalHandler(req, res),
-        firebugLiteContentFilePath;
+      var done = finalHandler(req, res);
 
       res.setHeader("Expires", new Date(0));
 

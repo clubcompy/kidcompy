@@ -108,7 +108,6 @@
   ],
   "requireDollarBeforejQueryAssignment": true,
   "requireDotNotation": null,
-  "requireFunctionDeclarations": true,
   "requireKeywordsOnNewLine": ["else"],
   "requireLineBreakAfterVariableAssignment": true,
   "requireLineFeedAtFileEnd": true,
@@ -203,7 +202,8 @@
         "dict": false,
         "define": false,
         "nocollapse": false,
-        "struct": false
+        "struct": false,
+        "category": false
       }
     },
     "checkParamNames": true,

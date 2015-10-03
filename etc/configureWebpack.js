@@ -193,7 +193,7 @@ function configureWebpackPlugins(config, options) {
     config.plugins.push(new webpack.optimize.UglifyJsPlugin({
       output: {
         screw_ie8: false,
-        comments: true,
+        comments: false,
         max_line_len: 3999
       },
 

@@ -203,7 +203,8 @@
         "define": false,
         "nocollapse": false,
         "struct": false,
-        "category": false
+        "category": false,
+        "suppress": false
       }
     },
     "checkParamNames": true,

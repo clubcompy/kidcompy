@@ -50,6 +50,7 @@ var path = require("path"),
   platformIsWindows = hostPlatform.indexOf("win") === 0,
   uglifyJs = require("uglify-js"),
   computeDefinedConstants = require("./etc/computeDefinedConstants"),
+  readline = require("readline"),
 
   runningSelenium = null,
   runningHarnessBrowser = null,
@@ -169,7 +170,10 @@ gulp.task("launch-closure-compiler", function(done) {
       "-XX:+UseParallelGC",
       "-jar",
       closureCompilerConfig.compilerPath
-    ];
+    ],
+    ccProcess,
+    skipLinesUntilCaret = false,
+    skipNextBlankLine = false;
 
   for(paramName in closureCompilerConfig.compilerFlags) {
     if(closureCompilerConfig.compilerFlags.hasOwnProperty(paramName)) {
@@ -202,7 +206,49 @@ gulp.task("launch-closure-compiler", function(done) {
   params.push(closureCompilerConfig.fileName);
 
   // async spawn java with params
-  spawn("java", params, { stdio: "inherit" }).on("close", function(code) {
+  ccProcess = spawn("java", params);
+
+  /**
+   * print text that isn't warnings we don't care about
+   *
+   * @param {string} data
+   */
+  function filterUselessWarnings(data) {
+    if(skipLinesUntilCaret) {
+      if(data.trim() === "^") {
+        skipLinesUntilCaret = false;
+        skipNextBlankLine = true;
+      }
+
+      return;
+    }
+
+    if(skipNextBlankLine && data.trim().length === 0) {
+      skipNextBlankLine = false;
+
+      return;
+    }
+
+    if(/node_modules.lodash.*WARNING/g.test(data)) {
+      skipLinesUntilCaret = true;
+
+      return;
+    }
+
+    console.log(data);
+  }
+
+  readline.createInterface({
+    input: ccProcess.stdout,
+    terminal: false
+  }).on("line", filterUselessWarnings);
+
+  readline.createInterface({
+    input: ccProcess.stderr,
+    terminal: false
+  }).on("line", filterUselessWarnings);
+
+  ccProcess.on("close", function(code) {
     if(code) {
       console.log("Error: " + code);
     }
@@ -804,10 +850,11 @@ gulp.task("jsdoc-public-api", function(done) {
       "--access", "public,undefined",
       "--configure", path.resolve(__dirname, "./etc/jsdoc.conf.json"),
       "--destination", path.resolve(__dirname, "./dist/public-api"),
-      "--template", path.resolve(__dirname, "./node_modules/ink-docstrap/template"),
-      "--verbose"
+      "--template", path.resolve(__dirname, "./node_modules/ink-docstrap/template")
     ],
     done);
+
+  // "--verbose"
 });
 
 gulp.task("jsdoc-dev-docs", function(done) {
@@ -818,10 +865,11 @@ gulp.task("jsdoc-dev-docs", function(done) {
       "--private",
       "--configure", path.resolve(__dirname, "./etc/jsdoc.conf.json"),
       "--destination", path.resolve(__dirname, "./dist/developer-docs"),
-      "--template", path.resolve(__dirname, "./node_modules/ink-docstrap/template"),
-      "--verbose"
+      "--template", path.resolve(__dirname, "./node_modules/ink-docstrap/template")
     ],
     done);
+
+  // "--verbose"
 });
 
 gulp.task("json-to-scss", function() {

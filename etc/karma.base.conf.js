@@ -36,16 +36,31 @@ module.exports = function(config) {
     plugins: [
       require("karma-webpack"),
       require("karma-mocha"),
+      require("karma-mocha-reporter"),
       require("karma-proclaim"),
       require("karma-sinon-ie"),
       require("karma-firefox-launcher"),
-      require("karma-sourcemap-loader")
+      require("karma-sourcemap-loader"),
+      require("karma-super-dots-reporter")
     ],
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ["dots"],
+    reporters: ["super-dots", "mocha"],
+
+    mochaReporter: {
+      output: "minimal",
+      colors: {
+        info: "cyan"
+      }
+    },
+
+    superDotsReporter: {
+      icon: {
+        success: "."
+      }
+    },
 
     client: {
       mocha: {

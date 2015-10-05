@@ -110,6 +110,71 @@ the symbol @public in the JSDoc and export it using symbols/exportPublicProperti
 that you will not be exporting to the global scope should NOT be marked @public.  We will use @public to find in files
 all of the symbols we plan to export.
 
+----
+Seems like Closure Compiler cannot handle calls to static class members from the constructor when those members are
+declared after the constructor (by necessity).  This would imply the need for a style guide rule that states that
+static class methods may not be invoked from a constructor, and prototype functions should be used instead.
+
+----
+Closure Compiler needs CommonJS require statements to declare imported types, even if the types are ONLY referenced
+in JSDoc's!  This can get us into conflict with jshint, which warns on unused variables.  Unused variable warnings
+from JSHint can be suppressed with // jshint -W098 but it might make more sense to simply disable that feature of
+jshint.
+
+----
+Inner types and other type nesting seems to be begging for trouble in Closure Compiler, the elisions seem to fire
+at odd times there's often funky chicken-or-egg problems that lead to lots of CC undeclared type warnings.  The best
+thing to do to make sure we always get good compilations is just make all types top level and live with the module
+sprawl that will result.
+
+----
+Closure Compiler seems very sensitive to variables being declared AND assigned, receiving an unambiguous
+type, in a single statement.  So the following,
+
+  var FlipBuffer;
+
+  /**
+   * @constructor
+   */
+  FlipBuffer = function() {
+   ...
+  };
+
+will interpret FlipBuffer as 'undefined' by Closure Compiler rather than the constructor function that was declared
+because the first value that the FlipBuffer symbol received was undefined since it was not assigned.  The right way
+to declare the FlipBuffer constructor would be:
+
+  /**
+   * @constructor
+   */
+  function FlipBuffer() {
+  }
+
+This style of declaration implies foisting could become an issue.  We just need to ensure that our symbol names
+are clean and foisting won't create any conflicts.
+
+----
+Type expressions:
+{MyType}   nullable, not optional
+{?MyType}  nullable, not optional       (viral when passed from function-to-function?)
+{!MyType}  not-nullable, not optional   (viral.  this is my favorite, wished it could be on every parameter)
+{MyType=}  optional/undefined
+{?MyType=} nullable and optional/undefined
+{!MyType=} not-nullable or optional/undefined
+
+If you pass a {?MyType} to a @param {!myType}, you can get very strange and confusing warnings from Closure Compiler.
+For example:
+
+  /home/davew/dev/kidcompy/lib/kidcompy/FlipBuffer.js:70: WARNING - actual parameter 1 of Playfield$$module$home$davew$dev$kidcompy$lib$kidcompy$FlipBuffer does not match formal parameter
+  found   : (DomMutationsLog$$module$home$davew$dev$kidcompy$lib$kidcompy$FlipBuffer|null)
+  required: DomMutationsLog$$module$home$davew$dev$kidcompy$lib$kidcompy$DomMutationsLog
+
+What this is really saying is, the target function wants to see @param {!DomMutationsLog}, but we are trying to pass
+in {?DomMutationsLog}.  The chance for nullable is enough to make the {?DomMutationsLog} a one-off type, hence the
+parameter type mismatch warning.  This goes to show that ? and ! are viral type markers.  The fix is to either make
+all references to DomMutationsLog non-nullable, or do a null check around the call to the target to prove to the
+compiler that DomMutationsLog is not nullable in that instance.
+
 
 When do these get done?
 =======================

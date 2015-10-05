@@ -74,6 +74,7 @@ function configureClosureCompiler(projectRoot, options) {
       manage_closure_dependencies: null,
       process_common_js_modules: null,
       common_js_entry_module: path.resolve(options.sourceFiles[0]),
+      common_js_module_path_prefix: path.resolve(__dirname),
       create_source_map: options.outputFile + ".map",
       source_map_location_mapping: sourceMapLocationMappings,
       jscomp_off: "deprecatedAnnotations",

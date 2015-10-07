@@ -52,14 +52,14 @@ Doing trunk-based development, having Closure Compiler dead code elimination as 
 flags to tag builds are all complementary things.
 
 
-Closure Compiler module styles
-==============================
+Closure Compiler module styleguide notes
+========================================
 
 mutable fields are declared in the constructor as instance variables (attached to the this)
-static immutable and mutable fields are attached to the constructor
+static immutable and mutable fields are attached to the this within the constructor
 static functions are attached to the constructor
 member functions are attached to the constructor's prototype
-only one top-level var statement can appear in a module, and only variables assigned to require statements may be
+only one top-level var statement should appear in a module, and only variables assigned to require statements may be
   listed there in a comma-delimited list.  If you want private/protected static variables in a module, attach them
   to the constructor and mark them @private or @protected as appropriate.
 "var self = this;" is allowed in any function with 4 or more statements containing this, or any function that has a
@@ -174,6 +174,15 @@ in {?DomMutationsLog}.  The chance for nullable is enough to make the {?DomMutat
 parameter type mismatch warning.  This goes to show that ? and ! are viral type markers.  The fix is to either make
 all references to DomMutationsLog non-nullable, or do a null check around the call to the target to prove to the
 compiler that DomMutationsLog is not nullable in that instance.
+
+----
+Module filename conventions:
+* Modules that export a constructor function should be named exactly the same as the function which is UpperCamelCased
+* Modules that export a javascript singleton object (incl. Enums) containing static members should be UpperCamelCased
+  * Mark these objects as @const, no need to Object.freeze() them. This should maximize the members' inlining potential
+* Modules that export a utility function should be named exactly the same as the function which is lowerCamelCased
+* Modules that do some work (like registering global event handlers) but do not export anything should be
+  lowerCamelCased. These modules should be named after their role in the system.
 
 
 When do these get done?

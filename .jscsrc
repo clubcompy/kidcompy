@@ -204,7 +204,8 @@
         "nocollapse": false,
         "struct": false,
         "category": false,
-        "suppress": false
+        "suppress": false,
+        "template": false
       }
     },
     "checkParamNames": true,

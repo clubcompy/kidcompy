@@ -180,6 +180,13 @@ Module filename conventions:
 * Modules that do some work (like registering global event handlers) but do not export anything should be
   lowerCamelCased. These modules should be named after their role in the system.
 
+----
+Static class members on prototypey classes
+* On plain ol' JavaScript objects, static members appear to work well, but only if they are @lends'ed over to the
+  constructor function by way of extends!  See Playfield.js
+
+
+
 
 When do these get done?
 =======================

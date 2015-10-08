@@ -99,7 +99,7 @@ gulp.task("build", function(done) {
 
     // run the integration test suite with production mode once before minification as a quick check to verify
     // that the production build passes all tests
-    [ "production-mode-integration-single" ],
+    //[ "production-mode-integration-single" ],
 
     // build out mocha test-rigged versions of the production bundles for bootstrapper, iePolyfill, html5Polyfill, and
     // the main kidcompy modules

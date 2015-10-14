@@ -1,5 +1,9 @@
 Todos
 =====
+- Remove methods we aren't using in tthe SystemProperties.js
+- Write tests for the methods we are using in SystemProperties.js
+- The default SystemProperties seem incorrectly set in SystemProperties.js, can the setProperty calls
+  in the constructor be moved to modules that would use those particular properties?
 ? Object.freeze the kidcompy namespace right before onCodeGo triggers
 ? turn off JSCS on tests completely, (but not JSHint)
 - can we get ES6 support going from webpack and closure compiler?
@@ -184,7 +188,8 @@ Module filename conventions:
 Static class members on prototypey classes
 * On plain ol' JavaScript objects, static members appear to work well, but only if they are @lends'ed over to the
   constructor function by way of extends!  See Playfield.js
-
+* It is dangerous, stupid, and foolish to be placing ANYTHING stateful on a prototypey static member.  You should only
+  assign functions to static members on a class
 
 
 

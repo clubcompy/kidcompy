@@ -1,6 +1,7 @@
 Todos
 =====
 - Paint colored rectangles on Playfield, scroll (by character width), handle wrapping, automatic clearing, etc
+  - basic unscrolled rectangle rendering is done.  Add scrolling and render rectangles across canvii boundaries
   - Activate code on the harness and have a fun tech demo
 - Start the character generator code, try to render a lower-case 'a'
 - Write tests for the methods we are using in SystemProperties.js
@@ -9,6 +10,10 @@ Todos
 ? Object.freeze the kidcompy namespace right before onCodeGo triggers
 ? turn off JSCS on tests completely, (but not JSHint)
 - can we get ES6 support going from webpack and closure compiler?
+
+- figure out how to get more verbose logging on failed assertions from karma + proclaim
+- Wrap canvases in the playfield in it's own class/objects
+- provide utility to get the dom element of the current object (like playfield or flipbuffer or canvases)
 
 
 Thoughts on Daily Kidcompy developer steps

@@ -205,7 +205,8 @@
         "struct": false,
         "category": false,
         "suppress": false,
-        "template": false
+        "template": false,
+        "unrestricted": false
       }
     },
     "checkParamNames": true,

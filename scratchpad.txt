@@ -94,16 +94,7 @@ class name (so, singleton instance of Main --> main.js).  Otherwise, the filenam
 class being defined.
 
 There may be odd cases where you want to export a static utility function rather than a Class or a singleton, to do
-that, use ...
-
-  function extend() { ... }
-
-  /**
-   * require("./symbols/extend") &rArr; {@link extend}
-   *
-   * @module symbols/extend
-   */
-  module.exports = extend;
+that, use Object.assign
 
 Use the new keyword to construct object instances, don't hide object construction with constructor tricks.
 So as to eliminate circular references, use the closure factory pattern to instantiate closures rather than using
@@ -191,7 +182,7 @@ Module filename conventions:
 ----
 Static class members on prototypey classes
 * On plain ol' JavaScript objects, static members appear to work well, but only if they are @lends'ed over to the
-  constructor function and mixed into the constructor by way of extends()!
+  constructor function and mixed into the constructor by way of Object.assign()!
 * It is dangerous, stupid, and foolish to be placing ANYTHING stateful on a prototypey static member.  You may only
   assign functions constant data as static members on a class.  If you need mutable state global to the kidcompy
   instance, add it to the kidcompy namespace

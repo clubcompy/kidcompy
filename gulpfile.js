@@ -23,9 +23,10 @@
 var path = require("path"),
   fs = require("fs"),
   gulp = require("gulp"),
-  URI = require("URIjs"),
+  URI = require("urijs"),
   jsonSass = require("gulp-json-sass"),
   rm = require("gulp-rm"),
+  execFileSync = require("child_process").execFileSync,
   spawn = require("child_process").spawn,
   hostPlatform = require("os").platform(),
   karma = require("karma"),
@@ -99,7 +100,7 @@ gulp.task("build", function(done) {
 
     // run the integration test suite with production mode once before minification as a quick check to verify
     // that the production build passes all tests
-    //[ "production-mode-integration-single" ],
+    [ "production-mode-integration-single" ],
 
     // build out mocha test-rigged versions of the production bundles for bootstrapper, iePolyfill, html5Polyfill, and
     // the main kidcompy modules
@@ -204,6 +205,9 @@ gulp.task("launch-closure-compiler", function(done) {
   // output file
   params.push("--js_output_file");
   params.push(closureCompilerConfig.fileName);
+
+  // print the version of the Closure Compiler we're running with
+  console.log(execFileSync("java", ["-jar", closureCompilerConfig.compilerPath, "--version"]).toString("utf-8"));
 
   // async spawn java with params
   ccProcess = spawn("java", params);

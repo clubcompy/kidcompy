@@ -71,6 +71,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+      path.resolve(__dirname, "../node_modules/babel-core/browser-polyfill.js"),
       path.resolve(__dirname, "../lib/**/*.spec.js")
     ],
 

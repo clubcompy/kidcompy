@@ -102,8 +102,11 @@ function configureOptionalCodeLinters(config, options) {
 
 function configureCustomModuleLoaders(config, options) {
   config.module.loaders.push(
+    /* .js : ES6 --> ES5 transpiler */
+    { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" },
+
     /* .ejs : precompiled lodash template */
-    {test: /\.ejs$/, loader: "ejs"}
+    { test: /\.ejs$/, loader: "ejs" }
   );
 
   // the SASS loader in test mode simply bundles the SASS into the script.  Non-test builds emit them to standalone CSS

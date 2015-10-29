@@ -20,7 +20,7 @@
 
 var path = require("path"),
   fs = require("fs"),
-  URI = require("URIjs"),
+  URI = require("urijs"),
   computeDefinedConstants = require("./computeDefinedConstants");
 
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers

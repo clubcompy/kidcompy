@@ -1,4 +1,9 @@
 {
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": ["jsdoc", "closure"]
+  },
+
   "opts": {
     "encoding": "utf8",
     "recurse": false,

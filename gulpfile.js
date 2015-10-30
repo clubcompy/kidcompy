@@ -522,6 +522,14 @@ gulp.task("production-mode-integration-single", [ "json-to-scss" ], function(don
   }, done);
 });
 
+gulp.task("production-mode-integration-watcher", [ "json-to-scss" ], function(done) {
+  karma.server.start({
+    configFile: __dirname + "/etc/karma.prodIntegrationAndCoverage.conf.js",
+    singleRun: false,
+    autoWatch: true
+  }, done);
+});
+
 /* Try to gracefully shutdown the harness browser and selenium server if user hits ctrl-c because
    those things don't appear to happen automatically. */
 gulp.task("force-termination-after-sigint", function() {

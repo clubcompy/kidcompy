@@ -31,7 +31,8 @@ module.exports = function(config) {
   configOverrides = {
     // list of files / patterns to load in the browser
     files: [
-      path.resolve(__dirname, "../node_modules/babel-core/browser-polyfill.js"),
+      path.resolve(__dirname, "../node_modules/es5-shim/es5-shim.js"),
+      path.resolve(__dirname, "../node_modules/es5-shim/es5-sham.js"),
       {pattern: path.resolve(__dirname, "../intermediate/bootstrap.js"), included: true, served: true, nocache: true},
 
       // these files will be served on demand from disk

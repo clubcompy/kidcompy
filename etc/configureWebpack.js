@@ -103,7 +103,7 @@ function configureOptionalCodeLinters(config, options) {
 function configureCustomModuleLoaders(config, options) {
   config.module.loaders.push(
     /* .js : ES6 --> ES5 transpiler */
-    { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" },
+    { test: /\.es6\.js$/, exclude: /node_modules/, loader: "babel-loader" },
 
     /* .ejs : precompiled lodash template */
     { test: /\.ejs$/, loader: "ejs" }

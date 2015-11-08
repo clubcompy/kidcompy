@@ -1,0 +1,16 @@
+{
+  "name": "kidcompy",
+  "version": "0.0.1",
+  "dependencies": {
+    "karma-proclaim": {
+      "version": "1.0.0",
+      "from": "karma-proclaim@1.0.0",
+      "dependencies": {
+        "proclaim": {
+          "version": "3.4.0",
+          "from": "proclaim@>=2.0.0"
+        }
+      }
+    }
+  }
+}

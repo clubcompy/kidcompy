@@ -1,5 +1,7 @@
 Todos
 =====
+- TDD the DomNodeCache, add in cacheId to the DomNodeSurrogate.  Stop passing the DOM nodes into all the
+  calls everywhere and start using DomNodeCache to lookup nodes
 - Paint colored rectangles on Playfield, scroll (by character width), handle wrapping, automatic clearing, etc
   - basic unscrolled rectangle rendering is done.  Add scrolling and render rectangles across canvii boundaries
   - Activate code on the harness and have a fun tech demo

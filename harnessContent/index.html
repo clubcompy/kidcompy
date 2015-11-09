@@ -29,31 +29,28 @@
     if(!console.groupEnd) {
       console.groupEnd = function() {}
     }
-
-    // wait for kidcompy to appear before trying to register for the onCodeGo event
-    var intervalId = setInterval(function() {
-      if(!window.kidcompy) {
-        return;
-      }
-
-      clearInterval(intervalId);
-      intervalId = -1;
-
-      kidcompy.lifecycleEvents.addOnCodeGoHandler(function() {
-        var pageUrl = "" + window.location.href,
-          devServerUrl = /([^\:]+\:\/\/[^\/]+\/).*/.exec(pageUrl)[1] + "webpack-dev-server.js",
-          scriptTag = document.createElement("script");
-
-        scriptTag.setAttribute("type", "text/javascript");
-        scriptTag.setAttribute("src", devServerUrl);
-        document.getElementsByTagName("head")[0].appendChild(scriptTag);
-        scriptTag = null;
-
-        document.getElementById("test").innerHTML = "ON CODE GOOOOO";
-      });
-    }, 10);
   </script>
 
   <script type="text/javascript" src="harness.js"></script>
+
+  <script type="text/javascript">
+    // wait for kidcompy to appear before trying to register for the onCodeGo event
+    kidcompy.lifecycleEvents.addOnCodeGoHandler(function() {
+      var pageUrl = "" + window.location.href,
+        devServerUrl = /([^\:]+\:\/\/[^\/]+\/).*/.exec(pageUrl)[1] + "webpack-dev-server.js",
+        scriptTag = document.createElement("script"),
+        kidcompyHost;
+
+      scriptTag.setAttribute("type", "text/javascript");
+      scriptTag.setAttribute("src", devServerUrl);
+      document.getElementsByTagName("head")[0].appendChild(scriptTag);
+      scriptTag = null;
+
+      kidcompyHost = new kidcompy.KidcompyHost("test");
+      kidcompyHost.flipBuffers[0].playfields[0].fillRectangle(0, 0, 10, 10, "#0000ff");
+      kidcompyHost.flipBuffers[0].playfields[0].fillRectangle(10, 10, 10, 10, "#00ff00");
+      kidcompyHost.flipBuffers[0].playfields[0].fillRectangle(20, 20, 10, 10, "#ff0000");
+    });
+  </script>
 </body>
 </html>

@@ -22,3 +22,22 @@ body {
   background-color: $greenColor;
   color: darkgreen;
 }
+
+/* A class that should set text and images to render in a blocky, aliased mode */
+.pixelArt {
+  text-rendering: geometricPrecision;
+  font-kerning: none;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: none;
+  image-rendering: optimize-contrast;
+  image-rendering: optimizeSpeed;
+  image-rendering: pixelated;
+  -ms-interpolation-mode: nearest-neighbor;    /* IE (non-standard property) */
+
+  /* These are closest to what we want for images per https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering */
+  /* Apparently in chrome, this css style only applies to canvases */
+  image-rendering: -webkit-optimize-contrast;  /* Webkit (non-standard naming) */
+  image-rendering: -moz-crisp-edges;           /* Firefox */
+  image-rendering: -o-crisp-edges;             /* Opera */
+  image-rendering: crisp-edges;
+}

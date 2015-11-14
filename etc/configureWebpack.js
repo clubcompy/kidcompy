@@ -109,12 +109,16 @@ function configureCustomModuleLoaders(config, options) {
     { test: /\.ejs$/, loader: "ejs" }
   );
 
+  config.sassLoader = {
+    includePaths: [ path.resolve(__dirname, "../node_modules") ]
+  };
+
   // the SASS loader in test mode simply bundles the SASS into the script.  Non-test builds emit them to standalone CSS
   if(options.isRunningTests) {
     /* .scss : SASS file encoded into scripts that can be reloaded */
     config.module.loaders.push({
       test: /\.scss$/,
-      loader: "style!css!sass?outputStyle=expanded&includePaths[]=" + path.resolve(__dirname, "../node_modules")
+      loader: "style!css!sass?outputStyle=expanded"
     });
   }
   else {
@@ -122,8 +126,7 @@ function configureCustomModuleLoaders(config, options) {
     config.module.loaders.push({
       test: /\.scss$/,
       loader: "style/url?limit=0!file?name=css/[name].css?[hash]!sass?outputStyle=" +
-              (options.isProductionBundle ? "compressed" : "expanded") + "&includePaths[]=" +
-              path.resolve(__dirname, "../node_modules")
+              (options.isProductionBundle ? "compressed" : "expanded")
     });
   }
 }

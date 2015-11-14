@@ -16,12 +16,8 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/* Import symbolic constants we share with the JavaScript host environment */
 @import "./styleVars";
-
-body {
-  background-color: $greenColor;
-  color: darkgreen;
-}
 
 /* A class that should set text and images to render in a blocky, aliased mode */
 .pixelArt {
@@ -41,3 +37,4 @@ body {
   image-rendering: -o-crisp-edges;             /* Opera */
   image-rendering: crisp-edges;
 }
+

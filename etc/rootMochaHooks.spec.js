@@ -18,8 +18,16 @@
 
 "use strict";
 
+var quixote = require("quixote"),
+  ElapsedTime = require("elapsed-time"),
+
+  /**
+   * @const
+   */
+  QUIXOTE_INIT_DURATION = "quixoteInitDuration";
+
 /*
- * Root hooks that run once before all tests
+ * Root hooks that are installed before all tests
  */
 
 before(function(done) {
@@ -27,10 +35,23 @@ before(function(done) {
 
   // need to pause mocha for kidcompy's onCodeGo event to fire.  This ensures that all the scripts have loaded AND
   // inited before we attempt to run our tests
-  kidcompy.lifecycleEvents.addOnCodeGoHandler(done);
+  kidcompy.lifecycleEvents.addOnCodeGoHandler(function() {
+    var stopwatch = (new ElapsedTime()).start();
+
+    // create the quixote frame
+    kidcompy.quixoteFrame = quixote.createFrame({
+      stylesheet: require("!url?limit=1&mimeType=text/css&name=generated-[name].css?[hash]" +
+                          "!text-webpack" +
+                          "!sass?outputStyle=expanded!../lib/styles/kidcompy.scss")
+    }, function() {
+      kidcompy.log("quixote frame inited in " + stopwatch.getValue());
+
+      done();
+    });
+  });
 });
 
-// this is just here to get the before above to trigger
+// this is just here to get the before() hook above to trigger
 it("starts with one test", function() {
   proclaim.isTrue(true, "yeah, it passes");
 });

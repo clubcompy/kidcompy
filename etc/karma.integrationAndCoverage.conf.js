@@ -77,7 +77,9 @@ module.exports = function(config, isProductionBundle, areBundlesSplit) {
     })
   };
 
-  configOverrides.preprocessors[path.resolve(__dirname, "../lib/bootstrap/testingMain.js")] = ["webpack", "coverage", "sourcemap"];
+  // this redundant preprocessor seems necessary to get the files item on line 59 (bootstrap/main.js) to be webpack'ed
+  configOverrides.preprocessors[path.resolve(__dirname, "../lib/bootstrap/main.js")] = ["webpack", "coverage", "sourcemap"];
+
   configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/([a-zA-Z0-9_]+).js")] = ["webpack", "coverage", "sourcemap"];
   configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/*.spec.js")] = ["webpack", "sourcemap"];
   configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/*.integration.js")] = ["webpack", "sourcemap"];

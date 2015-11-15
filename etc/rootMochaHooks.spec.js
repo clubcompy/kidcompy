@@ -19,12 +19,7 @@
 "use strict";
 
 var quixote = require("quixote"),
-  ElapsedTime = require("elapsed-time"),
-
-  /**
-   * @const
-   */
-  QUIXOTE_INIT_DURATION = "quixoteInitDuration";
+  ElapsedTime = require("elapsed-time");
 
 /*
  * Root hooks that are installed before all tests

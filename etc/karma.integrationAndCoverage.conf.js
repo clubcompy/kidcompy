@@ -59,6 +59,7 @@ module.exports = function(config, isProductionBundle, areBundlesSplit) {
       {pattern: path.resolve(__dirname, "../lib/bootstrap/main.js"), included: true, served: true, nocache: true},
 
       path.resolve(__dirname, "../lib/**/*.spec.js"),
+      path.resolve(__dirname, "../lib/**/*.comp.js"),
       path.resolve(__dirname, "../lib/**/*.integration.js"),
       path.resolve(__dirname, "../lib/**/*.system.js")
     ],
@@ -82,6 +83,7 @@ module.exports = function(config, isProductionBundle, areBundlesSplit) {
 
   configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/([a-zA-Z0-9_]+).js")] = ["webpack", "coverage", "sourcemap"];
   configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/*.spec.js")] = ["webpack", "sourcemap"];
+  configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/*.comp.js")] = ["webpack", "sourcemap"];
   configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/*.integration.js")] = ["webpack", "sourcemap"];
   configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/*.system.js")] = ["webpack", "sourcemap"];
 

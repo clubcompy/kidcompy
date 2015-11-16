@@ -35,7 +35,7 @@ before(function(done) {
 
     // create the quixote frame
     kidcompy.quixoteFrame = quixote.createFrame({
-      stylesheet: require("!url?limit=1&mimeType=text/css&name=generated-[name].css?[hash]" +
+      stylesheet: require("!url?limit=1&mimeType=text/css&name=[name].css?[hash]" +
                           "!text-webpack" +
                           "!sass?outputStyle=expanded!../lib/styles/kidcompy.scss")
     }, function() {
@@ -44,6 +44,12 @@ before(function(done) {
       done();
     });
   });
+});
+
+after(function() {
+  if(kidcompy.quixoteFrame) {
+    kidcompy.quixoteFrame.remove();
+  }
 });
 
 // this is just here to get the before() hook above to trigger

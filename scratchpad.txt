@@ -1,5 +1,6 @@
 Todos
 =====
+- Refactor Playfield and Flipbuffer constructors to take a map of options rather than a big honking parameter list
 - Set css class for flipbuffer and playfield so that canvases are clipped and playfields stack
 - Paint colored rectangles on Playfield, scroll (by character width), handle wrapping, automatic clearing, etc
   - basic unscrolled rectangle rendering is done.  Add scrolling and render rectangles across canvii boundaries

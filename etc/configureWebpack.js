@@ -281,21 +281,21 @@ function configureWebpackPlugins(config, options) {
 }
 
 /**
- * @param {Object} options
- * @param {Array.<string>} options.moduleEntryPoints js modules that serve as entry points to the generated webpack bundle
- * @param {string} options.outputModuleName name of the outputted module that represents the moduleEntryPoints
- * @param {string} options.outputPath absolute path to folder where module should be written, if necessary
+ * @param {!Object} options
+ * @param {Array.<string>=} options.moduleEntryPoints js modules that serve as entry points to the generated webpack bundle
+ * @param {string=} options.outputModuleName name of the outputted module that represents the moduleEntryPoints
+ * @param {string=} options.outputPath absolute path to folder where module should be written, if necessary
  * @param {string} options.outputFilename filename or filename pattern of module that should be written
- * @param {string} options.outputChunkFilename name of chunk files that are written
+ * @param {string=} options.outputChunkFilename name of chunk files that are written
  * @param {boolean} [options.emitSingleChunk=false] when true, all chunks are merged into a single output file.  When
  *        false, more than one JavaScript chunk file may be emitted if webpack wants
- * @param {boolean} options.enableSourceMaps
- * @param {boolean} options.isProductionBundle
- * @param {boolean} options.areBundlesSplit
- * @param {boolean} options.isRunningTests
- * @param {boolean} options.isLintingCode
- * @param {boolean} options.isGeneratingCoverage
- * @param {boolean} options.isHotReloading
+ * @param {boolean=} options.enableSourceMaps
+ * @param {boolean=} options.isProductionBundle
+ * @param {boolean=} options.areBundlesSplit
+ * @param {boolean=} options.isRunningTests
+ * @param {boolean=} options.isLintingCode
+ * @param {boolean=} options.isGeneratingCoverage
+ * @param {boolean=} options.isHotReloading
  * @returns {Object} webpack configuration object
  */
 function configureWebpack(options) {

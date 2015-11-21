@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 @import "./styleVars";
 
 /* A class that should set text and images to render in a blocky, aliased mode */
-.pixelArt {
+@mixin pixelArt {
   text-rendering: geometricPrecision;
   font-kerning: none;
   -webkit-font-smoothing: none;
@@ -31,13 +31,55 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -ms-interpolation-mode: nearest-neighbor;    /* IE (non-standard property) */
 
   /* These are closest to what we want for images per https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering */
-  /* Apparently in chrome, this css style only applies to canvases */
+  /* In chrome, this css style only applies to canvases and not also img tags? */
   image-rendering: -webkit-optimize-contrast;  /* Webkit (non-standard naming) */
   image-rendering: -moz-crisp-edges;           /* Firefox */
   image-rendering: -o-crisp-edges;             /* Opera */
   image-rendering: crisp-edges;
 }
 
-.kcplayfield {
+.kcHost {
+  display: inline;
+  position: static;
+}
 
+/* flipbuffer1 is relatively positioned so that it stacks atop flipbuffer0 AND props open the parent div */
+.last.kcFlipBuffer {
+  display: inline;
+  position: relative;
+  z-index: 3;
+}
+
+/* flipbuffer0 is absolutely positioned to the parent */
+.kcFlipBuffer {
+  display: block;
+  position: absolute;
+  z-index: 2;
+}
+
+/* playfield7 is relatively positioned to the parent so that it stacks above playfield0-6 AND props open the
+   parent div */
+.last.kcPlayfield {
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+/* playfield0-6 is absolutely positioned so that they all align to the parent */
+.kcPlayfield {
+  display: block;
+  position: absolute;
+  z-index: 0;
+}
+
+.kcClip {
+  display: block;
+  position: absolute;
+}
+
+.kcCanvas {
+  @include pixelArt;  /* pixelArt class makes the rendering of the canvas low quality and blocky */
+
+  display: block;
+  position: absolute;
 }

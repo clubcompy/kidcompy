@@ -18,8 +18,7 @@
 
 "use strict";
 
-var quixote = require("quixote"),
-  ElapsedTime = require("elapsed-time");
+var ElapsedTime = require("elapsed-time");
 
 /*
  * Root hooks that are installed before all tests

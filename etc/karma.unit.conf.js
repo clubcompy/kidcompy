@@ -33,7 +33,8 @@ module.exports = function(config) {
     files: [
       path.resolve(__dirname, "../node_modules/es5-shim/es5-shim.js"),
       path.resolve(__dirname, "../node_modules/es5-shim/es5-sham.js"),
-      {pattern: path.resolve(__dirname, "../lib/bootstrap/main.js"), included: true, served: true, nocache: true},
+      path.resolve(__dirname, "../node_modules/quixote/dist/quixote.js"),
+      {pattern: path.resolve(__dirname, "../lib/bootstrap/testingMain.js"), included: true, served: true, nocache: true},
 
       path.resolve(__dirname, "../lib/**/*.spec.js"),
       path.resolve(__dirname, "../lib/**/*.comp.js")
@@ -53,7 +54,7 @@ module.exports = function(config) {
   };
 
   // this redundant preprocessor seems necessary to get the files item on line 36 (bootstrap/main.js) to be webpack'ed
-  configOverrides.preprocessors[path.resolve(__dirname, "../lib/bootstrap/main.js")] = ["webpack", "sourcemap"];
+  configOverrides.preprocessors[path.resolve(__dirname, "../lib/bootstrap/testingMain.js")] = ["webpack", "sourcemap"];
 
   configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/([a-zA-Z0-9_]+).js")] = ["webpack", "sourcemap"];
   configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/*.spec.js")] = ["webpack", "sourcemap"];

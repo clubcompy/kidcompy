@@ -39,15 +39,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 .kcHost {
-  display: inline;
-  position: static;
+  display: block;
+  position: relative;
 }
 
 /* flipbuffer1 is relatively positioned so that it stacks atop flipbuffer0 AND props open the parent div */
 .last.kcFlipBuffer {
-  display: inline;
   position: relative;
   z-index: 3;
+  top: 0;
+  left: 0;
+
+  .kcPlayfield {
+    top: 0;
+    left: 0;
+  }
 }
 
 /* flipbuffer0 is absolutely positioned to the parent */
@@ -75,6 +81,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 .kcClip {
   display: block;
   position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 .kcCanvas {

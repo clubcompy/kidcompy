@@ -162,16 +162,11 @@ gulp.task("closure-compiler", function(done) {
 });
 
 gulp.task("launch-closure-compiler", function(done) {
-  var i, ii,
+  var tmp = require("tmp"),
+    i, ii,
     paramName,
     paramValue,
-    params = [
-      "-server",
-      "-XX:+TieredCompilation",
-      "-XX:+UseParallelGC",
-      "-jar",
-      closureCompilerConfig.compilerPath
-    ],
+    params = [],
     ccProcess,
     skipLinesUntilCaret = false,
     skipNextBlankLine = false;
@@ -209,8 +204,20 @@ gulp.task("launch-closure-compiler", function(done) {
   // print the version of the Closure Compiler we're running with
   console.log(execFileSync("java", ["-jar", closureCompilerConfig.compilerPath, "--version"]).toString("utf-8"));
 
-  // async spawn java with params
-  ccProcess = spawn("java", params);
+  // build a response file from the passed params
+  var responseFileName = tmp.tmpNameSync({ template: closureCompilerConfig.targetFolder + '/closureCompiler-XXXXXX' });
+  fs.writeFileSync(responseFileName, params.join("\n").replace(/\\/g, "/"));
+
+  // async spawn java with params we wrote to the response file
+  ccProcess = spawn("java", [
+    "-server",
+    "-XX:+TieredCompilation",
+    "-XX:+UseParallelGC",
+    "-jar",
+    closureCompilerConfig.compilerPath,
+    "--flagfile",
+    responseFileName
+  ]);
 
   /**
    * print text that isn't warnings we don't care about
@@ -256,6 +263,9 @@ gulp.task("launch-closure-compiler", function(done) {
     if(code) {
       console.log("Error: " + code);
     }
+
+    // delete the response file if we can
+    fs.unlinkSync(responseFileName);
 
     done();
   });
@@ -993,4 +1003,3 @@ gulp.task("fixup-closure-compiler-source-map", function() {
     }
   }
 });
-

@@ -82,7 +82,7 @@ function configureClosureCompiler(projectRoot, options) {
       warning_level: "VERBOSE",
       formatting: "PRETTY_PRINT",
       extra_annotation_name: ["module" ,"namespace", "category", "alias"],
-      output_wrapper: "(function(){%output%}).call(window);//# sourceMappingURL=" + options.outputFile + ".map",
+      output_wrapper: "\"(function(){%output%}).call(window);//# sourceMappingURL=" + options.outputFile + ".map\"",
       externs: [ path.resolve("./lib/externs.js"),
                  path.resolve("./lib/testingExterns.js"),
                  path.resolve("./lib/constantExterns.js") ]

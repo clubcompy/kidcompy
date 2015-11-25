@@ -16,9 +16,79 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/* Import symbolic constants we share with the JavaScript host environment */
 @import "./styleVars";
 
-body {
-  background-color: $greenColor;
-  color: darkgreen;
+/* A class that should set text and images to render in a blocky, aliased mode */
+@mixin pixelArt {
+  text-rendering: geometricPrecision;
+  font-kerning: none;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: none;
+  image-rendering: optimize-contrast;
+  image-rendering: optimizeSpeed;
+  image-rendering: pixelated;
+  -ms-interpolation-mode: nearest-neighbor;    /* IE (non-standard property) */
+
+  /* These are closest to what we want for images per https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering */
+  /* In chrome, this css style only applies to canvases and not also img tags? */
+  image-rendering: -webkit-optimize-contrast;  /* Webkit (non-standard naming) */
+  image-rendering: -moz-crisp-edges;           /* Firefox */
+  image-rendering: -o-crisp-edges;             /* Opera */
+  image-rendering: crisp-edges;
+}
+
+.kcHost {
+  display: block;
+  position: relative;
+}
+
+/* flipbuffer1 is relatively positioned so that it stacks atop flipbuffer0 AND props open the parent div */
+.last.kcFlipBuffer {
+  position: relative;
+  z-index: 3;
+  top: 0;
+  left: 0;
+
+  .kcPlayfield {
+    top: 0;
+    left: 0;
+  }
+}
+
+/* flipbuffer0 is absolutely positioned to the parent */
+.kcFlipBuffer {
+  display: block;
+  position: absolute;
+  z-index: 2;
+}
+
+/* playfield7 is relatively positioned to the parent so that it stacks above playfield0-6 AND props open the
+   parent div */
+.last.kcPlayfield {
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+/* playfield0-6 is absolutely positioned so that they all align to the parent */
+.kcPlayfield {
+  display: block;
+  position: absolute;
+  z-index: 0;
+}
+
+.kcClip {
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.kcCanvas {
+  @include pixelArt;  /* pixelArt class makes the rendering of the canvas low quality and blocky */
+
+  display: block;
+  position: absolute;
 }

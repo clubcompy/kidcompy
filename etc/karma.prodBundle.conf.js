@@ -33,6 +33,7 @@ module.exports = function(config) {
     files: [
       path.resolve(__dirname, "../node_modules/es5-shim/es5-shim.js"),
       path.resolve(__dirname, "../node_modules/es5-shim/es5-sham.js"),
+      path.resolve(__dirname, "../node_modules/quixote/dist/quixote.js"),
       {pattern: path.resolve(__dirname, "../intermediate/bootstrap.js"), included: true, served: true, nocache: true},
 
       // these files will be served on demand from disk

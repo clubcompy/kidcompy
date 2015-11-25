@@ -109,12 +109,16 @@ function configureCustomModuleLoaders(config, options) {
     { test: /\.ejs$/, loader: "ejs" }
   );
 
+  config.sassLoader = {
+    includePaths: [ path.resolve(__dirname, "../node_modules") ]
+  };
+
   // the SASS loader in test mode simply bundles the SASS into the script.  Non-test builds emit them to standalone CSS
   if(options.isRunningTests) {
     /* .scss : SASS file encoded into scripts that can be reloaded */
     config.module.loaders.push({
       test: /\.scss$/,
-      loader: "style!css!sass?outputStyle=expanded&includePaths[]=" + path.resolve(__dirname, "../node_modules")
+      loader: "style!css!sass?outputStyle=expanded"
     });
   }
   else {
@@ -122,8 +126,7 @@ function configureCustomModuleLoaders(config, options) {
     config.module.loaders.push({
       test: /\.scss$/,
       loader: "style/url?limit=0!file?name=css/[name].css?[hash]!sass?outputStyle=" +
-              (options.isProductionBundle ? "compressed" : "expanded") + "&includePaths[]=" +
-              path.resolve(__dirname, "../node_modules")
+              (options.isProductionBundle ? "compressed" : "expanded")
     });
   }
 }
@@ -278,21 +281,21 @@ function configureWebpackPlugins(config, options) {
 }
 
 /**
- * @param {Object} options
- * @param {Array.<string>} options.moduleEntryPoints js modules that serve as entry points to the generated webpack bundle
- * @param {string} options.outputModuleName name of the outputted module that represents the moduleEntryPoints
- * @param {string} options.outputPath absolute path to folder where module should be written, if necessary
+ * @param {!Object} options
+ * @param {Array.<string>=} options.moduleEntryPoints js modules that serve as entry points to the generated webpack bundle
+ * @param {string=} options.outputModuleName name of the outputted module that represents the moduleEntryPoints
+ * @param {string=} options.outputPath absolute path to folder where module should be written, if necessary
  * @param {string} options.outputFilename filename or filename pattern of module that should be written
- * @param {string} options.outputChunkFilename name of chunk files that are written
+ * @param {string=} options.outputChunkFilename name of chunk files that are written
  * @param {boolean} [options.emitSingleChunk=false] when true, all chunks are merged into a single output file.  When
  *        false, more than one JavaScript chunk file may be emitted if webpack wants
- * @param {boolean} options.enableSourceMaps
- * @param {boolean} options.isProductionBundle
- * @param {boolean} options.areBundlesSplit
- * @param {boolean} options.isRunningTests
- * @param {boolean} options.isLintingCode
- * @param {boolean} options.isGeneratingCoverage
- * @param {boolean} options.isHotReloading
+ * @param {boolean=} options.enableSourceMaps
+ * @param {boolean=} options.isProductionBundle
+ * @param {boolean=} options.areBundlesSplit
+ * @param {boolean=} options.isRunningTests
+ * @param {boolean=} options.isLintingCode
+ * @param {boolean=} options.isGeneratingCoverage
+ * @param {boolean=} options.isHotReloading
  * @returns {Object} webpack configuration object
  */
 function configureWebpack(options) {

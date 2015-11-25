@@ -1,9 +1,14 @@
 Todos
 =====
+- Refactor Playfield and Flipbuffer constructors to take a map of options rather than a big honking parameter list
+- Set css class for flipbuffer and playfield so that canvases are clipped and playfields stack
 - Paint colored rectangles on Playfield, scroll (by character width), handle wrapping, automatic clearing, etc
   - basic unscrolled rectangle rendering is done.  Add scrolling and render rectangles across canvii boundaries
   - Activate code on the harness and have a fun tech demo
 - Start the character generator code, try to render a lower-case 'a'
+- After character generator code is in and we have a character printing routine, need to implement scrolling
+  - scroll in all directions one character at a time
+  - clear rows and columns that scroll onto the screen before scrolling by tagging a space at that spot.
 - Write tests for the methods we are using in SystemProperties.js
 - The default SystemProperties seem incorrectly set in SystemProperties.js, can the setProperty calls
   in the constructor be moved to modules that would use those particular properties?

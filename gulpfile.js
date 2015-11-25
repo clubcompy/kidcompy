@@ -23,28 +23,16 @@
 var path = require("path"),
   fs = require("fs"),
   gulp = require("gulp"),
-  URI = require("urijs"),
-  jsonSass = require("gulp-json-sass"),
   rm = require("gulp-rm"),
   execFileSync = require("child_process").execFileSync,
   spawn = require("child_process").spawn,
   hostPlatform = require("os").platform(),
-  karma = require("karma"),
-  webpack = require("webpack"),
-  WebpackDevServer = require("webpack-dev-server"),
-  webpackStream = require("webpack-stream"),
   runSequence = require("run-sequence"),
-  FirefoxProfile = require("firefox-profile"),
-  wd = require("wd"),
-  selenium = require("selenium-standalone"),
   finalHandler = require("finalhandler"),
   http = require("http"),
-  serveStatic = require("serve-static"),
   named = require("vinyl-named"),
-  configureWebpack = require("./etc/configureWebpack"),
   configureClosureCompiler = require("./etc/configureClosureCompiler"),
   sorcery = require("sorcery"),
-  download = require("gulp-download"),
   unzip = require("gulp-unzip"),
   flatten = require("gulp-flatten"),
   minimatch = require("minimatch"),
@@ -325,6 +313,10 @@ gulp.task("clean", function(done) {
 });
 
 gulp.task("bootstrap-testing-production-bundle", [ "json-to-scss" ], function() {
+  var webpack = require("webpack"),
+    configureWebpack = require("./etc/configureWebpack"),
+    webpackStream = require("webpack-stream");
+
   return gulp.src([ "./lib/bootstrap/testingMain.js" ])
     .pipe(named()) // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
     .pipe(webpackStream(configureWebpack({
@@ -337,6 +329,10 @@ gulp.task("bootstrap-testing-production-bundle", [ "json-to-scss" ], function() 
 });
 
 gulp.task("bootstrap-production-bundle", [ "json-to-scss" ], function() {
+  var webpack = require("webpack"),
+    configureWebpack = require("./etc/configureWebpack"),
+    webpackStream = require("webpack-stream");
+
   return gulp.src([ "./lib/bootstrap/main.js" ])
     .pipe(named()) // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
     .pipe(webpackStream(configureWebpack({
@@ -388,6 +384,10 @@ function resolveGlobs(globs, done) {
 }
 
 gulp.task("ie-polyfill-production-bundle", function() {
+  var webpack = require("webpack"),
+    configureWebpack = require("./etc/configureWebpack"),
+    webpackStream = require("webpack-stream");
+
   return gulp.src([ "./lib/iePolyfill/main.js" ])
     .pipe(named()) // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
     .pipe(webpackStream(configureWebpack({
@@ -400,6 +400,10 @@ gulp.task("ie-polyfill-production-bundle", function() {
 });
 
 gulp.task("html5-polyfill-production-bundle", function() {
+  var webpack = require("webpack"),
+    configureWebpack = require("./etc/configureWebpack"),
+    webpackStream = require("webpack-stream");
+
   return gulp.src([ "./lib/html5Polyfill/main.js" ])
     .pipe(named()) // vinyl-named endows each file in the src array with a webpack entry whose key is the filename sans extension
     .pipe(webpackStream(configureWebpack({
@@ -485,6 +489,8 @@ gulp.task("kidcompy-cc-config", function(done) {
 });
 
 gulp.task("production-bundle-tests", function(done) {
+  var karma = require("karma");
+
   karma.server.start({
     configFile: __dirname + "/etc/karma.prodBundle.conf.js",
     singleRun: true,
@@ -493,6 +499,8 @@ gulp.task("production-bundle-tests", function(done) {
 });
 
 gulp.task("unit-watcher", [ "json-to-scss" ], function(done) {
+  var karma = require("karma");
+
   karma.server.start({
     configFile: __dirname + "/etc/karma.unit.conf.js",
     singleRun: false,
@@ -501,6 +509,8 @@ gulp.task("unit-watcher", [ "json-to-scss" ], function(done) {
 });
 
 gulp.task("unit-single", [ "json-to-scss" ], function(done) {
+  var karma = require("karma");
+
   karma.server.start({
     configFile: __dirname + "/etc/karma.unit.conf.js",
     singleRun: true,
@@ -509,6 +519,8 @@ gulp.task("unit-single", [ "json-to-scss" ], function(done) {
 });
 
 gulp.task("integration-watcher", [ "json-to-scss" ], function(done) {
+  var karma = require("karma");
+
   karma.server.start({
     configFile: __dirname + "/etc/karma.integrationAndCoverage.conf.js",
     singleRun: false,
@@ -517,6 +529,8 @@ gulp.task("integration-watcher", [ "json-to-scss" ], function(done) {
 });
 
 gulp.task("integration-single", [ "json-to-scss" ], function(done) {
+  var karma = require("karma");
+
   karma.server.start({
     configFile: __dirname + "/etc/karma.integrationAndCoverage.conf.js",
     singleRun: true,
@@ -525,6 +539,8 @@ gulp.task("integration-single", [ "json-to-scss" ], function(done) {
 });
 
 gulp.task("production-mode-integration-single", [ "json-to-scss" ], function(done) {
+  var karma = require("karma");
+
   karma.server.start({
     configFile: __dirname + "/etc/karma.prodIntegrationAndCoverage.conf.js",
     singleRun: true,
@@ -533,6 +549,8 @@ gulp.task("production-mode-integration-single", [ "json-to-scss" ], function(don
 });
 
 gulp.task("production-mode-integration-watcher", [ "json-to-scss" ], function(done) {
+  var karma = require("karma");
+
   karma.server.start({
     configFile: __dirname + "/etc/karma.prodIntegrationAndCoverage.conf.js",
     singleRun: false,
@@ -653,7 +671,8 @@ gulp.task("start-selenium", function() {
 
 gulp.task("start-harness-content", function() {
   // Serve up harnessContent folder
-  var serve = serveStatic("./harnessContent", { index: [ "index.html", "index.htm" ]}),
+  var serveStatic = require("serve-static"),
+    serve = serveStatic("./harnessContent", { index: [ "index.html", "index.htm" ]}),
 
     // Create server
     server = http.createServer(function(req, res) {
@@ -670,7 +689,9 @@ gulp.task("start-harness-content", function() {
 
 gulp.task("start-production-harness-content", function() {
   // Serve up harnessContent folder
-  var serveHarnessContent = serveStatic("./harnessContent", { index: [ "index.html", "index.htm" ]}),
+  var URI = require("urijs"),
+    serveStatic = require("serve-static"),
+    serveHarnessContent = serveStatic("./harnessContent", { index: [ "index.html", "index.htm" ]}),
     serveHarnessCode = serveStatic("./dist"),
     serveFirebugLite = serveStatic("./etc"),
     firebugLiteContentFilePath,
@@ -720,7 +741,10 @@ gulp.task("start-production-harness-content", function() {
 });
 
 gulp.task("start-harness-server", [ "json-to-scss" ], function(callback) {
-  var server;
+  var server,
+    webpack = require("webpack"),
+    configureWebpack = require("./etc/configureWebpack"),
+    WebpackDevServer = require("webpack-dev-server");
 
   server = new WebpackDevServer(
     webpack(
@@ -785,7 +809,10 @@ gulp.task("start-harness-server", [ "json-to-scss" ], function(callback) {
 gulp.task("spawn-harness-browser", function() {
   // set some userPrefs if needed
   // Note: make sure you call encoded() after setting some userPrefs
-  var fp = new FirefoxProfile(),
+  var wd = require("wd"),
+    FirefoxProfile = require("firefox-profile"),
+
+    fp = new FirefoxProfile(),
     browser = wd.promiseChainRemote();
 
   fp.setPreference("devtools.cache.disabled", true);
@@ -895,6 +922,8 @@ gulp.task("jsdoc-dev-docs", function(done) {
 });
 
 gulp.task("json-to-scss", function() {
+  var jsonSass = require("gulp-json-sass");
+
   return gulp
     .src("./lib/styles/styleVars.json")
     .pipe(jsonSass({
@@ -938,6 +967,8 @@ gulp.task("install-prereqs", function(done) {
 });
 
 gulp.task("install-selenium", function(done) {
+  var selenium = require("selenium-standalone");
+
   selenium.install({
     /**
      * Simple echo logger
@@ -958,6 +989,8 @@ gulp.task("install-selenium", function(done) {
 });
 
 gulp.task("install-closure-compiler", function() {
+  var download = require("gulp-download");
+
   return download("http://dl.google.com/closure-compiler/compiler-latest.zip")
     .pipe(unzip({
       /**
@@ -974,6 +1007,8 @@ gulp.task("install-closure-compiler", function() {
 });
 
 gulp.task("install-closure-library", function() {
+  var download = require("gulp-download");
+
   return download("https://github.com/google/closure-library/archive/master.zip")
     .pipe(unzip({
       /**

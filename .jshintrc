@@ -101,6 +101,7 @@
     "JSON": false,
     "featureFlags": false,
     "kidcompy": false,
+    "quixote": false,
     "ActiveXObject": false,
     "GIT_USERNAME": false,
     "PRODUCTION_MODE": false,

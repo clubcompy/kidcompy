@@ -23,9 +23,6 @@
 var path = require("path"),
   fs = require("fs"),
   gulp = require("gulp"),
-  rm = require("gulp-rm"),
-  execFileSync = require("child_process").execFileSync,
-  spawn = require("child_process").spawn,
   hostPlatform = require("os").platform(),
   runSequence = require("run-sequence"),
   finalHandler = require("finalhandler"),
@@ -40,9 +37,6 @@ var path = require("path"),
   uglifyJs = require("uglify-js"),
   computeDefinedConstants = require("./etc/computeDefinedConstants"),
   readline = require("readline"),
-
-  runningSelenium = null,
-  runningHarnessBrowser = null,
 
   closureCompilerConfig = {},
   finalInputOutputMap = {},
@@ -111,8 +105,7 @@ gulp.task("build", function(done) {
 
 gulp.task("dev", function(done) {
   return runSequence(
-    [ "force-termination-after-sigint" ],
-    [ "start-selenium", "start-harness-content" ],
+    [ "start-harness-content" ],
     [ "start-harness-server" ],
     [ "spawn-harness-browser", "unit-watcher" ],
     done
@@ -121,8 +114,7 @@ gulp.task("dev", function(done) {
 
 gulp.task("integration", function(done) {
   return runSequence(
-    [ "force-termination-after-sigint" ],
-    [ "start-selenium", "start-harness-content" ],
+    [ "start-harness-content" ],
     [ "start-harness-server" ],
     [ "spawn-harness-browser", "integration-watcher" ],
     done
@@ -132,8 +124,7 @@ gulp.task("integration", function(done) {
 gulp.task("production-harness", function(done) {
   return runSequence(
     [ "build" ],
-    [ "force-termination-after-sigint" ],
-    [ "start-selenium", "start-production-harness-content" ],
+    [ "start-production-harness-content" ],
     [ "spawn-harness-browser" ],
     done
   );
@@ -150,7 +141,9 @@ gulp.task("closure-compiler", function(done) {
 });
 
 gulp.task("launch-closure-compiler", function(done) {
-  var tmp = require("tmp"),
+  var spawn = require("child_process").spawn,
+    execFileSync = require("child_process").execFileSync,
+    tmp = require("tmp"),
     i, ii,
     paramName,
     paramValue,
@@ -295,11 +288,15 @@ gulp.task("minify-closure-compiler-output", function() {
 });
 
 gulp.task("del-files", function() {
+  var rm = require("gulp-rm");
+
   return gulp.src([ "./intermediate/**/*", "./dist/**/*", "./lib/constantExterns.js" ])
     .pipe(rm());
 });
 
 gulp.task("del-folders", function() {
+  var rm = require("gulp-rm");
+
   return gulp.src([ "./intermediate", "./dist" ])
     .pipe(rm());
 });
@@ -558,117 +555,6 @@ gulp.task("production-mode-integration-watcher", [ "json-to-scss" ], function(do
   }, done);
 });
 
-/* Try to gracefully shutdown the harness browser and selenium server if user hits ctrl-c because
-   those things don't appear to happen automatically. */
-gulp.task("force-termination-after-sigint", function() {
-  /**
-   * Shutdown the harness browser
-   *
-   * @param {Function} onComplete
-   */
-  function stopHarnessBrowser(onComplete) {
-    /**
-     * Stop the selenium server after the browser close is complete
-     */
-    function chainCompletion() {
-      stopSeleniumServer(onComplete);
-    }
-
-    if(runningHarnessBrowser) {
-      try {
-        runningHarnessBrowser.quit(chainCompletion);
-      }
-      catch(e) {
-        chainCompletion();
-      }
-      finally {
-        runningHarnessBrowser = null;
-      }
-    }
-    else {
-      chainCompletion();
-    }
-  }
-
-  /**
-   * Kills the selenium server and calls the onComplete callback when that is through
-   *
-   * @param {Function} onComplete
-   */
-  function stopSeleniumServer(onComplete) {
-    if(runningSelenium) {
-      try {
-        runningSelenium.kill();
-      }
-      catch(e) {
-      }
-      finally {
-        runningSelenium = null;
-      }
-    }
-
-    if(onComplete) {
-      onComplete();
-    }
-  }
-
-  /**
-   * Closes the harness browser and selenium server on non-windows hosts and only kills the selenium server on windows
-   *
-   * @param {Function} onComplete
-   */
-  function quitHandler(onComplete) {
-    // windows does not give us any grace period during SIGINT to shutdown the harness browser before hard killing
-    // our parent process, so we'll just leave the harness browser running on that platform.  Sorry Windows devs!
-    if(platformIsWindows) {
-      stopSeleniumServer(onComplete);
-    }
-    else {
-      stopHarnessBrowser(onComplete);
-    }
-  }
-
-  /**
-   * Callback called when user hits ctrl-c on the gulp process
-   */
-  function sigintHandler() {
-    quitHandler(function() {
-      process.exit();
-    });
-  }
-
-  process.on("quit", quitHandler);
-  process.on("SIGINT", sigintHandler);
-});
-
-gulp.task("start-selenium", function() {
-  runningSelenium = spawn("node", [ "./selenium-standalone", "start", "-timeout", 0x7fffffff ], {
-    cwd: "./node_modules/selenium-standalone/bin",
-    stdio: "ignore",
-    detached: true
-  });
-
-  runningSelenium.on("close", function(code) {
-    if(code) {
-      console.log("Exited with code: " + code);
-      console.log(" ");
-      console.log("    **************************************** README ****************************************");
-      console.log("    *                                                                                      *");
-      console.log("    * 'gulp start-selenium' failed.  This could be a legit failure or it could be that     *");
-      console.log("    * selenium hasn't been installed.  If you haven't already, run 'gulp install-selenium' *");
-      console.log("    * to download and install selenium for this project on this computer and try again.    *");
-      console.log("    *                                                                                      *");
-      console.log("    ****************************************************************************************");
-      console.log(" ");
-      console.log(" ");
-    }
-
-    if(typeof process.quit === "function") {
-      process.quit();
-    }
-  });
-});
-
 gulp.task("start-harness-content", function() {
   // Serve up harnessContent folder
   var serveStatic = require("serve-static"),
@@ -807,43 +693,10 @@ gulp.task("start-harness-server", [ "json-to-scss" ], function(callback) {
 });
 
 gulp.task("spawn-harness-browser", function() {
-  // set some userPrefs if needed
-  // Note: make sure you call encoded() after setting some userPrefs
-  var wd = require("wd"),
-    FirefoxProfile = require("firefox-profile"),
+  var spawn = require("child_process").spawn,
+    ps;
 
-    fp = new FirefoxProfile(),
-    browser = wd.promiseChainRemote();
-
-  fp.setPreference("devtools.cache.disabled", true);
-  fp.setPreference("devtools.appmanager.enabled", true);
-  fp.setPreference("devtools.toolbox.selectedTool", "jsdebugger");
-  fp.setPreference("devtools.debugger.enabled", true);
-  fp.setPreference("devtools.debugger.chrome-enabled", true);
-  fp.setPreference("devtools.netmonitor.enabled", true);
-  fp.setPreference("devtools.inspector.enabled", true);
-  fp.setPreference("devtools.toolbar.enabled", true);
-
-  fp.setPreference("datareporting.healthreport.service.firstRun", true);
-  fp.setPreference("datareporting.healthreport.uploadEnabled", false);
-  fp.setPreference("browser.rights.3.shown", true);
-
-  // done with prefs?
-  fp.updatePreferences();
-
-  // you can install multiple extensions at the same time
-  fp.addExtensions([ ], function() {
-    fp.encoded(function(zippedProfile) {
-      runningHarnessBrowser =
-        browser.init({
-          browserName: "firefox",
-          firefox_profile: zippedProfile
-        })
-        .get("http://localhost:8080/index.html")
-        .maximize()
-        .setAsyncScriptTimeout(1000);
-    });
-  });
+  ps = spawn("xdg-open", [ "http://localhost:8080/index.html" ], { detached: true });
 });
 
 /**
@@ -853,7 +706,8 @@ gulp.task("spawn-harness-browser", function() {
  * @param {Function} callback completion callback
  */
 function callJsdoc(srcGlobPatterns, params, callback) {
-  var srcFiles = gulp.src(srcGlobPatterns),
+  var spawn = require("child_process").spawn,
+    srcFiles = gulp.src(srcGlobPatterns),
     fileList = [];
 
   srcFiles.on("readable", function() {
@@ -961,31 +815,8 @@ gulp.task("install-prereqs", function(done) {
   return runSequence(
     [ "install-closure-compiler" ],
     [ "install-closure-library" ],
-    [ "install-selenium" ],
     done
   );
-});
-
-gulp.task("install-selenium", function(done) {
-  var selenium = require("selenium-standalone");
-
-  selenium.install({
-    /**
-     * Simple echo logger
-     *
-     * @param {*} message
-     */
-    logger: function(message) {
-      console.log(message);
-    }
-  }, function(error) {
-    if(error) {
-      done(error);
-    }
-    else {
-      done();
-    }
-  });
 });
 
 gulp.task("install-closure-compiler", function() {

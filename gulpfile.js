@@ -693,10 +693,9 @@ gulp.task("start-harness-server", [ "json-to-scss" ], function(callback) {
 });
 
 gulp.task("spawn-harness-browser", function() {
-  var spawn = require("child_process").spawn,
-    ps;
+  var opn = require("opn");
 
-  ps = spawn("xdg-open", [ "http://localhost:8080/index.html" ], { detached: true });
+  opn("http://localhost:8080/index.html", { app: [ "firefox", "--private-window" ]});
 });
 
 /**

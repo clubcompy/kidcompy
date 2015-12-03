@@ -31,13 +31,14 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ["mocha", "proclaim", "sinon"],
+    frameworks: ["mocha", "proclaim", "sinon", "quixote"],
 
     plugins: [
       require("karma-webpack"),
       require("karma-mocha"),
       require("karma-mocha-reporter"),
       require("karma-proclaim"),
+      require("karma-quixote"),
       require("karma-sinon-ie"),
       require("karma-firefox-launcher"),
       require("karma-sourcemap-loader"),
@@ -73,7 +74,6 @@ module.exports = function(config) {
     files: [
       path.resolve(__dirname, "../node_modules/es5-shim/es5-shim.js"),
       path.resolve(__dirname, "../node_modules/es5-shim/es5-sham.js"),
-      path.resolve(__dirname, "../node_modules/quixote/dist/quixote.js"),
       path.resolve(__dirname, "../lib/**/*.spec.js"),
       path.resolve(__dirname, "../lib/**/*.comp.js")
     ],

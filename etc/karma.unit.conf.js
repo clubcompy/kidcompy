@@ -33,7 +33,6 @@ module.exports = function(config) {
     files: [
       path.resolve(__dirname, "../node_modules/es5-shim/es5-shim.js"),
       path.resolve(__dirname, "../node_modules/es5-shim/es5-sham.js"),
-      path.resolve(__dirname, "../node_modules/quixote/dist/quixote.js"),
       {pattern: path.resolve(__dirname, "../lib/bootstrap/testingMain.js"), included: true, served: true, nocache: true},
 
       path.resolve(__dirname, "../lib/**/*.spec.js"),

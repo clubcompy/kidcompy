@@ -111,7 +111,9 @@
   "requireKeywordsOnNewLine": ["else"],
   "requireLineBreakAfterVariableAssignment": true,
   "requireLineFeedAtFileEnd": true,
-  "requireMultipleVarDecl": "onevar",
+  "requireMultipleVarDecl": {
+    "allExcept": ["require"]
+  },
   "requireNamedUnassignedFunctions": null,
   "requireNewlineBeforeBlockStatements": null,
   "requireOperatorBeforeLineBreak": true,

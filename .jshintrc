@@ -19,7 +19,7 @@
   "nonew"         : true,     // true: Prohibit use of constructors for side-effects (without assignment)
   "nonbsp"        : true,     // true: warns about "non-breaking whitespace" characters
   "undef"         : true,     // true: Require all non-global variables to be declared (prevents global leaks)
-  "unused"        : "vars",   // Warns when you define and never use your variables
+  "unused"        : false,    // Warns when you define and never use your variables
     // true: Require all defined variables be used
     // "vars": only check for variables, not function parameters
     // "strict": check all variables and parameters

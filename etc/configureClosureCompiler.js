@@ -100,8 +100,7 @@ function configureClosureCompiler(projectRoot, options) {
                  " * @externs\n" +
                  " */\n\n" +
                  "// jshint -W079\n" +
-                 "// jshint -W098\n" +
-                 "// jscs:disable requireMultipleVarDecl\n\n";
+                 "// jshint -W098\n\n";
 
   constantNamespaces = {};
   for(constantName in constants) {

@@ -15,7 +15,7 @@
   "disallowCommaBeforeLineBreak": null,
   "disallowCurlyBraces": null,
   "disallowDanglingUnderscores": true,
-  "disallowEmptyBlocks": true,
+  "disallowEmptyBlocks": { "allExcept": [ "comments" ] },
   "disallowFunctionDeclarations": null,
   "disallowIdentifierNames": ["temp", "tmp", "foo"],
   "disallowImplicitTypeConversion": ["binary"],

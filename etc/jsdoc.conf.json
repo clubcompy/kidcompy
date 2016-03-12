@@ -10,6 +10,8 @@
     "lenient": true
   },
 
+  "plugins": ["plugins/markdown"],
+
   "templates": {
     "cleverLinks": false,
     "monspaceLinks": false,

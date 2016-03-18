@@ -18,7 +18,9 @@
 
 "use strict";
 
-var ElapsedTime = require("elapsed-time");
+// var moment = require("../node_modules/moment/moment");
+
+require("./expect"); // loads the global namespace with 'expect' so that all tests have access to it
 
 /*
  * Root hooks that are installed before all tests
@@ -30,15 +32,19 @@ before(function(done) {
   // need to pause mocha for kidcompy's onCodeGo event to fire.  This ensures that all the scripts have loaded AND
   // inited before we attempt to run our tests
   kidcompy.lifecycleEvents.addOnCodeGoHandler(function() {
-    var stopwatch = (new ElapsedTime()).start();
+    var startQuixoteTime = Date.now();
 
     // create the quixote frame
     kidcompy.quixoteFrame = quixote.createFrame({
       stylesheet: require("!url?limit=1&mimeType=text/css&name=[name].css?[hash]" +
                           "!text-webpack" +
-                          "!sass?outputStyle=expanded!../lib/styles/kidcompy.scss")
+                          "!sass?outputStyle=expanded!../../lib/styles/kidcompy.scss")
     }, function() {
-      kidcompy.log("quixote frame inited in " + stopwatch.getValue());
+      var endQuixoteTime = Date.now();
+
+      // kidcompy.log("quixote frame inited in " + (endQuixoteTime - startQuixoteTime) + " msec");
+
+      kidcompy.log("Test Run: " + (new Date()).toDateString());
 
       done();
     });
@@ -53,5 +59,5 @@ after(function() {
 
 // this is just here to get the before() hook above to trigger
 it("starts with one test", function() {
-  proclaim.isTrue(true, "yeah, it passes");
+  expect.isTrue(true, "yeah, it passes");
 });

@@ -19,21 +19,34 @@
 "use strict";
 
 var path = require("path"),
+  _ = require("lodash"),
   fs = require("fs"),
   URI = require("urijs"),
   computeDefinedConstants = require("./computeDefinedConstants");
 
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 
+function removeFilePathExtension(filePath) {
+  var groups = /^(.*)\.[a-zA-Z]+$/.exec(filePath);
+
+  return groups[1];
+}
+
+function removeFilePathFilename(filePath) {
+  var groups = /^(.*)\/[^\/]+$/.exec(filePath);
+
+  return groups[1];
+}
+
 /**
  * Build the closure compiler config object
  *
- * @param {string} projectRoot absolute path to the root folder for this project
  * @param {Object} options
  * @param {boolean} options.isProductionBundle
  * @param {boolean} options.areBundlesSplit
+ * @param {string} options.entryPoint
  * @param {Array.<string>} options.sourceFiles source files
- * @param {Array.<string>} options.sourceFolder the folder for the file in options.sourceFiles[0]
+ * @param {string} options.sourceFolder the common root folder of the project sources, can be relative or absolute
  * @param {string} options.targetFolder destination folder to write files out to
  * @param {string?} options.sourceMap closure compiler source map if there is one
  * @param {string} options.outputFile intermediate file saved to options.targetFolder that will host the closure
@@ -42,7 +55,7 @@ var path = require("path"),
  *        built from options.outputFile
  * @returns {Object} closure compiler config object for the gulp-closure-compiler
  */
-function configureClosureCompiler(projectRoot, options) {
+function configureClosureCompiler(options) {
   var i, ii,
     constants = computeDefinedConstants(options),
     constantName,
@@ -59,7 +72,7 @@ function configureClosureCompiler(projectRoot, options) {
 
   for(i = 0, ii = options.sourceFiles.length; i < ii; i++) {
     sourceFileUri = new URI(options.sourceFiles[i]);
-    sourceMapLocationMappings.push(options.sourceFiles[i] + "|" + path.relative(options.sourceFiles[i], projectRoot));
+    sourceMapLocationMappings.push(options.sourceFiles[i] + "|" + path.relative(options.sourceFiles[i], absoluteSourceFolder));
   }
 
   config = {
@@ -71,17 +84,19 @@ function configureClosureCompiler(projectRoot, options) {
       compilation_level: "ADVANCED_OPTIMIZATIONS",
       language_in: "ECMASCRIPT6_STRICT",
       language_out: "ECMASCRIPT3",
-      manage_closure_dependencies: null,
       process_common_js_modules: null,
-      common_js_entry_module: path.resolve(options.sourceFiles[0]),
-      common_js_module_path_prefix: path.resolve(__dirname),
+      dependency_mode: "LOOSE",
+      /** entry_point is a js_module_root-relative path to the main module */
+      entry_point: options.entryPoint,
+      /** js_module_root is an absolute path to the common root project folder under which all src and intermediate javascript sources live */
+      js_module_root: absoluteSourceFolder,
       create_source_map: options.outputFile + ".map",
       source_map_location_mapping: sourceMapLocationMappings,
       jscomp_off: "deprecatedAnnotations",
       use_types_for_optimization: null,
       warning_level: "VERBOSE",
       formatting: "PRETTY_PRINT",
-      extra_annotation_name: ["module" ,"namespace", "category", "alias"],
+      extra_annotation_name: ["module" ,"namespace", "category", "alias", "abstract"],
       output_wrapper: "\"(function(){%output%}).call(window);//# sourceMappingURL=" + options.outputFile + ".map\"",
       externs: [ path.resolve("./lib/externs.js"),
                  path.resolve("./lib/testingExterns.js"),
@@ -150,6 +165,9 @@ function configureClosureCompiler(projectRoot, options) {
 
   // tack on the closure library base.js so that closureCompiler has the goog symbol it requires
   config.sourceFiles.push(path.resolve("./etc/closureCompiler/closure-library-master/closure/goog/base.js"));
+
+  // make sure only unique filePaths are found in config.sourceFiles
+  config.sourceFiles = _.uniq(config.sourceFiles);
 
   config.sourceFolder = absoluteSourceFolder;
   config.targetFolder = absoluteTargetFolder;

@@ -20,7 +20,8 @@
 
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 
-var path = require("path"),
+var _ = require("lodash"),
+  path = require("path"),
   fs = require("fs"),
   gulp = require("gulp"),
   hostPlatform = require("os").platform(),
@@ -159,7 +160,7 @@ gulp.task("launch-closure-compiler", function(done) {
       if(paramValue === null) {
         params.push("--" + paramName);
       }
-      else if(Object.prototype.toString.call(paramValue) === "[object Array]") {
+      else if(_.isArray(paramValue)) {
         for(i = 0, ii = paramValue.length; i < ii; i++) {
           params.push("--" + paramName);
           params.push(paramValue[i]);
@@ -183,7 +184,7 @@ gulp.task("launch-closure-compiler", function(done) {
   params.push(closureCompilerConfig.fileName);
 
   // print the version of the Closure Compiler we're running with
-  console.log(execFileSync("java", ["-jar", closureCompilerConfig.compilerPath, "--version"]).toString("utf-8"));
+  console.log(execFileSync("java", ["-jar", closureCompilerConfig.compilerPath, "--help"]).toString("utf-8"));
 
   // build a response file from the passed params
   var responseFileName = tmp.tmpNameSync({ template: closureCompilerConfig.targetFolder + '/closureCompiler-XXXXXX' });
@@ -242,7 +243,8 @@ gulp.task("launch-closure-compiler", function(done) {
 
   ccProcess.on("close", function(code) {
     if(code) {
-      console.log("Error: " + code);
+      console.log("Closure Compiler errored out with exit code " + code);
+      process.exit(code);
     }
 
     // delete the response file if we can
@@ -342,41 +344,57 @@ gulp.task("bootstrap-production-bundle", [ "json-to-scss" ], function() {
 });
 
 /**
+ * @param {string} glob
+ * @returns {Promise}
+ */
+function resolveGlobPromise(glob) {
+  return new Promise(function(resolve) {
+    var globFiles = [],
+      srcFiles = gulp.src(_.isArray(glob) ? glob : [ glob ]);
+
+    srcFiles.on("readable", function() {
+      var vinylFile;
+
+      while((vinylFile = srcFiles.read()) !== null) {
+        if(globFiles.indexOf(vinylFile) < 0) {
+          globFiles.push(vinylFile.path);
+        }
+      }
+    }).on("end", function() {
+      // now sort tests to the end of the list
+      var i,
+        testFiles = [],
+        allFiles = [],
+        isTestRegex = /\.(spec|system|integration)\./;
+
+      for(i = globFiles.length; i--;) {
+        if(isTestRegex.test(globFiles[i])) {
+          testFiles.push(globFiles[i]);
+          globFiles.splice(i, 1);
+        }
+      }
+
+      allFiles.push.apply(allFiles, globFiles);
+      allFiles.push.apply(allFiles, testFiles);
+
+      resolve(allFiles);
+    });
+  });
+}
+
+/**
  * resolve glob patterns to absolute files, dupes are removed
  *
  * @param {Array.<string>} globs
  * @param {function(Array.<string>)} done callback called with resolved globFiles with dupes removed
  */
 function resolveGlobs(globs, done) {
-  var globFiles = [],
-    srcFiles = gulp.src(globs);
+  var resolvePromises = _.map(globs, function(glob) {
+    return resolveGlobPromise(glob);
+  });
 
-  srcFiles.on("readable", function() {
-    var vinylFile;
-
-    while((vinylFile = srcFiles.read()) !== null) {
-      if(globFiles.indexOf(vinylFile) < 0) {
-        globFiles.push(vinylFile.path);
-      }
-    }
-  }).on("end", function() {
-    // now sort tests to the end of the list
-    var i,
-      testFiles = [],
-      allFiles = [],
-      isTestRegex = /\.(spec|system|integration)\./;
-
-    for(i = globFiles.length; i--;) {
-      if(isTestRegex.test(globFiles[i])) {
-        testFiles.push(globFiles[i]);
-        globFiles.splice(i, 1);
-      }
-    }
-
-    allFiles.push.apply(allFiles, testFiles);
-    allFiles.push.apply(allFiles, globFiles);
-
-    done(allFiles);
+  Promise.all(resolvePromises).then(function(values) {
+    done(_.uniq(_.flatten(values)));
   });
 }
 
@@ -421,30 +439,51 @@ gulp.task("kidcompy-testing-production-bundle", function(done) {
 });
 
 gulp.task("kidcompy-testing-cc-config", function(done) {
-  resolveGlobs(["./lib/kidcompy/main.js", "./lib/kidcompy/**/*.js", "./lib/symbols/**/*.js",
-                "./node_modules/lodash-compat/support.js",
-                "./node_modules/lodash-compat/internal/isLength.js",
-                "./node_modules/lodash-compat/internal/createBaseEach.js",
-                "./node_modules/lodash-compat/chain/*.js",
-                "./node_modules/lodash-compat/string/*.js",
-                "./node_modules/lodash-compat/date/*.js",
-                "./node_modules/lodash-compat/internal/*.js",
-                "./node_modules/lodash-compat/function/*.js",
-                "./node_modules/lodash-compat/array/*.js",
-                "./node_modules/lodash-compat/object/*.js",
-                "./node_modules/lodash-compat/utility/*.js",
-                "./node_modules/lodash-compat/lang/*.js"], function(srcFiles) {
-    closureCompilerConfig = configureClosureCompiler(gulpFolder, {
-      isProductionBundle: true,
-      areBundlesSplit: true,
-      sourceFiles: srcFiles,
-      sourceFolder: "./lib/kidcompy",
-      targetFolder: "intermediate",
-      outputFile: "kidcompy.closureCompiler.js",
-      minifiedFile: "kidcompy.js"
-    });
+  resolveGlobs(["./lib/kidcompy/main.js", "./lib/kidcompy/**/*.spec.js", "./lib/kidcompy/**/*.integration.js",
+                "./lib/kidcompy/**/*.system.js"], function(testFiles) {
+    var includeAll = "",
+      fileAndPath,
+      i, ii;
 
-    done();
+    for(i = 0, ii = testFiles.length; i < ii; i++) {
+      fileAndPath = /^(.*)\.js$/.exec(testFiles[i]);
+      includeAll += "require('" + path.resolve(fileAndPath[1]) + "');\n";
+    }
+
+    var includeAllTestsFileName = './intermediate/includeAllTests.spec.js';
+    fs.writeFileSync(includeAllTestsFileName, includeAll);
+
+    resolveGlobs([includeAllTestsFileName,
+      "./lib/kidcompy/**/*.js",
+      "./lib/symbols/**/*.js",
+      "./node_modules/moment/moment.js",
+      "./node_modules/lodash-compat/support.js",
+      "./node_modules/lodash-compat/internal/isLength.js",
+      "./node_modules/lodash-compat/internal/createBaseEach.js",
+      "./node_modules/lodash-compat/chain/*.js",
+      "./node_modules/lodash-compat/string/*.js",
+      "./node_modules/lodash-compat/date/*.js",
+      "./node_modules/lodash-compat/internal/*.js",
+      "./node_modules/lodash-compat/function/*.js",
+      "./node_modules/lodash-compat/array/*.js",
+      "./node_modules/lodash-compat/object/*.js",
+      "./node_modules/lodash-compat/utility/*.js",
+      "./node_modules/lodash-compat/lang/*.js",
+      "./node_modules/lodash-compat/math/*.js",
+      "./node_modules/lodash-compat/collection/*.js"], function(srcFiles) {
+      closureCompilerConfig = configureClosureCompiler({
+        isProductionBundle: true,
+        areBundlesSplit: true,
+        sourceFiles: srcFiles,
+        entryPoint: includeAllTestsFileName,
+        sourceFolder: ".",
+        targetFolder: "intermediate",
+        outputFile: "kidcompy.closureCompiler.js",
+        minifiedFile: "kidcompy.js"
+      });
+
+      done();
+    });
   });
 });
 
@@ -457,7 +496,14 @@ gulp.task("kidcompy-production-bundle", function(done) {
 });
 
 gulp.task("kidcompy-cc-config", function(done) {
-  resolveGlobs(["./lib/kidcompy/main.js", "./lib/kidcompy/**/*.js", "./lib/symbols/**/*.js",
+  var mainEntryPoint = "./lib/kidcompy/main.js";
+
+  resolveGlobs([
+                mainEntryPoint,
+                [
+                  "./lib/kidcompy/**/*.js", "./lib/symbols/**/*.js",
+                  "!" + mainEntryPoint, "!./**/*.spec.js", "!./**/*.integration.js", "!./**/*.system.js"
+                ],
                 "./node_modules/lodash-compat/support.js",
                 "./node_modules/lodash-compat/internal/isLength.js",
                 "./node_modules/lodash-compat/internal/createBaseEach.js",
@@ -470,12 +516,14 @@ gulp.task("kidcompy-cc-config", function(done) {
                 "./node_modules/lodash-compat/object/*.js",
                 "./node_modules/lodash-compat/utility/*.js",
                 "./node_modules/lodash-compat/lang/*.js",
-                "!./**/*.spec.js", "!./**/*.integration.js", "!./**/*.system.js"], function(srcFiles) {
-    closureCompilerConfig = configureClosureCompiler(gulpFolder, {
+                "./node_modules/lodash-compat/math/*.js",
+                "./node_modules/lodash-compat/collection/*.js" ], function(srcFiles) {
+    closureCompilerConfig = configureClosureCompiler({
       isProductionBundle: true,
       areBundlesSplit: true,
+      entryPoint: mainEntryPoint,
       sourceFiles: srcFiles,
-      sourceFolder: "./lib/kidcompy",
+      sourceFolder: ".",
       targetFolder: "intermediate",
       outputFile: "kidcompy.closureCompiler.js",
       minifiedFile: "kidcompy.js"

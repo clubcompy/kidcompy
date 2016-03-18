@@ -97,7 +97,7 @@
     "global": false,
     "proclaim": false,         // Provided to tests by karma-proclaim
     "sinon": false,
-    "assert": false,
+    "expect": false,
     "JSON": false,
     "featureFlags": false,
     "kidcompy": false,

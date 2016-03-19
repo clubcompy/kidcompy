@@ -184,7 +184,7 @@ gulp.task("launch-closure-compiler", function(done) {
   params.push(closureCompilerConfig.fileName);
 
   // print the version of the Closure Compiler we're running with
-  console.log(execFileSync("java", ["-jar", closureCompilerConfig.compilerPath, "--help"]).toString("utf-8"));
+  console.log(execFileSync("java", ["-jar", closureCompilerConfig.compilerPath, "--version"]).toString("utf-8"));
 
   // build a response file from the passed params
   var responseFileName = tmp.tmpNameSync({ template: closureCompilerConfig.targetFolder + '/closureCompiler-XXXXXX' });

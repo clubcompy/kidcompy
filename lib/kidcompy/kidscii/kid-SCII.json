@@ -1,0 +1,1282 @@
+[
+  {
+    "code": 0,
+    "screenName": "Big X",
+    "charMap": "c3e77e3c3c7ee7c3"
+  },
+  {
+    "code": 1,
+    "screenName": "Spade",
+    "charMap": "081c3e7f7f1c3e00"
+  },
+  {
+    "code": 2,
+    "screenName": "Heart",
+    "charMap": "367f7f7f3e1c0800"
+  },
+  {
+    "code": 3,
+    "screenName": "Club",
+    "charMap": "1818666618183c00"
+  },
+  {
+    "code": 4,
+    "screenName": "Diamond",
+    "charMap": "081c3e7f3e1c0800"
+  },
+  {
+    "code": 5,
+    "screenName": "NW Edge",
+    "charMap": "ffffc0c0c0c0c0c0"
+  },
+  {
+    "code": 6,
+    "screenName": "N Edge",
+    "charMap": "ffff000000000000"
+  },
+  {
+    "code": 7,
+    "screenName": "NE Edge",
+    "charMap": "ffff030303030303"
+  },
+  {
+    "code": 8,
+    "screenName": "E Edge",
+    "charMap": "0303030303030303"
+  },
+  {
+    "code": 9,
+    "screenName": "SE Edge",
+    "charMap": "030303030303ffff"
+  },
+  {
+    "code": 10,
+    "screenName": "S Edge",
+    "charMap": "000000000000ffff"
+  },
+  {
+    "code": 11,
+    "screenName": "SW Edge",
+    "charMap": "c0c0c0c0c0c0ffff"
+  },
+  {
+    "code": 12,
+    "screenName": "W Edge",
+    "charMap": "c0c0c0c0c0c0c0c0"
+  },
+  {
+    "code": 13,
+    "screenName": "NWSE Diagonal",
+    "charMap": "c0e070381c0e0703"
+  },
+  {
+    "code": 14,
+    "screenName": "NESW Diagonal",
+    "charMap": "03070e1c3870e0c0"
+  },
+  {
+    "code": 15,
+    "screenName": "NW Rounded Corner",
+    "charMap": "181838f0e0000000"
+  },
+  {
+    "code": 16,
+    "screenName": "NE Rounded Corner",
+    "charMap": "18181c0f07000000"
+  },
+  {
+    "code": 17,
+    "screenName": "SE Rounded Corner",
+    "charMap": "000000070f1c1818"
+  },
+  {
+    "code": 18,
+    "screenName": "SW Rounded Corner",
+    "charMap": "000000e0f0381818"
+  },
+  {
+    "code": 19,
+    "screenName": "NE Filled",
+    "charMap": "ff7f3f1f0f070301"
+  },
+  {
+    "code": 20,
+    "screenName": "NW Filled",
+    "charMap": "fffefcf8f0e0c080"
+  },
+  {
+    "code": 21,
+    "screenName": "NW Corner",
+    "charMap": "f0f0f0f000000000"
+  },
+  {
+    "code": 22,
+    "screenName": "NE Corner",
+    "charMap": "0f0f0f0f00000000"
+  },
+  {
+    "code": 23,
+    "screenName": "SE Corner",
+    "charMap": "000000000f0f0f0f"
+  },
+  {
+    "code": 24,
+    "screenName": "SW Corner",
+    "charMap": "00000000f0f0f0f0"
+  },
+  {
+    "code": 25,
+    "screenName": "NWSE Corner",
+    "charMap": "f0f0f0f00f0f0f0f"
+  },
+  {
+    "code": 26,
+    "screenName": "S Chunky Checkerboard",
+    "charMap": "00000000cccc3333"
+  },
+  {
+    "code": 27,
+    "screenName": "W Chunky Checkerboard",
+    "charMap": "c0c03030c0c03030"
+  },
+  {
+    "code": 28,
+    "screenName": "Arrow Up",
+    "charMap": "00183c7e18181800"
+  },
+  {
+    "code": 29,
+    "screenName": "Arrow Right",
+    "charMap": "00080c7e7e0c0800"
+  },
+  {
+    "code": 30,
+    "screenName": "Arrow Down",
+    "charMap": "001818187e3c1800"
+  },
+  {
+    "code": 31,
+    "screenName": "Arrow Left",
+    "charMap": "0010307e7e301000"
+  },
+  {
+    "code": 32,
+    "screenName": "Space",
+    "charMap": "0000000000000000"
+  },
+  {
+    "code": 33,
+    "screenName": "Exclamation Mark",
+    "charMap": "1818181818001800"
+  },
+  {
+    "code": 34,
+    "screenName": "Double Quote",
+    "charMap": "0066666600000000"
+  },
+  {
+    "code": 35,
+    "screenName": "Hash",
+    "charMap": "6666ff66ff666600"
+  },
+  {
+    "code": 36,
+    "screenName": "Dollar Sign",
+    "charMap": "183e403c027c1800"
+  },
+  {
+    "code": 37,
+    "screenName": "Percent Sign",
+    "charMap": "62660c1830664600"
+  },
+  {
+    "code": 38,
+    "screenName": "Ampersand",
+    "charMap": "1e331e1c67663f00"
+  },
+  {
+    "code": 39,
+    "screenName": "Single Quote",
+    "charMap": "0018181800000000"
+  },
+  {
+    "code": 40,
+    "screenName": "Left Parenthesis",
+    "charMap": "0c18303030180c00"
+  },
+  {
+    "code": 41,
+    "screenName": "Right Parenthesis",
+    "charMap": "30180c0c0c183000"
+  },
+  {
+    "code": 42,
+    "screenName": "Asterisk",
+    "charMap": "00663c7e3c660000"
+  },
+  {
+    "code": 43,
+    "screenName": "Plus Sign",
+    "charMap": "0018187e18180000"
+  },
+  {
+    "code": 44,
+    "screenName": "Comma",
+    "charMap": "0000000000181830"
+  },
+  {
+    "code": 45,
+    "screenName": "Minus Sign",
+    "charMap": "0000007e00000000"
+  },
+  {
+    "code": 46,
+    "screenName": "Period",
+    "charMap": "0000000000181800"
+  },
+  {
+    "code": 47,
+    "screenName": "Slash",
+    "charMap": "0003060c18306000"
+  },
+  {
+    "code": 48,
+    "screenName": "Zero",
+    "charMap": "3c666e7666663c00"
+  },
+  {
+    "code": 49,
+    "screenName": "One",
+    "charMap": "1838181818183c00"
+  },
+  {
+    "code": 50,
+    "screenName": "Two",
+    "charMap": "3c66060c30607e00"
+  },
+  {
+    "code": 51,
+    "screenName": "Three",
+    "charMap": "3c66061c06663c00"
+  },
+  {
+    "code": 52,
+    "screenName": "Four",
+    "charMap": "0c1c2c4cfe0c0c00"
+  },
+  {
+    "code": 53,
+    "screenName": "Five",
+    "charMap": "7e607c0606663c00"
+  },
+  {
+    "code": 54,
+    "screenName": "Six",
+    "charMap": "3c66607c66663c00"
+  },
+  {
+    "code": 55,
+    "screenName": "Seven",
+    "charMap": "7e660c1818181800"
+  },
+  {
+    "code": 56,
+    "screenName": "Eight",
+    "charMap": "3c66663c66663c00"
+  },
+  {
+    "code": 57,
+    "screenName": "Nine",
+    "charMap": "3c66663e06663c00"
+  },
+  {
+    "code": 58,
+    "screenName": "Colon",
+    "charMap": "0018180000181800"
+  },
+  {
+    "code": 59,
+    "screenName": "Semi-Colon",
+    "charMap": "0018180000181830"
+  },
+  {
+    "code": 60,
+    "screenName": "Less Than",
+    "charMap": "0c18306030180c00"
+  },
+  {
+    "code": 61,
+    "screenName": "Equals Sign",
+    "charMap": "00007e007e000000"
+  },
+  {
+    "code": 62,
+    "screenName": "Greater Than",
+    "charMap": "30180c060c183000"
+  },
+  {
+    "code": 63,
+    "screenName": "Question Mark",
+    "charMap": "3c66060c18001800"
+  },
+  {
+    "code": 64,
+    "screenName": "At-Sign",
+    "charMap": "3c626e6e60663c00"
+  },
+  {
+    "code": 65,
+    "screenName": "Capital A",
+    "charMap": "183c667e66666600"
+  },
+  {
+    "code": 66,
+    "screenName": "Capital B",
+    "charMap": "7c66667c66667c00"
+  },
+  {
+    "code": 67,
+    "screenName": "Capital C",
+    "charMap": "3c66606060663c00"
+  },
+  {
+    "code": 68,
+    "screenName": "Capital D",
+    "charMap": "786c6666666c7800"
+  },
+  {
+    "code": 69,
+    "screenName": "Capital E",
+    "charMap": "7e60607860607e00"
+  },
+  {
+    "code": 70,
+    "screenName": "Capital F",
+    "charMap": "7e60607860606000"
+  },
+  {
+    "code": 71,
+    "screenName": "Capital G",
+    "charMap": "3c66606e66663c00"
+  },
+  {
+    "code": 72,
+    "screenName": "Capital H",
+    "charMap": "6666667e66666600"
+  },
+  {
+    "code": 73,
+    "screenName": "Capital I",
+    "charMap": "3c18181818183c00"
+  },
+  {
+    "code": 74,
+    "screenName": "Capital J",
+    "charMap": "1e0c0c0c0c6c3800"
+  },
+  {
+    "code": 75,
+    "screenName": "Capital K",
+    "charMap": "666c7870786c6600"
+  },
+  {
+    "code": 76,
+    "screenName": "Capital L",
+    "charMap": "6060606060607e00"
+  },
+  {
+    "code": 77,
+    "screenName": "Capital M",
+    "charMap": "63777f6b63636300"
+  },
+  {
+    "code": 78,
+    "screenName": "Capital N",
+    "charMap": "66767e7e6e666600"
+  },
+  {
+    "code": 79,
+    "screenName": "Capital O",
+    "charMap": "3c66666666663c00"
+  },
+  {
+    "code": 80,
+    "screenName": "Capital P",
+    "charMap": "7c66667c60606000"
+  },
+  {
+    "code": 81,
+    "screenName": "Capital Q",
+    "charMap": "3c666666663c0e00"
+  },
+  {
+    "code": 82,
+    "screenName": "Capital R",
+    "charMap": "7c66667c786c6600"
+  },
+  {
+    "code": 83,
+    "screenName": "Capital S",
+    "charMap": "3c66603c06663c00"
+  },
+  {
+    "code": 84,
+    "screenName": "Capital T",
+    "charMap": "7e18181818181800"
+  },
+  {
+    "code": 85,
+    "screenName": "Capital U",
+    "charMap": "6666666666663c00"
+  },
+  {
+    "code": 86,
+    "screenName": "Capital V",
+    "charMap": "66666666663c1800"
+  },
+  {
+    "code": 87,
+    "screenName": "Capital W",
+    "charMap": "6363636b7f776300"
+  },
+  {
+    "code": 88,
+    "screenName": "Capital X",
+    "charMap": "66663c183c666600"
+  },
+  {
+    "code": 89,
+    "screenName": "Capital Y",
+    "charMap": "6666663c18181800"
+  },
+  {
+    "code": 90,
+    "screenName": "Capital Z",
+    "charMap": "7e060c1830607e00"
+  },
+  {
+    "code": 91,
+    "screenName": "Square Left Bracket",
+    "charMap": "3c30303030303c00"
+  },
+  {
+    "code": 92,
+    "screenName": "Backslash",
+    "charMap": "006030180c060300"
+  },
+  {
+    "code": 93,
+    "screenName": "Square Right Bracket",
+    "charMap": "3c0c0c0c0c0c3c00"
+  },
+  {
+    "code": 94,
+    "screenName": "Caret",
+    "charMap": "0814220000000000"
+  },
+  {
+    "code": 95,
+    "screenName": "Underscore",
+    "charMap": "00000000000000ff"
+  },
+  {
+    "code": 96,
+    "screenName": "Left Apostrophe",
+    "charMap": "3030180000000000"
+  },
+  {
+    "code": 97,
+    "screenName": "Lowercase A",
+    "charMap": "00003c063e663e00"
+  },
+  {
+    "code": 98,
+    "screenName": "Lowercase B",
+    "charMap": "006060607c667c00"
+  },
+  {
+    "code": 99,
+    "screenName": "Lowercase C",
+    "charMap": "0000003c60603c00"
+  },
+  {
+    "code": 100,
+    "screenName": "Lowercase D",
+    "charMap": "000606063e663e00"
+  },
+  {
+    "code": 101,
+    "screenName": "Lowercase E",
+    "charMap": "00003c667e603c00"
+  },
+  {
+    "code": 102,
+    "screenName": "Lowercase F",
+    "charMap": "000e183e18181800"
+  },
+  {
+    "code": 103,
+    "screenName": "Lowercase G",
+    "charMap": "00003e66663e067c"
+  },
+  {
+    "code": 104,
+    "screenName": "Lowercase H",
+    "charMap": "006060607c666600"
+  },
+  {
+    "code": 105,
+    "screenName": "Lowercase I",
+    "charMap": "0018003818183c00"
+  },
+  {
+    "code": 106,
+    "screenName": "Lowercase J",
+    "charMap": "000c001c0c0c0c78"
+  },
+  {
+    "code": 107,
+    "screenName": "Lowercase K",
+    "charMap": "0060606c786c6600"
+  },
+  {
+    "code": 108,
+    "screenName": "Lowercase L",
+    "charMap": "0038181818183c00"
+  },
+  {
+    "code": 109,
+    "screenName": "Lowercase M",
+    "charMap": "0000667f6b636300"
+  },
+  {
+    "code": 110,
+    "screenName": "Lowercase N",
+    "charMap": "0000007c66666600"
+  },
+  {
+    "code": 111,
+    "screenName": "Lowercase O",
+    "charMap": "0000003c66663c00"
+  },
+  {
+    "code": 112,
+    "screenName": "Lowercase P",
+    "charMap": "0000007c667c6060"
+  },
+  {
+    "code": 113,
+    "screenName": "Lowercase Q",
+    "charMap": "0000003e663e0607"
+  },
+  {
+    "code": 114,
+    "screenName": "Lowercase R",
+    "charMap": "00003c6660606000"
+  },
+  {
+    "code": 115,
+    "screenName": "Lowercase S",
+    "charMap": "00003e603c067c00"
+  },
+  {
+    "code": 116,
+    "screenName": "Lowercase T",
+    "charMap": "00187e1818180c00"
+  },
+  {
+    "code": 117,
+    "screenName": "Lowercase U",
+    "charMap": "0000006666663e00"
+  },
+  {
+    "code": 118,
+    "screenName": "Lowercase V",
+    "charMap": "00000066663c1800"
+  },
+  {
+    "code": 119,
+    "screenName": "Lowercase W",
+    "charMap": "0000636b7f3e3600"
+  },
+  {
+    "code": 120,
+    "screenName": "Lowercase X",
+    "charMap": "0000663c183c6600"
+  },
+  {
+    "code": 121,
+    "screenName": "Lowercase Y",
+    "charMap": "00006666663e067c"
+  },
+  {
+    "code": 122,
+    "screenName": "Lowercase Z",
+    "charMap": "00007e0c18307e00"
+  },
+  {
+    "code": 123,
+    "screenName": "Left Curly Brace",
+    "charMap": "0c18183018180c00"
+  },
+  {
+    "code": 124,
+    "screenName": "Vertical Bar",
+    "charMap": "1818180018181800"
+  },
+  {
+    "code": 125,
+    "screenName": "Right Curly Brace",
+    "charMap": "3018180c18183000"
+  },
+  {
+    "code": 126,
+    "screenName": "Tilde",
+    "charMap": "000000324c000000"
+  },
+  {
+    "code": 127,
+    "screenName": "Doughnut",
+    "charMap": "003c7e66667e3c00"
+  },
+  {
+    "code": 128,
+    "screenName": "Capital C with Cedilla",
+    "charMap": "3c666060663c0810"
+  },
+  {
+    "code": 129,
+    "screenName": "Lowercase U with Diaeresis",
+    "charMap": "0024006666663e00"
+  },
+  {
+    "code": 130,
+    "screenName": "Lowercase E with Acute",
+    "charMap": "04083c667e603c00"
+  },
+  {
+    "code": 131,
+    "screenName": "Lowercase A with Circumflex",
+    "charMap": "08143c063e663e00"
+  },
+  {
+    "code": 132,
+    "screenName": "Lowercase A with Diaeresis",
+    "charMap": "24003c063e663e00"
+  },
+  {
+    "code": 133,
+    "screenName": "Lowercase A with Grave",
+    "charMap": "10083c063e663e00"
+  },
+  {
+    "code": 134,
+    "screenName": "Lowercase A with Ring Above",
+    "charMap": "18183c063e663e00"
+  },
+  {
+    "code": 135,
+    "screenName": "Lowercase C with Cedilla",
+    "charMap": "00003c60603c0810"
+  },
+  {
+    "code": 136,
+    "screenName": "Lowercase E with Circumflex",
+    "charMap": "08143c667e603c00"
+  },
+  {
+    "code": 137,
+    "screenName": "Lowercase E with Diaeresis",
+    "charMap": "24003c667e603c00"
+  },
+  {
+    "code": 138,
+    "screenName": "Lowercase E with Grave",
+    "charMap": "10083c667e603c00"
+  },
+  {
+    "code": 139,
+    "screenName": "Lowercase I with Diaeresis",
+    "charMap": "0024003818183c00"
+  },
+  {
+    "code": 140,
+    "screenName": "Lowercase I with Circumflex",
+    "charMap": "1028003818183c00"
+  },
+  {
+    "code": 141,
+    "screenName": "Lowercase I with Grave",
+    "charMap": "2010003818183c00"
+  },
+  {
+    "code": 142,
+    "screenName": "Capital A with Diaeresis",
+    "charMap": "24183c667e666600"
+  },
+  {
+    "code": 143,
+    "screenName": "Capital A with Ring Above",
+    "charMap": "18183c667e666600"
+  },
+  {
+    "code": 144,
+    "screenName": "Capital E with Acute",
+    "charMap": "08107e6078607e00"
+  },
+  {
+    "code": 145,
+    "screenName": "Lowercase Ligature AE",
+    "charMap": "00007e1b7fd87e00"
+  },
+  {
+    "code": 146,
+    "screenName": "Capital Ligature AE",
+    "charMap": "1f3c6c7fcccccf00"
+  },
+  {
+    "code": 147,
+    "screenName": "Lowercase O with Circumflex",
+    "charMap": "0814003c66663c00"
+  },
+  {
+    "code": 148,
+    "screenName": "Lowercase O with Diaeresis",
+    "charMap": "0024003c66663c00"
+  },
+  {
+    "code": 149,
+    "screenName": "Lowercase O with Grave",
+    "charMap": "1008003c66663c00"
+  },
+  {
+    "code": 150,
+    "screenName": "Lowercase U with Circumflex",
+    "charMap": "0814006666663e00"
+  },
+  {
+    "code": 151,
+    "screenName": "Lowercase U with Grave",
+    "charMap": "1008006666663e00"
+  },
+  {
+    "code": 152,
+    "screenName": "Lowercase Y with Diaeresis",
+    "charMap": "24006666663e067c"
+  },
+  {
+    "code": 153,
+    "screenName": "Capital O with Diaeresis",
+    "charMap": "243c666666663c00"
+  },
+  {
+    "code": 154,
+    "screenName": "Capital U with Diaeresis",
+    "charMap": "2466666666663c00"
+  },
+  {
+    "code": 155,
+    "screenName": "Cent Sign",
+    "charMap": "00083c68683c0800"
+  },
+  {
+    "code": 156,
+    "screenName": "Pound Sign",
+    "charMap": "0609183e18317e00"
+  },
+  {
+    "code": 157,
+    "screenName": "Yen Sign",
+    "charMap": "66663c7e187e1800"
+  },
+  {
+    "code": 158,
+    "screenName": "Peseta Sign",
+    "charMap": "f0d8daf7c2c2c200"
+  },
+  {
+    "code": 159,
+    "screenName": "Lowercase F with Hook",
+    "charMap": "000e183e18183000"
+  },
+  {
+    "code": 160,
+    "screenName": "Lowercase A with Acute",
+    "charMap": "08103c063e663e00"
+  },
+  {
+    "code": 161,
+    "screenName": "Lowercase I with Acute",
+    "charMap": "0810003818183c00"
+  },
+  {
+    "code": 162,
+    "screenName": "Lowercase O with Acute",
+    "charMap": "0810003c66663c00"
+  },
+  {
+    "code": 163,
+    "screenName": "Lowercase U with Acute",
+    "charMap": "0810006666663e00"
+  },
+  {
+    "code": 164,
+    "screenName": "Lowercase N with Tilde",
+    "charMap": "324c007c66666600"
+  },
+  {
+    "code": 165,
+    "screenName": "Uppercase N with Tilde",
+    "charMap": "324c66767e6e6600"
+  },
+  {
+    "code": 166,
+    "screenName": "Feminine Ordinal Indicator",
+    "charMap": "3c063e663e000000"
+  },
+  {
+    "code": 167,
+    "screenName": "Masculine Ordinal Indicator",
+    "charMap": "3c66663c00000000"
+  },
+  {
+    "code": 168,
+    "screenName": "Inverted Question Mark",
+    "charMap": "1800183060663c00"
+  },
+  {
+    "code": 169,
+    "screenName": "Reversed Not Sign",
+    "charMap": "000000003c200000"
+  },
+  {
+    "code": 170,
+    "screenName": "Not Sign",
+    "charMap": "000000003c040000"
+  },
+  {
+    "code": 171,
+    "screenName": "Common Fraction One Half",
+    "charMap": "4042444816214207"
+  },
+  {
+    "code": 172,
+    "screenName": "Common Fraction One Quarter",
+    "charMap": "4042444815274101"
+  },
+  {
+    "code": 173,
+    "screenName": "Inverted Exclamation Mark",
+    "charMap": "1800181818181800"
+  },
+  {
+    "code": 174,
+    "screenName": "Left angle quote",
+    "charMap": "003366cc66330000"
+  },
+  {
+    "code": 175,
+    "screenName": "Right Angle Quote",
+    "charMap": "00cc663366cc0000"
+  },
+  {
+    "code": 176,
+    "screenName": "Light Shade",
+    "charMap": "0044001100440011"
+  },
+  {
+    "code": 177,
+    "screenName": "Medium Shade",
+    "charMap": "5500550055005500"
+  },
+  {
+    "code": 178,
+    "screenName": "Dark Shade",
+    "charMap": "aa55aa55aa55aa55"
+  },
+  {
+    "code": 179,
+    "screenName": "Box Vertical",
+    "charMap": "1818181818181818"
+  },
+  {
+    "code": 180,
+    "screenName": "Box Vertical-Left",
+    "charMap": "181818f8f8181818"
+  },
+  {
+    "code": 181,
+    "screenName": "Box Vertical-Double Left",
+    "charMap": "181818f818f81818"
+  },
+  {
+    "code": 182,
+    "screenName": "Box Double Vertical-Left",
+    "charMap": "282828e8e8282828"
+  },
+  {
+    "code": 183,
+    "screenName": "Box Double Down-Left",
+    "charMap": "000000f8f8282828"
+  },
+  {
+    "code": 184,
+    "screenName": "Box Down-Double Left",
+    "charMap": "000000f818f81818"
+  },
+  {
+    "code": 185,
+    "screenName": "Box Double Vertical/Left",
+    "charMap": "282828e808e82828"
+  },
+  {
+    "code": 186,
+    "screenName": "Box Double Vertical",
+    "charMap": "2828282828282828"
+  },
+  {
+    "code": 187,
+    "screenName": "Box Double Down/Left",
+    "charMap": "000000f808e82828"
+  },
+  {
+    "code": 188,
+    "screenName": "Box Double Up/Left",
+    "charMap": "282828e808f80000"
+  },
+  {
+    "code": 189,
+    "screenName": "Box Double Up-Left",
+    "charMap": "282828f8f8000000"
+  },
+  {
+    "code": 190,
+    "screenName": "Box Up-Double Left",
+    "charMap": "181818f818f80000"
+  },
+  {
+    "code": 191,
+    "screenName": "Box Down-Left",
+    "charMap": "000000f8f8181818"
+  },
+  {
+    "code": 192,
+    "screenName": "Box Up-Right",
+    "charMap": "1818181f1f000000"
+  },
+  {
+    "code": 193,
+    "screenName": "Box Up-Horizontal",
+    "charMap": "181818ffff000000"
+  },
+  {
+    "code": 194,
+    "screenName": "Box Down-Horizontal",
+    "charMap": "000000ffff181818"
+  },
+  {
+    "code": 195,
+    "screenName": "Box Vertical-Right",
+    "charMap": "1818181f1f181818"
+  },
+  {
+    "code": 196,
+    "screenName": "Box Horizontal",
+    "charMap": "000000ffff000000"
+  },
+  {
+    "code": 197,
+    "screenName": "Box Vertical-Horizontal",
+    "charMap": "181818ffff181818"
+  },
+  {
+    "code": 198,
+    "screenName": "Box Vertical-Double Right",
+    "charMap": "1818181f181f1818"
+  },
+  {
+    "code": 199,
+    "screenName": "Box Double Vertical-Right",
+    "charMap": "2828282f2f282828"
+  },
+  {
+    "code": 200,
+    "screenName": "Box Double Up/Right",
+    "charMap": "2828282f203f0000"
+  },
+  {
+    "code": 201,
+    "screenName": "Box Double Down/Right",
+    "charMap": "0000003f202f2828"
+  },
+  {
+    "code": 202,
+    "screenName": "Box Double Up/Horizontal",
+    "charMap": "282828ef00ff0000"
+  },
+  {
+    "code": 203,
+    "screenName": "Box Double Down/Horizontal",
+    "charMap": "000000ff00ef2828"
+  },
+  {
+    "code": 204,
+    "screenName": "Box Double Vertical/Right",
+    "charMap": "2828282f202f2828"
+  },
+  {
+    "code": 205,
+    "screenName": "Box Double Horizontal",
+    "charMap": "000000ff00ff0000"
+  },
+  {
+    "code": 206,
+    "screenName": "Box Double Vertical/Horizontal",
+    "charMap": "282828ef00ef2828"
+  },
+  {
+    "code": 207,
+    "screenName": "Box Up-Double Horizontal",
+    "charMap": "181818ff00ff0000"
+  },
+  {
+    "code": 208,
+    "screenName": "Box Double Up-Horizontal",
+    "charMap": "282828ffff000000"
+  },
+  {
+    "code": 209,
+    "screenName": "Box Down-Double Horizontal",
+    "charMap": "000000ff00ff1818"
+  },
+  {
+    "code": 210,
+    "screenName": "Box Double Down-Horizontal",
+    "charMap": "000000ffff282828"
+  },
+  {
+    "code": 211,
+    "screenName": "Box Double Up-Right",
+    "charMap": "282828ffff000000"
+  },
+  {
+    "code": 212,
+    "screenName": "Box Up-Double Right",
+    "charMap": "1818181f181f0000"
+  },
+  {
+    "code": 213,
+    "screenName": "Box Down-Double Right",
+    "charMap": "0000001f181f1818"
+  },
+  {
+    "code": 214,
+    "screenName": "Box Double Down-Right",
+    "charMap": "0000003f3f282828"
+  },
+  {
+    "code": 215,
+    "screenName": "Box Double Vertical-Horizontal",
+    "charMap": "282828ffff282828"
+  },
+  {
+    "code": 216,
+    "screenName": "Box Vertical-Double Horizontal",
+    "charMap": "181818ff18ff1818"
+  },
+  {
+    "code": 217,
+    "screenName": "Box Up-Left",
+    "charMap": "181818f8f8000000"
+  },
+  {
+    "code": 218,
+    "screenName": "Box Down-Right",
+    "charMap": "0000001f1f181818"
+  },
+  {
+    "code": 219,
+    "screenName": "Checkmark",
+    "charMap": "0103066c78706000"
+  },
+  {
+    "code": 220,
+    "screenName": "S Solid Half",
+    "charMap": "00000000ffffffff"
+  },
+  {
+    "code": 221,
+    "screenName": "W Solid Half",
+    "charMap": "f0f0f0f0f0f0f0f0"
+  },
+  {
+    "code": 222,
+    "screenName": "NWSE Stripes",
+    "charMap": "3399cc663399cc66"
+  },
+  {
+    "code": 223,
+    "screenName": "NESW Stripes",
+    "charMap": "cc993366cc993366"
+  },
+  {
+    "code": 224,
+    "screenName": "Lowercase Alpha",
+    "charMap": "0000001a24241a00"
+  },
+  {
+    "code": 225,
+    "screenName": "Lowercase Sharp S, Eszett",
+    "charMap": "3c666c6663736e00"
+  },
+  {
+    "code": 226,
+    "screenName": "Capital Gamma",
+    "charMap": "7e62606060606000"
+  },
+  {
+    "code": 227,
+    "screenName": "Lowercase Pi",
+    "charMap": "0000007e24242400"
+  },
+  {
+    "code": 228,
+    "screenName": "Capital Sigma",
+    "charMap": "7f60301830607f00"
+  },
+  {
+    "code": 229,
+    "screenName": "Lowercase Sigma",
+    "charMap": "0000003f66663c00"
+  },
+  {
+    "code": 230,
+    "screenName": "Lowercase Mu",
+    "charMap": "0000006666667c60"
+  },
+  {
+    "code": 231,
+    "screenName": "Lowercase Tau",
+    "charMap": "0000001c08080000"
+  },
+  {
+    "code": 232,
+    "screenName": "Capital Phi",
+    "charMap": "083e4949493e0800"
+  },
+  {
+    "code": 233,
+    "screenName": "Capital Theta",
+    "charMap": "1c36636b63361c00"
+  },
+  {
+    "code": 234,
+    "screenName": "Capital Omega",
+    "charMap": "1c36636336147700"
+  },
+  {
+    "code": 235,
+    "screenName": "Lowercase Delta",
+    "charMap": "003c101824241800"
+  },
+  {
+    "code": 236,
+    "screenName": "Infinity",
+    "charMap": "0000364949360000"
+  },
+  {
+    "code": 237,
+    "screenName": "Lowercase Phi",
+    "charMap": "002649493e080800"
+  },
+  {
+    "code": 238,
+    "screenName": "Lowercase Epsilon",
+    "charMap": "0038443040443800"
+  },
+  {
+    "code": 239,
+    "screenName": "Intersection",
+    "charMap": "003c424242424200"
+  },
+  {
+    "code": 240,
+    "screenName": "Identical To Sign",
+    "charMap": "007e007e007e0000"
+  },
+  {
+    "code": 241,
+    "screenName": "Plus Minus Sign",
+    "charMap": "08083e0808003e00"
+  },
+  {
+    "code": 242,
+    "screenName": "Greater-Than or Equal Sign",
+    "charMap": "700e010e70007f00"
+  },
+  {
+    "code": 243,
+    "screenName": "Less-Than or Equal Sign",
+    "charMap": "0738403807007f00"
+  },
+  {
+    "code": 244,
+    "screenName": "Top Half Integral",
+    "charMap": "0c1a181818181818"
+  },
+  {
+    "code": 245,
+    "screenName": "Bottom Half Integral",
+    "charMap": "1818181818185830"
+  },
+  {
+    "code": 246,
+    "screenName": "Division Sign",
+    "charMap": "1818007e00181800"
+  },
+  {
+    "code": 247,
+    "screenName": "Almost Equal Sign",
+    "charMap": "00324c00324c0000"
+  },
+  {
+    "code": 248,
+    "screenName": "Degree Sign",
+    "charMap": "1028100000000000"
+  },
+  {
+    "code": 249,
+    "screenName": "Circle",
+    "charMap": "003c7e7e7e7e3c00"
+  },
+  {
+    "code": 250,
+    "screenName": "Interpunct, Space Dot, Doughnut Hole",
+    "charMap": "0000001818000000"
+  },
+  {
+    "code": 251,
+    "screenName": "Square Root",
+    "charMap": "0e08080868381800"
+  },
+  {
+    "code": 252,
+    "screenName": "Superscript Lowercase N",
+    "charMap": "0030282800000000"
+  },
+  {
+    "code": 253,
+    "screenName": "Superscript 2",
+    "charMap": "3008103800000000"
+  },
+  {
+    "code": 254,
+    "screenName": "Square",
+    "charMap": "007e7e7e7e7e7e00"
+  },
+  {
+    "code": 255,
+    "screenName": "Chunky Checkerboard",
+    "charMap": "cccc3333cccc3333"
+  }
+]

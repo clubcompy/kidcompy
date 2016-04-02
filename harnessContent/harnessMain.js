@@ -21,4 +21,9 @@ kidcompy.lifecycleEvents.addOnCodeGoHandler(function() {
   kidcompyHost.flipBuffers[1].playfields[5].fillRectangle(130, 130, 10, 10, "#ff0000");
   kidcompyHost.flipBuffers[1].playfields[6].fillRectangle(140, 140, 10, 10, "#0000ff");
   kidcompyHost.flipBuffers[1].playfields[7].fillRectangle(150, 150, 10, 10, "#00ff00");
+
+  kidcompyHost.flipBuffers[0].playfields[0].paintCharacter(5, 20, "A".charCodeAt(0), true, "#000");
+  kidcompyHost.flipBuffers[0].playfields[0].paintCharacter(6, 20, "B".charCodeAt(0), false, "#000");
+  kidcompyHost.flipBuffers[0].playfields[0].paintCharacter(7, 20, "C".charCodeAt(0), true, "#000");
+  kidcompyHost.flipBuffers[0].playfields[0].paintCharacter(8, 20, "D".charCodeAt(0), false, "#000");
 });

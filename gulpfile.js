@@ -278,7 +278,8 @@ gulp.task("minify-closure-compiler-output", function() {
         negate_iife: false,
         drop_debugger: true,
         global_defs: computeDefinedConstants({isProductionBundle: true, areBundlesSplit: true})
-      }
+      },
+      beautify: true
     });
 
     fs.writeFileSync(closureCompilerConfig.minifiedFileName, result.code);

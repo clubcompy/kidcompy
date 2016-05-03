@@ -46,7 +46,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* flipbuffer1 is relatively positioned so that it stacks atop flipbuffer0 AND props open the parent div */
 .last.kcFlipBuffer {
   position: relative;
-  z-index: 3;
+  z-index: 2;
   top: 0;
   left: 0;
 
@@ -60,7 +60,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 .kcFlipBuffer {
   display: block;
   position: absolute;
-  z-index: 2;
+  z-index: 1;
+  transition: z-index 0s;
+}
+
+.inForeground.kcFlipBuffer {
+  z-index: 3;
+  transition: z-index 0s;
 }
 
 /* playfield7 is relatively positioned to the parent so that it stacks above playfield0-6 AND props open the
@@ -91,4 +97,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   display: block;
   position: absolute;
+}
+
+.visuallyHidden {
+  position: absolute;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
+  margin: -1px;
+  padding: 0;
+  width: 1px;
+  height: 1px;
 }

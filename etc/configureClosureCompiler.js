@@ -80,20 +80,24 @@ function configureClosureCompiler(options) {
     fileName: options.outputFile,
     minifiedFileName: options.minifiedFile,
     compilerFlags: {
+      assume_function_wrapper: null,
       charset: "UTF-8",
       compilation_level: "ADVANCED_OPTIMIZATIONS",
+      env: "BROWSER",
       language_in: "ECMASCRIPT6_STRICT",
       language_out: "ECMASCRIPT3",
       process_common_js_modules: null,
+      transform_amd_modules: null,
       dependency_mode: "LOOSE",
-      /** entry_point is a js_module_root-relative path to the main module */
-      entry_point: options.entryPoint,
+      /** entry_point is a js_module_root-relative path to the main module, without file extension */
+      entry_point: options.entryPoint.substring(0, options.entryPoint.lastIndexOf(".")),
       /** js_module_root is an absolute path to the common root project folder under which all src and intermediate javascript sources live */
       js_module_root: absoluteSourceFolder,
       create_source_map: options.outputFile + ".map",
       source_map_location_mapping: sourceMapLocationMappings,
       jscomp_off: "deprecatedAnnotations",
       use_types_for_optimization: null,
+      new_type_inf: null,
       warning_level: "VERBOSE",
       formatting: "PRETTY_PRINT",
       extra_annotation_name: ["module" ,"namespace", "category", "alias", "abstract"],

@@ -60,7 +60,9 @@ function configureOptionalSourceMapGeneration(config, options) {
     if(options.isRunningTests) {
       // webpack configuration -- eval is the fast method of getting sourcemap info into the sources, but
       // we probably won't do sourcemaps at all as part of our production packaging since we're going to mangle
-      config.devtool = "eval";
+
+      // inline-source-map seems to do a better job for IE8 debugging though
+      config.devtool = "cheap-module-source-map";
     }
     else {
       config.devtool = "source-map";
@@ -91,7 +93,6 @@ function configureOptionalCodeLinters(config, options) {
 
     config.jscs = {
       maxErrors: 50,
-      verbose: true,
 
       // fail the build and emit as errors if we're making a production bundle and a violation occurs
       emitErrors: options.isProductionBundle,
@@ -192,7 +193,7 @@ function configureWebpackPlugins(config, options) {
 
 
   //
-  // UglifyJsPlugin - Minification and obfuscation for webpack.
+  // UglifyJsPlugin - Minification and obfuscation for webpack.  Injected constants and feature flag processing
   //
 
   if(options.isProductionBundle) {
@@ -271,6 +272,21 @@ function configureWebpackPlugins(config, options) {
         global_defs: computeDefinedConstants(options)
       },
 
+      beautify: {
+        indent_level: 2,
+        indent_start: 0,
+        quote_keys: false,
+        space_colon: true,
+        ascii_only: false,
+        inline_script: false,
+        width: 120,
+        max_line_len: 4000,
+        bracketize: true,
+        semicolons: true,
+        preamble: null,
+        quote_style: 2
+      },
+
       // don't drop any comments in developer mode
       comments: "all",
 
@@ -305,7 +321,11 @@ function configureWebpack(options) {
         loaders: [],
         postLoaders: []
       },
-      plugins: []
+      plugins: [],
+      stats: {
+        assets: false,
+        chunkModules: false
+      }
     };
 
   configureOptionalEntryPoints(config, options);

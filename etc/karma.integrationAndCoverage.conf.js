@@ -54,14 +54,7 @@ module.exports = function(config, isProductionBundle, areBundlesSplit) {
 
     // list of files / patterns to load in the browser
     files: [
-      path.resolve(__dirname, "../node_modules/es5-shim/es5-shim.js"),
-      path.resolve(__dirname, "../node_modules/es5-shim/es5-sham.js"),
-      {pattern: path.resolve(__dirname, "../lib/bootstrap/testingMain.js"), included: true, served: true, nocache: true},
-
-      path.resolve(__dirname, "../lib/**/*.spec.js"),
-      path.resolve(__dirname, "../lib/**/*.comp.js"),
-      path.resolve(__dirname, "../lib/**/*.integration.js"),
-      path.resolve(__dirname, "../lib/**/*.system.js")
+      path.resolve(__dirname, "karma.integrationAndCoverage.files.js")
     ],
 
     // preprocess matching files before serving them to the browser
@@ -78,14 +71,11 @@ module.exports = function(config, isProductionBundle, areBundlesSplit) {
     })
   };
 
-  // this redundant preprocessor seems necessary to get the files item on line 59 (bootstrap/main.js) to be webpack'ed
-  configOverrides.preprocessors[path.resolve(__dirname, "../lib/bootstrap/testingMain.js")] = ["webpack", "coverage", "sourcemap"];
+  if(isProductionBundle) {
+    configOverrides.browsers = [ "Firefox" ];
+  }
 
-  configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/([a-zA-Z0-9_]+).js")] = ["webpack", "coverage", "sourcemap"];
-  configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/*.spec.js")] = ["webpack", "sourcemap"];
-  configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/*.comp.js")] = ["webpack", "sourcemap"];
-  configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/*.integration.js")] = ["webpack", "sourcemap"];
-  configOverrides.preprocessors[path.resolve(__dirname, "../lib/**/*.system.js")] = ["webpack", "sourcemap"];
+  configOverrides.preprocessors[path.resolve(__dirname, "karma.integrationAndCoverage.files.js")] = ["webpack"];
 
   return _.extend(baseKarmaConfig, configOverrides);
 };

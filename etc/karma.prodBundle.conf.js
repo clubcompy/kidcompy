@@ -45,7 +45,10 @@ module.exports = function(config) {
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {},
 
-    logLevel: config.LOG_ERROR
+    logLevel: config.LOG_ERROR,
+
+    // auto spawn and terminate Firefox
+    browsers: [ "Firefox" ]
   };
 
   return _.extend(baseKarmaConfig, configOverrides);

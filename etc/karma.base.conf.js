@@ -34,7 +34,7 @@ module.exports = function(config) {
     frameworks: ["mocha", "proclaim", "sinon", "quixote"],
 
     plugins: [
-      require("karma-webpack"),
+      require("karma-webpack-with-fast-source-maps"),
       require("karma-mocha"),
       require("karma-mocha-reporter"),
       require("karma-proclaim"),
@@ -66,16 +66,14 @@ module.exports = function(config) {
     client: {
       mocha: {
         reporter: "html",
-        ui: "bdd"
+        ui: "bdd",
+        timeout: 30000
       }
     },
 
     // list of files / patterns to load in the browser
     files: [
-      path.resolve(__dirname, "../node_modules/es5-shim/es5-shim.js"),
-      path.resolve(__dirname, "../node_modules/es5-shim/es5-sham.js"),
-      path.resolve(__dirname, "../lib/**/*.spec.js"),
-      path.resolve(__dirname, "../lib/**/*.comp.js")
+      path.resolve(__dirname, "karma.base.files.js")
     ],
 
     // list of files to exclude
@@ -105,29 +103,27 @@ module.exports = function(config) {
 
     // level of logging
     // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-    logLevel: config.LOG_INFO,
+    logLevel: config.LOG_WARN,
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ["Firefox"],
-
-    // user prefs for firefox, disables a popunder shown on first-time-run profiles
-    firefox: {
-      "datareporting.healthreport.service.firstRun": true,
-      "datareporting.healthreport.uploadEnabled": false,
-      "browser.rights.3.shown": true
-    },
+    browsers: [],
 
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: true,
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: false
+    singleRun: false,
+
+    // Limit browsers running karma tests concurrently to one at a time
+    concurrency: 1,
+
+    // limit time before a browser times out on activity
+    browserNoActivityTimeout: 30000
   };
 
-  commonSettings.preprocessors[path.resolve(__dirname, "../lib/**/*.spec.js")] = ["webpack", "sourcemap"];
-  commonSettings.preprocessors[path.resolve(__dirname, "../lib/**/*.comp.js")] = ["webpack", "sourcemap"];
+  commonSettings.preprocessors[path.resolve(__dirname, "karma.base.files.js")] = ["webpack"];
 
   return _.extend(config, commonSettings);
 };

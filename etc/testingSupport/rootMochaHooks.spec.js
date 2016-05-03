@@ -18,8 +18,6 @@
 
 "use strict";
 
-// var moment = require("../node_modules/moment/moment");
-
 require("./expect"); // loads the global namespace with 'expect' so that all tests have access to it
 
 /*

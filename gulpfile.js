@@ -106,18 +106,18 @@ gulp.task("build", function(done) {
 
 gulp.task("dev", function(done) {
   return runSequence(
-    [ "start-harness-content" ],
-    [ "start-harness-server" ],
-    [ "spawn-harness-browser", "unit-watcher" ],
+    [ "start-harness-content", "start-harness-server" ],
+    [ "spawn-harness-browser" ],
+    [ "spawn-karma-browser", "unit-watcher" ],
     done
   );
 });
 
 gulp.task("integration", function(done) {
   return runSequence(
-    [ "start-harness-content" ],
-    [ "start-harness-server" ],
-    [ "spawn-harness-browser", "integration-watcher" ],
+    [ "start-harness-content", "start-harness-server" ],
+    [ "spawn-harness-browser" ],
+    [ "spawn-karma-browser", "integration-watcher" ],
     done
   );
 });
@@ -450,14 +450,19 @@ gulp.task("kidcompy-testing-cc-config", function(done) {
       fileAndPath = /^(.*)\.js$/.exec(testFiles[i]);
       includeAll += "require('" + path.resolve(fileAndPath[1]) + "');\n";
     }
+    includeAll += "module.exports = 'includeAllTestsEntryPoint.js';\n";
 
-    var includeAllTestsFileName = './intermediate/includeAllTests.spec.js';
+    var includeAllTestsFileName = './intermediate/includeAllTestsEntryPoint.js';
     fs.writeFileSync(includeAllTestsFileName, includeAll);
+
+    // NOTE: if you're here trying to figure out why production builds are not working, take a look at the
+    // list of node_modules libraries below:  if there are ANY missing javascripts that we actually
+    // require() in the kidcompy module, then the build will fail.  You MUST list out every file as a glob
+    // that we depend on.
 
     resolveGlobs([includeAllTestsFileName,
       "./lib/kidcompy/**/*.js",
       "./lib/symbols/**/*.js",
-      "./node_modules/moment/moment.js",
       "./node_modules/lodash-compat/support.js",
       "./node_modules/lodash-compat/internal/isLength.js",
       "./node_modules/lodash-compat/internal/createBaseEach.js",
@@ -535,73 +540,80 @@ gulp.task("kidcompy-cc-config", function(done) {
 });
 
 gulp.task("production-bundle-tests", function(done) {
-  var karma = require("karma");
+  var karma = require("karma"),
+    karmaServer = new karma.Server({
+      configFile: __dirname + "/etc/karma.prodBundle.conf.js",
+      singleRun: true,
+      autoWatch: false
+    }, done);
 
-  karma.server.start({
-    configFile: __dirname + "/etc/karma.prodBundle.conf.js",
-    singleRun: true,
-    autoWatch: false
-  }, done);
+  karmaServer.start();
 });
 
 gulp.task("unit-watcher", [ "json-to-scss" ], function(done) {
-  var karma = require("karma");
+  var karma = require("karma"),
+    karmaServer = new karma.Server({
+      configFile: __dirname + "/etc/karma.unit.conf.js",
+      singleRun: false,
+      autoWatch: true
+    }, done);
 
-  karma.server.start({
-    configFile: __dirname + "/etc/karma.unit.conf.js",
-    singleRun: false,
-    autoWatch: true
-  }, done);
+  karmaServer.start();
 });
 
 gulp.task("unit-single", [ "json-to-scss" ], function(done) {
-  var karma = require("karma");
+  var karma = require("karma"),
+    karmaServer = new karma.Server({
+      configFile: __dirname + "/etc/karma.unit.conf.js",
+      singleRun: true,
+      autoWatch: false
+    }, done);
 
-  karma.server.start({
-    configFile: __dirname + "/etc/karma.unit.conf.js",
-    singleRun: true,
-    autoWatch: false
-  }, done);
+  karmaServer.start();
 });
 
 gulp.task("integration-watcher", [ "json-to-scss" ], function(done) {
-  var karma = require("karma");
+  var karma = require("karma"),
+    karmaServer = new karma.Server({
+      configFile: __dirname + "/etc/karma.integrationAndCoverage.conf.js",
+      singleRun: false,
+      autoWatch: true
+    }, done);
 
-  karma.server.start({
-    configFile: __dirname + "/etc/karma.integrationAndCoverage.conf.js",
-    singleRun: false,
-    autoWatch: true
-  }, done);
+  karmaServer.start();
 });
 
 gulp.task("integration-single", [ "json-to-scss" ], function(done) {
-  var karma = require("karma");
+  var karma = require("karma"),
+    karmaServer = new karma.Server({
+      configFile: __dirname + "/etc/karma.integrationAndCoverage.conf.js",
+      singleRun: true,
+      autoWatch: false
+    }, done);
 
-  karma.server.start({
-    configFile: __dirname + "/etc/karma.integrationAndCoverage.conf.js",
-    singleRun: true,
-    autoWatch: false
-  }, done);
+  karmaServer.start();
 });
 
 gulp.task("production-mode-integration-single", [ "json-to-scss" ], function(done) {
-  var karma = require("karma");
+  var karma = require("karma"),
+    karmaServer = new karma.Server({
+      configFile: __dirname + "/etc/karma.prodIntegrationAndCoverage.conf.js",
+      singleRun: true,
+      autoWatch: false
+    }, done);
 
-  karma.server.start({
-    configFile: __dirname + "/etc/karma.prodIntegrationAndCoverage.conf.js",
-    singleRun: true,
-    autoWatch: false
-  }, done);
+  karmaServer.start();
 });
 
 gulp.task("production-mode-integration-watcher", [ "json-to-scss" ], function(done) {
-  var karma = require("karma");
+  var karma = require("karma"),
+    karmaServer = new karma.Server({
+      configFile: __dirname + "/etc/karma.prodIntegrationAndCoverage.conf.js",
+      singleRun: false,
+      autoWatch: true
+    }, done);
 
-  karma.server.start({
-    configFile: __dirname + "/etc/karma.prodIntegrationAndCoverage.conf.js",
-    singleRun: false,
-    autoWatch: true
-  }, done);
+  karmaServer.start();
 });
 
 gulp.task("start-harness-content", function() {
@@ -745,6 +757,31 @@ gulp.task("spawn-harness-browser", function() {
   var opn = require("opn");
 
   opn("http://localhost:8080/index.html", { app: [ "firefox", "--private-window" ]});
+});
+
+gulp.task("spawn-karma-browser", function(done) {
+  var interval = setInterval(function() {
+    var net = require("net");
+    try {
+      var client = new net.Socket();
+
+      client.on("error", function() {
+        console.log("Waiting for karma to start ...");
+      });
+
+      client.connect(9876, "127.0.0.1",
+        function() { //'connect' listener
+          clearTimeout(interval);
+          client.end();
+
+          var opn = require("opn");
+          opn("http://localhost:9876/", {app: ["firefox", "--private-window"]});
+
+          done();
+        });
+    }
+    catch(e) {}
+  }, 1000);
 });
 
 /**

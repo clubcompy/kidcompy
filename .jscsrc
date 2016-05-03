@@ -6,8 +6,6 @@
     ".js"
   ],
 
-  "esnext": true,
-  "esprimaOptions": {},
   "errorFilter": null,
 
   "disallowAnonymousFunctions": null,

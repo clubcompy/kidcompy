@@ -10,6 +10,11 @@ var __karmaWebpackManifest__ = [];
 // current directory and all subdirectories
 var testsContext = require.context("../lib", true, /(.spec|.comp)$/);
 
+// keep track if this is the first run of karma in this browser session, lets us trigger a full test run on refresh
+if(typeof window.top.firstRun === "undefined") {
+  window.top.firstRun = true;
+}
+
 function inManifest(path) {
   return __karmaWebpackManifest__.indexOf(path) >= 0;
 }
@@ -17,8 +22,10 @@ function inManifest(path) {
 var runnable = testsContext.keys().filter(inManifest);
 
 // Run all tests if we didn't find any changes
-if (!runnable.length) {
+if (!runnable.length || window.top.firstRun) {
   runnable = testsContext.keys();
 }
 
 runnable.forEach(testsContext);
+
+window.top.firstRun = false;

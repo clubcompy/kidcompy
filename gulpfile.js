@@ -771,8 +771,11 @@ gulp.task("spawn-karma-browser", function(done) {
 
       client.connect(9876, "127.0.0.1",
         function() { //'connect' listener
-          clearTimeout(interval);
+          clearInterval(interval);
           client.end();
+
+          console.log("Opening firefox for karma ... (if a browser window does not open " +
+            "automatically, open a new browser window to http://localhost:9876/)");
 
           var opn = require("opn");
           opn("http://localhost:9876/", {app: ["firefox", "--private-window"]});

@@ -638,7 +638,7 @@ gulp.task("start-production-harness-content", function() {
   // Serve up harnessContent folder
   var URI = require("urijs"),
     serveStatic = require("serve-static"),
-    serveHarnessContent = serveStatic("./harnessContent", { index: [ "index.html", "index.htm" ]}),
+    serveHarnessContent = serveStatic("./harnessContent", {index: ["index.html", "index.htm"]}),
     serveHarnessCode = serveStatic("./dist"),
     serveFirebugLite = serveStatic("./etc"),
     firebugLiteContentFilePath,
@@ -651,7 +651,7 @@ gulp.task("start-production-harness-content", function() {
       done = finalHandler(req, res);
 
     // redirect harness.js to the bootstrap.js file
-    if(requestUrl.filename() === "harness.js") {
+    if (requestUrl.filename() === "harness.js") {
       res.writeHead(301, {
         "location": requestUrl.directory() + "/bootstrap.js"
       });
@@ -692,6 +692,10 @@ gulp.task("start-harness-server", [ "json-to-scss" ], function(callback) {
     webpack = require("webpack"),
     configureWebpack = require("./etc/configureWebpack"),
     WebpackDevServer = require("webpack-dev-server");
+
+  if(!fs.existsSync("intermediate")) {
+    fs.mkdirSync("intermediate");
+  }
 
   server = new WebpackDevServer(
     webpack(
@@ -753,10 +757,19 @@ gulp.task("start-harness-server", [ "json-to-scss" ], function(callback) {
   });
 });
 
-gulp.task("spawn-harness-browser", function() {
-  var opn = require("opn");
+function openPrivateFirefoxTab(url) {
+  var opn = require("opn"),
+    firefoxExecutable = "firefox";
 
-  opn("http://localhost:8080/index.html", { app: [ "firefox", "--private-window" ]});
+  if(!_.isEmpty(process.env.FIREFOX_BIN)) {
+    firefoxExecutable = process.env.FIREFOX_BIN;
+  }
+
+  return opn(url, { wait: false, app: [ firefoxExecutable, "--private-window" ]});
+}
+
+gulp.task("spawn-harness-browser", function() {
+  openPrivateFirefoxTab("http://localhost:8080/index.html");
 });
 
 gulp.task("spawn-karma-browser", function(done) {
@@ -774,11 +787,10 @@ gulp.task("spawn-karma-browser", function(done) {
           clearInterval(interval);
           client.end();
 
-          console.log("Opening firefox for karma ... (if a browser window does not open " +
+          console.log("Opening firefox for karma ... (if a browser tab does not open " +
             "automatically, open a new browser window to http://localhost:9876/)");
 
-          var opn = require("opn");
-          opn("http://localhost:9876/", {app: ["firefox", "--private-window"]});
+          openPrivateFirefoxTab("http://localhost:9876/");
 
           done();
         });

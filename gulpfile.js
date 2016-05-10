@@ -448,7 +448,7 @@ gulp.task("kidcompy-testing-cc-config", function(done) {
 
     for(i = 0, ii = testFiles.length; i < ii; i++) {
       fileAndPath = /^(.*)\.js$/.exec(testFiles[i]);
-      includeAll += "require('" + path.resolve(fileAndPath[1]) + "');\n";
+      includeAll += "require('" + path.resolve(fileAndPath[1]).replace(/\\/g, "/") + "');\n";
     }
     includeAll += "module.exports = 'includeAllTestsEntryPoint.js';\n";
 
@@ -765,7 +765,7 @@ function openPrivateFirefoxTab(url) {
     firefoxExecutable = process.env.FIREFOX_BIN;
   }
 
-  return opn(url, { wait: false, app: [ firefoxExecutable, "--private-window" ]});
+  return opn(url, { wait: true, app: [ firefoxExecutable, "-private-window" ]});
 }
 
 gulp.task("spawn-harness-browser", function() {

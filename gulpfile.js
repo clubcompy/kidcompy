@@ -752,9 +752,7 @@ gulp.task("start-harness-server", [ "json-to-scss" ], function(callback) {
     }
   );
 
-  server.listen(8080, function() {
-    callback();
-  });
+  server.listen(8080, callback);
 });
 
 function openPrivateFirefoxTab(url) {
@@ -769,7 +767,7 @@ function openPrivateFirefoxTab(url) {
 }
 
 gulp.task("spawn-harness-browser", function() {
-  openPrivateFirefoxTab("http://localhost:8080/index.html");
+  openPrivateFirefoxTab("http://127.0.0.1:8080/index.html");
 });
 
 gulp.task("spawn-karma-browser", function(done) {
@@ -788,9 +786,9 @@ gulp.task("spawn-karma-browser", function(done) {
           client.end();
 
           console.log("Opening firefox for karma ... (if a browser tab does not open " +
-            "automatically, open a new browser window to http://localhost:9876/)");
+            "automatically, open a new browser window to http://127.0.0.1:9876/)");
 
-          openPrivateFirefoxTab("http://localhost:9876/");
+          openPrivateFirefoxTab("http://127.0.0.1:9876/");
 
           done();
         });

@@ -771,13 +771,17 @@ gulp.task("spawn-harness-browser", function() {
 });
 
 gulp.task("spawn-karma-browser", function(done) {
+  var waitCount = 0;
   var interval = setInterval(function() {
     var net = require("net");
     try {
       var client = new net.Socket();
 
       client.on("error", function() {
-        console.log("Waiting for karma to start ...");
+        if(waitCount % 5 === 0) {
+          console.log("Waiting for karma to start ...");
+        }
+        waitCount++;
       });
 
       client.connect(9876, "127.0.0.1",
@@ -794,7 +798,7 @@ gulp.task("spawn-karma-browser", function(done) {
         });
     }
     catch(e) {}
-  }, 1000);
+  }, 500);
 });
 
 /**

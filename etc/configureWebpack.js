@@ -234,7 +234,7 @@ function configureWebpackPlugins(config, options) {
       },
 
       // mangle for great justice
-      mangle: true
+      mangle: false
     }));
   }
   else {

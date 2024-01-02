@@ -1,3 +1,7 @@
+# DISCONTINUED
+
+This repo represents an aborted attempt to rewrite ClubCompy.  This does NOT represent the code running today on ClubCompy.com
+
 kidcompy
 ========
 
